@@ -1,0 +1,94 @@
+{
+  "id": "ep01-childhood-diarrhea",
+  "title": "اسهال در کودکان",
+  "subtitle": "مشاوره‌ی تغذیه و علائم هشدار",
+  "language": "fa",
+  "location": "visit-room",
+  "characters": ["doctor", "mother", "child"],
+  "lines": [
+    {
+      "id": "L01",
+      "speaker": "doctor",
+      "display": "سلام! خوش اومدین.",
+      "tts": "سَلام! خوش آمدید.",
+      "camera": "wide-door",
+      "action": "Doctor waves as the mother and child enter and walk to the chairs."
+    },
+    {
+      "id": "L02",
+      "speaker": "mother",
+      "display": "سلام. پسرم اسهال شده؛ چه غذاهایی برایش بهتر است؟",
+      "tts": "سَلام. پِسَرَم اِسْهال شُده اَست؛ چه غَذاهایی بَرایَش بِهتَر اَست؟",
+      "camera": "over-doctor",
+      "action": "Mother sits on the chair, child stands beside her; she gestures toward the child."
+    },
+    {
+      "id": "L03",
+      "speaker": "doctor",
+      "display": "بر طبق آخرین مقالات، استفاده از پوره‌ی سیب‌زمینی، ماست پروبیوتیک، کته‌ماست و مایعات به میزان کافی — حتی اگر ORS باشد خیلی بهتر است — می‌تواند روند بهبودی را سریع‌تر کند.",
+      "tts": "بَر طِبقِ آخَرین مَقالات، اِستِفادِه اَز پورِه‌یِ سِیب‌زَمینی، ماستِ پِروبیوتیک، کَته‌ماست و مایِعات بِه مِقدارِ کافی؛ حَتّی اَگَر اُ آر اِس باشَد، خیلی بِهتَر اَست؛ می‌تَوانَد رَوَندِ بِهبودی را سِریع‌تَر کُنَد.",
+      "camera": "medium-doctor",
+      "action": "A tray rises beside the doctor; food props pop in one by one: mashed potato, probiotic yogurt, kate-mast, ORS glass."
+    },
+    {
+      "id": "L04",
+      "speaker": "doctor",
+      "display": "در اسهال کودکان باید خیلی حواستان به کم‌آب شدن بدن کودک باشد.",
+      "tts": "دَر اِسْهالِ کودَکان باید خیلی حَواسِتان بِه کَم‌آب شُدَنِ بَدَنِ کودَک باشَد.",
+      "camera": "close-doctor",
+      "action": "Water glass and warning sign pop on the desk."
+    },
+    {
+      "id": "L05",
+      "speaker": "doctor",
+      "display": "و اگر تعداد اسهال‌ها شدت گرفت، باید به پزشک مراجعه کنید.",
+      "tts": "و اَگَر تِعدادِ اِسْهال‌ها شِدَّت گِرِفت، باید بِه پِزِشک مُراجَعِه کُنید.",
+      "camera": "medium-doctor-2",
+      "action": "Doctor raises his hand to emphasize."
+    },
+    {
+      "id": "L06",
+      "speaker": "mother",
+      "display": "خب... قلبش داره تند تند میزنه.",
+      "tts": "خُب... قَلَبَش دارَد تُند تُند می‌زَنَد.",
+      "camera": "child",
+      "action": "A voxel heart appears above the child, pulsing fast; worried mother."
+    },
+    {
+      "id": "L07",
+      "speaker": "doctor",
+      "display": "ادرار می‌کنه؟",
+      "tts": "اِدرار می‌کُنه؟",
+      "camera": "close-doctor",
+      "action": "Close-up on the doctor."
+    },
+    {
+      "id": "L08",
+      "speaker": "mother",
+      "display": "بله، اما کمی کم شده است.",
+      "tts": "بَله، اَمّا کَمی کَم شُدِه اَست.",
+      "camera": "over-doctor-2",
+      "action": "Mother nods."
+    },
+    {
+      "id": "L09",
+      "speaker": "doctor",
+      "display": "پس مواردی که گفتم رو با دقت اجرا کن، و علائم کم‌آبی بدن رو حتماً چک کن.",
+      "tts": "پَس مَوارِدی را کِه گُفتَم، با دِقَّت اِجرا کُن؛ و عَلائِمِ کَم‌آبیِ بَدَن را حَتماً چِک کُن.",
+      "camera": "wide-final",
+      "action": "Doctor nods; wide closing shot."
+    }
+  ],
+  "endCard": {
+    "title": "علائم کم‌آبی بدن در کودکان",
+    "items": [
+      "تشنگی شدید",
+      "کاهش تعداد ادرار",
+      "بی‌حالی و خواب‌آلودگی",
+      "گودی چشم",
+      "خشکی دهان و زبان",
+      "بی‌اشتهایی"
+    ],
+    "note": "در صورت مشاهده‌ی این علائم یا شدت گرفتن اسهال، حتماً به پزشک مراجعه کنید."
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "id": "child",
+  "label": "کودک",
+  "scale": 0.62,
+  "phase": 2.1,
+  "parts": {
+    "head": [8, 8, 8],
+    "torso": [8, 12, 4],
+    "arm": [4, 12, 4],
+    "leg": [4, 12, 4]
+  },
+  "colors": {
+    "skin": "#f2c29b",
+    "hair": "#2f2f2f",
+    "coat": null,
+    "shirt": "#e74c3c",
+    "pants": "#34495e",
+    "shoes": "#222222",
+    "eye": "#2b1d16",
+    "mouth": "#a9714b",
+    "scarf": null
+  },
+  "features": {
+    "hairStyle": "short",
+    "glasses": false,
+    "stethoscope": false,
+    "coat": false,
+    "longCoat": false,
+    "hijab": false,
+    "cheeks": true
+  }
+}

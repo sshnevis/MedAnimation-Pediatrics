@@ -1,0 +1,18 @@
+{
+  "name": "medical-voxel-animation",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Voxel-style 3D medical explainer videos (HTML5 + GSAP + Three.js), rendered to MP4.",
+  "scripts": {
+    "serve": "node tools/serve.js",
+    "timing": "node tools/compute-timing.js",
+    "subs": "node tools/build-subtitles.js",
+    "voice:elevenlabs": "node tools/generate-voice-elevenlabs.js",
+    "voice:edge": "python tools/generate-voice-edge.py",
+    "render": "node tools/render.js",
+    "assemble": "node tools/assemble.js"
+  },
+  "devDependencies": {
+    "puppeteer": "^23.0.0"
+  }
+}

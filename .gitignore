@@ -1,0 +1,21 @@
+# Dependencies (reinstallable via npm install)
+node_modules/
+
+# Render outputs (regenerable via tools/render.js)
+render/
+
+# Generated audio (regenerable via generate-voice-* tools)
+audio/
+
+# Generated subtitle/timing artifacts (regenerable via compute-timing.js / build-subtitles.js)
+subtitles.srt
+timing.json
+
+# Secrets
+api.txt
+*.key
+.env
+
+# OS / editor noise
+Thumbs.db
+.DS_Store

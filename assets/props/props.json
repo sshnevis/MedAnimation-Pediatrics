@@ -1,0 +1,14 @@
+{
+  "id": "explainer-props",
+  "label": "اجسام توضیحی",
+  "tray": { "color": "#a1887f", "size": [22, 1.4, 10] },
+  "foods": [
+    { "id": "potato",  "label": "پوره سیب‌زمینی", "colors": { "bowl": "#eceff1", "food": "#f3d36b" } },
+    { "id": "yogurt",  "label": "ماست پروبیوتیک", "colors": { "cup": "#fafafa", "stripe": "#e53935" } },
+    { "id": "katmast", "label": "کته‌ماست",       "colors": { "plate": "#ffffff", "rice": "#f6f1e3", "yogurt": "#fdfdfd" } },
+    { "id": "ors",     "label": "محلول ORS",       "colors": { "glass": "#cfe9f7", "liquid": "#7fc9ec", "sachet": "#ff8a65" } }
+  ],
+  "heart": { "color": "#e53935" },
+  "warning": { "sign": "#ffd54f", "mark": "#d84315" },
+  "water": { "glass": "#cfe9f7", "liquid": "#7fc9ec" }
+}

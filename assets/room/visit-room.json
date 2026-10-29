@@ -1,0 +1,44 @@
+{
+  "id": "visit-room",
+  "label": "اتاق ویزیت",
+  "size": [110, 90],
+  "wallHeight": 36,
+  "palette": {
+    "floorA": "#cfd8dc",
+    "floorB": "#b0bec5",
+    "wall": "#e9eff1",
+    "wallTrim": "#c3ced2",
+    "accent": "#4db6ac",
+    "wood": "#8d6e63",
+    "woodDark": "#6d4c41",
+    "metal": "#90a4ae",
+    "white": "#fafafa"
+  },
+  "door": { "x": 8, "width": 14, "height": 28, "color": "#795548" },
+  "window": { "x": -22, "y": 16, "width": 18, "height": 13 },
+  "furniture": [
+    { "type": "desk",    "pos": [-30, -16], "rotY": 0.1,  "size": [20, 9, 12] },
+    { "type": "chair",   "pos": [-30, -26], "rotY": 0.1 },
+    { "type": "chair",   "pos": [0, 14],    "rotY": -2.55 },
+    { "type": "examBed", "pos": [38, -10],  "rotY": 0,    "size": [26, 9, 14] },
+    { "type": "cabinet", "pos": [-44, -30], "rotY": 0,    "size": [11, 20, 7] },
+    { "type": "rug",     "pos": [8, 12],    "size": [36, 24] },
+    { "type": "clock",   "pos": [-4, 23] },
+    { "type": "plant",   "pos": [26, -34] },
+    { "type": "poster",  "pos": [22, 15], "text": "ORS" }
+  ],
+  "blocking": {
+    "_comment": "Marks are [x, z]. +X=right (exam bed), -X=left (desk), -Z=back wall/door, +Z=front (wide camera).",
+    "doctorStand":   [-14, -8],
+    "doctorFace":    [8, 14],
+    "motherStart":   [8, -52],
+    "childStart":    [5, -50],
+    "motherSit":     [0, 14],
+    "childStand":    [18, 16],
+    "familyFace":    [-14, -8],
+    "tray":          [-4, 2],
+    "water":         [-8, -2],
+    "warn":          [-2, 2],
+    "heart":         [18, 16]
+  }
+}

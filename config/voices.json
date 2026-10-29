@@ -1,0 +1,29 @@
+{
+  "elevenlabs": {
+    "model_id": "eleven_v3",
+    "output_format": "mp3_44100_128",
+    "default_settings": { "stability": 0.5, "similarity_boost": 0.75, "style": 0.0, "use_speaker_boost": true },
+    "voices": {
+      "doctor": {
+        "voice_id": "JBFqnCBsd6RMkjVDRZzb",
+        "label": "George — warm mature male (consultation)",
+        "settings": { "stability": 0.55, "similarity_boost": 0.75 }
+      },
+      "mother": {
+        "voice_id": "EXAVITQu4vr4xnSDxMaL",
+        "label": "Sarah — soft adult female",
+        "settings": { "stability": 0.5, "similarity_boost": 0.8 }
+      },
+      "child": {
+        "voice_id": "cgSgspJ2msm6clMCkdW9",
+        "label": "Jessica — younger playful (child lines via mother in ep01; kept for reuse)",
+        "settings": { "stability": 0.4, "similarity_boost": 0.7 }
+      }
+    }
+  },
+  "edge": {
+    "doctor": { "voice": "fa-IR-FaridNeural", "rate": "+0%", "pitch": "+0Hz" },
+    "mother": { "voice": "fa-IR-DilaraNeural", "rate": "+0%", "pitch": "+0Hz" },
+    "child":  { "voice": "fa-IR-DilaraNeural", "rate": "-8%", "pitch": "+40Hz" }
+  }
+}

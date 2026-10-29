@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>اسهال در کودکان — انیمیشن وکسل</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div id="stage">
+  <canvas id="scene"></canvas>
+
+  <div id="subtitleBox">
+    <div id="speakerTag"></div>
+    <div id="subtitle"></div>
+  </div>
+
+  <div id="endCard">
+    <div class="endCard-inner">
+      <h2 id="endTitle"></h2>
+      <ul id="endItems"></ul>
+      <p id="endNote"></p>
+    </div>
+  </div>
+
+  <div id="hud">
+    <button id="btnPlay" title="پخش / توقف">⏸</button>
+    <button id="btnRestart" title="از ابتدا">↺</button>
+    <span id="timeLabel">0.0s</span>
+    <span id="audioState"></span>
+  </div>
+
+  <div id="startOverlay">
+    <div class="card">
+      <h1 id="ovTitle">اسهال در کودکان</h1>
+      <p id="ovSub">مشاوره‌ی تغذیه و علائم هشدار — انیمیشن وکسل</p>
+      <button id="btnStart">▶ پخش</button>
+      <p class="hint" id="audioHint"></p>
+      <p class="hint">Space = پخش/توقف &nbsp;·&nbsp; ← → = جابه‌جایی</p>
+    </div>
+  </div>
+
+  <div id="fade"></div>
+</div>
+
+<script src="lib/gsap.min.js"></script>
+<script type="importmap">
+{ "imports": { "three": "./lib/three.module.js", "three/addons/": "./lib/addons/" } }
+</script>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

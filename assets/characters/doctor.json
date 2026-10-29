@@ -1,0 +1,32 @@
+{
+  "id": "doctor",
+  "label": "دکتر",
+  "scale": 1.0,
+  "phase": 0.0,
+  "parts": {
+    "head": [8, 8, 8],
+    "torso": [8, 12, 4],
+    "arm": [4, 12, 4],
+    "leg": [4, 12, 4]
+  },
+  "colors": {
+    "skin": "#e8b184",
+    "hair": "#3a3f45",
+    "coat": "#f5f6f7",
+    "shirt": "#2fa39a",
+    "pants": "#37474f",
+    "shoes": "#263238",
+    "eye": "#263238",
+    "mouth": "#a9714b",
+    "scarf": null
+  },
+  "features": {
+    "hairStyle": "short",
+    "glasses": true,
+    "stethoscope": true,
+    "coat": true,
+    "longCoat": false,
+    "hijab": false,
+    "cheeks": false
+  }
+}
