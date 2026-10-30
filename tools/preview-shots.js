@@ -1,11 +1,14 @@
 // Captures key storyboard frames at 1080x1920 for framing review.
-// Usage: node tools/preview-shots.js
+// The shot list is derived from the episode's scenario.json staging.plan —
+// one frame per dialogue line plus opening/walk-in/end-card beats.
+// Usage: node tools/preview-shots.js [--ep <episode-id>]
 const path = require('path');
 const fs = require('fs');
 const { startServer } = require('./serve');
+const { resolveEp } = require('./ep');
 
-const ROOT = path.join(__dirname, '..');
-const OUT = path.join(ROOT, 'render', 'preview');
+const { id: EP, ROOT, EP_DIR } = resolveEp();
+const OUT = path.join(EP_DIR, 'render', 'preview');
 
 (async () => {
   let puppeteer;
@@ -21,26 +24,32 @@ const OUT = path.join(ROOT, 'render', 'preview');
   });
   const page = await browser.newPage();
   await page.setViewport({ width: 1080, height: 1920, deviceScaleFactor: 1 });
-  await page.goto('http://127.0.0.1:' + port + '/src/index.html?render=1', { waitUntil: 'networkidle0' });
+  await page.goto('http://127.0.0.1:' + port + '/src/index.html?ep=' + EP + '&render=1', { waitUntil: 'networkidle0' });
   await page.waitForFunction('window.__ready === true', { timeout: 60000 });
 
-  const timing = JSON.parse(fs.readFileSync(path.join(ROOT, 'timing.json'), 'utf8'));
+  const timing = JSON.parse(fs.readFileSync(path.join(EP_DIR, 'timing.json'), 'utf8'));
+  const scenario = JSON.parse(fs.readFileSync(path.join(EP_DIR, 'scenario.json'), 'utf8'));
   const byId = Object.fromEntries(timing.lines.map((l) => [l.id, l]));
+  const plan = (scenario.staging && scenario.staging.plan) || [];
+  // The actual opening line (timing.lines[0]) — the staging.plan may skip it
+  // when its shot/effect is handled by the opening block.
+  const first = byId[timing.lines[0].id];
+
   // Monotonic times so seek callbacks apply cleanly forward
   const shots = [
     { name: '00_open', t: 0.8 },
-    { name: '01_L01_greet', t: byId.L01.start + 0.4 },
-    { name: '02_walkin', t: Math.min(byId.L01.end - 0.2, 3.2) },
-    { name: '03_L02_mother', t: byId.L02.start + 0.8 },
-    { name: '04_L03_foods', t: byId.L03.start + byId.L03.duration * 0.55 },
-    { name: '05_L04_warn', t: byId.L04.start + byId.L04.duration * 0.55 },
-    { name: '06_L05_doctor', t: byId.L05.start + 0.6 },
-    { name: '07_L06_heart', t: byId.L06.start + 0.9 },
-    { name: '08_L07_close', t: byId.L07.start + 0.4 },
-    { name: '09_L08_mother', t: byId.L08.start + 0.5 },
-    { name: '10_L09_wide', t: byId.L09.start + 1.2 },
-    { name: '11_endcard', t: timing.total - 4.0 },
+    { name: '01_first_greet', t: first.start + 0.4 },
+    { name: '02_walkin', t: Math.min(first.end - 0.2, 3.2) },
   ];
+  plan.forEach((p, i) => {
+    const L = byId[p.id];
+    if (!L) return;
+    // effect lines peak mid-line; plain dialogue lines just after the start
+    const hasEffect = p.foods || p.warning || p.heart;
+    const t = L.start + (hasEffect ? L.duration * 0.55 : Math.min(0.8, L.duration * 0.35));
+    shots.push({ name: String(i + 3).padStart(2, '0') + '_' + p.id + '_' + p.shot, t });
+  });
+  shots.push({ name: String(shots.length).padStart(2, '0') + '_endcard', t: timing.total - 4.0 });
 
   for (const s of shots) {
     await page.evaluate((t) => window.__seek(t), s.t);
@@ -52,5 +61,5 @@ const OUT = path.join(ROOT, 'render', 'preview');
 
   await browser.close();
   server.close();
-  console.log('\nPreview shots in render/preview/');
+  console.log('\nPreview shots in episodes/' + EP + '/render/preview/');
 })().catch((e) => { console.error(e); process.exit(1); });

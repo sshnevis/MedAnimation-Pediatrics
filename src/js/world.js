@@ -676,6 +676,7 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   const offsets = [-15, -5, 5, 15];
   PR.foods.forEach((food, i) => {
     const fg = new THREE.Group();
+    fg.userData.foodId = food.id;
     const c = food.colors;
     switch (food.id) {
       case 'potato': {

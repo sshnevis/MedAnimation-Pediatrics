@@ -1,13 +1,13 @@
 // Per-line voice audio playback. In render mode everything is silent —
 // the audio track is mixed into the final video by tools/assemble.js.
 export class LineAudio {
-  constructor(timing, silent) {
+  constructor(timing, silent, baseUrl = '../audio/') {
     this.map = {};
     this.current = null;
     this.currentLine = null;
     this.silent = !!silent;
     this.anyFound = false;
-    for (const L of timing.lines) this.probe(L.id, `../audio/${L.id}.mp3`);
+    for (const L of timing.lines) this.probe(L.id, baseUrl + L.id + '.mp3');
   }
 
   async probe(id, url) {

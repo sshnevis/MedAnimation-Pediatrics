@@ -1,4 +1,4 @@
-// Named marks from assets/room/visit-room.json → blocking.
+// Named marks from library/room/<room>.json → blocking.
 // Keep all entry / sit / camera / prop positions driven from one place.
 
 export function marksFromRoom(roomDef) {
@@ -34,7 +34,7 @@ export function marksFromRoom(roomDef) {
  *   child   → camera on +Z in front of child (heart stacks above)
  *   wide    → far on +Z
  */
-export function buildShots(M) {
+export function buildShots(M, roomDef) {
   const D = M.doctorSit;
   const Mo = M.motherSit;
   const Ch = M.childSit;
@@ -88,4 +88,9 @@ export function buildShots(M) {
       dolly: 0,
     },
   };
+  // A room may define its own cameras in roomDef.shots ({ name: {pos,target,dolly} });
+  // custom entries override the derived defaults, so a new room only declares
+  // the shots its episode plan actually uses.
+  if (roomDef && roomDef.shots) Object.assign(shots, roomDef.shots);
+  return shots;
 }

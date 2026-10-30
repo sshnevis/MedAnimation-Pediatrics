@@ -1,5 +1,6 @@
 {
   "id": "doctor",
+  "subtitleColor": "rgba(21, 74, 138, 0.88)",
   "label": "دکتر",
   "description": "Schematic self-portrait of Dr. Sina: short black hair with volume on top, black goatee (connected mustache + chin beard), light warm skin, white coat over teal scrubs, ID badge and wristwatch.",
   "scale": 1.0,

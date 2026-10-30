@@ -1,14 +1,17 @@
-// Builds subtitles.srt from scenario.json + timing.json.
+// Builds episodes/<ep>/subtitles.srt from scenario.json + timing.json.
 // Long lines are split into cues of at most ~48 characters at word boundaries,
 // with cue durations proportional to character count.
+//
+// Usage:  node tools/build-subtitles.js [--ep <episode-id>]
 const fs = require('fs');
 const path = require('path');
+const { resolveEp } = require('./ep');
 
-const ROOT = path.join(__dirname, '..');
+const { ROOT, EP_DIR } = resolveEp();
 const MAX_CHARS = 48;
 
-const scenario = JSON.parse(fs.readFileSync(path.join(ROOT, 'scenario.json'), 'utf8'));
-const timing = JSON.parse(fs.readFileSync(path.join(ROOT, 'timing.json'), 'utf8'));
+const scenario = JSON.parse(fs.readFileSync(path.join(EP_DIR, 'scenario.json'), 'utf8'));
+const timing = JSON.parse(fs.readFileSync(path.join(EP_DIR, 'timing.json'), 'utf8'));
 
 function splitText(text) {
   const words = text.split(/\s+/);
@@ -50,5 +53,5 @@ for (const L of timing.lines) {
   }
 }
 
-fs.writeFileSync(path.join(ROOT, 'subtitles.srt'), out, 'utf8');
+fs.writeFileSync(path.join(EP_DIR, 'subtitles.srt'), out, 'utf8');
 console.log('subtitles.srt written (' + (index - 1) + ' cues)');

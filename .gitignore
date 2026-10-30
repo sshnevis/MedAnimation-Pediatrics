@@ -2,14 +2,14 @@
 node_modules/
 
 # Render outputs (regenerable via tools/render.js)
-render/
+episodes/*/render/
 
 # Generated audio (regenerable via generate-voice-* tools)
-audio/
+episodes/*/audio/
 
 # Generated subtitle/timing artifacts (regenerable via compute-timing.js / build-subtitles.js)
-subtitles.srt
-timing.json
+episodes/*/subtitles.srt
+episodes/*/timing.json
 
 # Secrets
 api.txt

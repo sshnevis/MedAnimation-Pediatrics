@@ -1,10 +1,11 @@
-# Builds render/hook-intro.png without a browser (Node 12 cannot run puppeteer).
-# Background: render/frames/f_00200.png, blurred; rounded lavender card on top
-# with Persian text (Vazirmatn, shaped via arabic_reshaper + python-bidi).
+# Builds episodes/<ep>/render/hook-intro.png without a browser (Node 12 cannot
+# run puppeteer). Background: the hooks.intro frame, blurred; rounded lavender
+# card on top with Persian text (Vazirmatn, shaped via arabic_reshaper + python-bidi).
 #
-# Usage:  python tools/make-hook-intro-card.py
+# Usage:  python tools/make-hook-intro-card.py [--ep <episode-id>]
 import json
 import os
+import sys
 
 from bidi.algorithm import get_display
 import arabic_reshaper
@@ -13,6 +14,18 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 W, H = 1080, 1920
+
+
+def episode_dir():
+    argv = sys.argv[1:]
+    if "--ep" in argv:
+        ep = argv[argv.index("--ep") + 1]
+    else:
+        ep = os.environ.get("EP", "ep01-childhood-diarrhea")
+    return os.path.join(ROOT, "episodes", ep)
+
+
+EP_DIR = episode_dir()
 
 # Convert Vazirmatn woff2 -> ttf once (PIL cannot read woff2).
 FONT_DIR = os.path.join(ROOT, 'src', 'lib', 'fonts')
@@ -23,7 +36,7 @@ if not os.path.exists(TTF_PATH):
     font.save(TTF_PATH)
     print('Converted Vazirmatn-Bold.woff2 -> Vazirmatn-Bold.ttf')
 
-with open(os.path.join(ROOT, 'scenario.json'), encoding='utf-8') as f:
+with open(os.path.join(EP_DIR, 'scenario.json'), encoding='utf-8') as f:
     hooks = json.load(f)['hooks']['intro']
 kicker = hooks.get('kicker', '')
 title = hooks.get('title', '')
@@ -31,8 +44,9 @@ title = hooks.get('title', '')
 def shape(text):
     return get_display(arabic_reshaper.reshape(text))
 
-# Background: shot 200, blurred (like the reference card).
-src = os.path.join(ROOT, 'render', 'frames', 'f_00200.png')
+# Background: the hooks.intro frame, blurred (like the reference card).
+intro_frame = hooks.get('frame', 200)
+src = os.path.join(EP_DIR, 'render', 'frames', 'f_%05d.png' % intro_frame)
 bg = Image.open(src).convert('RGB').resize((W, H), Image.LANCZOS)
 bg = bg.filter(ImageFilter.GaussianBlur(18))
 img = bg.copy()
@@ -78,6 +92,6 @@ for line in title_lines:
     draw.text(((W - tw) / 2, y), line, font=font_title, fill=(255, 255, 255))
     y += int(88 * 1.4)
 
-out = os.path.join(ROOT, 'render', 'hook-intro.png')
+out = os.path.join(EP_DIR, 'render', 'hook-intro.png')
 img.save(out)
-print('Wrote render/hook-intro.png')
+print('Wrote', os.path.relpath(out, ROOT))

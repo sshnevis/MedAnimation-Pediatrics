@@ -7,25 +7,26 @@
 // Subtitles are already baked into the captured frames (HTML overlay).
 //
 // Requires ffmpeg on PATH:  winget install Gyan.FFmpeg
-// Usage:  node tools/assemble.js [--fps 30]
+// Usage:  node tools/assemble.js [--fps 30] [--ep <episode-id>]
 const path = require('path');
 const fs = require('fs');
 const { execFileSync } = require('child_process');
+const { resolveEp } = require('./ep');
 
-const ROOT = path.join(__dirname, '..');
+const { id: EP, ROOT, EP_DIR } = resolveEp();
 let FPS = 30;
 const argv = process.argv.slice(2);
 const fi = argv.indexOf('--fps');
 if (fi !== -1 && argv[fi + 1]) FPS = Number(argv[fi + 1]);
 
-const timing = JSON.parse(fs.readFileSync(path.join(ROOT, 'timing.json'), 'utf8'));
-const scenario = JSON.parse(fs.readFileSync(path.join(ROOT, 'scenario.json'), 'utf8'));
-const framesDir = path.join(ROOT, 'render', 'frames');
-const mainFile = path.join(ROOT, 'render', 'main.mp4');
-const outFile = path.join(ROOT, 'render', 'final.mp4');
-const mixFile = path.join(ROOT, 'render', 'audio_mix.wav');
-const introPng = path.join(ROOT, 'render', 'hook-intro.png');
-const outroPng = path.join(ROOT, 'render', 'hook-outro.png');
+const timing = JSON.parse(fs.readFileSync(path.join(EP_DIR, 'timing.json'), 'utf8'));
+const scenario = JSON.parse(fs.readFileSync(path.join(EP_DIR, 'scenario.json'), 'utf8'));
+const framesDir = path.join(EP_DIR, 'render', 'frames');
+const mainFile = path.join(EP_DIR, 'render', 'main.mp4');
+const outFile = path.join(EP_DIR, 'render', 'final.mp4');
+const mixFile = path.join(EP_DIR, 'render', 'audio_mix.wav');
+const introPng = path.join(EP_DIR, 'render', 'hook-intro.png');
+const outroPng = path.join(EP_DIR, 'render', 'hook-outro.png');
 
 function ffmpeg(args, label) {
   console.log('>', label);
@@ -33,9 +34,9 @@ function ffmpeg(args, label) {
 }
 
 // ---- 1) audio mix ----
-const withAudio = timing.lines.filter((L) => fs.existsSync(path.join(ROOT, 'audio', L.id + '.mp3')));
+const withAudio = timing.lines.filter((L) => fs.existsSync(path.join(EP_DIR, 'audio', L.id + '.mp3')));
 if (withAudio.length === 0) {
-  console.error('No audio files found in audio/. Generate voices first (see README).');
+  console.error('No audio files found in episodes/' + EP + '/audio. Generate voices first (see README).');
   process.exit(1);
 }
 
@@ -43,7 +44,7 @@ const inputs = [];
 const filterParts = [];
 const mixLabels = [];
 withAudio.forEach((L, i) => {
-  inputs.push('-i', path.join(ROOT, 'audio', L.id + '.mp3'));
+  inputs.push('-i', path.join(EP_DIR, 'audio', L.id + '.mp3'));
   const delay = Math.round(L.start * 1000);
   filterParts.push('[' + i + ':a]adelay=' + delay + ':all=1[d' + i + ']');
   mixLabels.push('[d' + i + ']');
@@ -103,9 +104,9 @@ function encodeCard(png, dur, outMp4, label) {
   ], label);
 }
 
-const introMp4 = path.join(ROOT, 'render', 'hook-intro.mp4');
-const outroMp4 = path.join(ROOT, 'render', 'hook-outro.mp4');
-const concatList = path.join(ROOT, 'render', 'hooks-concat.txt');
+const introMp4 = path.join(EP_DIR, 'render', 'hook-intro.mp4');
+const outroMp4 = path.join(EP_DIR, 'render', 'hook-outro.mp4');
+const concatList = path.join(EP_DIR, 'render', 'hooks-concat.txt');
 
 encodeCard(introPng, introDur, introMp4, 'encoding hook-intro.mp4 (' + introDur + 's)');
 encodeCard(outroPng, outroDur, outroMp4, 'encoding hook-outro.mp4 (' + outroDur + 's)');

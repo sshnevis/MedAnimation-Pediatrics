@@ -9,6 +9,9 @@ import { marksFromRoom } from './blocking.js';
 const qs = new URLSearchParams(location.search);
 const RENDER_MODE = qs.get('render') === '1';
 const FPS = Number(qs.get('fps') || 30);
+// Active episode: episodes/<id>/ holds scenario.json, audio/, timing.json, render output.
+const EP = qs.get('ep') || 'ep01-childhood-diarrhea';
+const EP_URL = '../episodes/' + EP;
 
 // Output format: vertical 9:16 (Instagram/TikTok Reels). Change to 16/9 for landscape.
 const ASPECT = 9 / 16;
@@ -34,7 +37,7 @@ function localTiming(scenario) {
   const lines = scenario.lines.map((L) => {
     const dur = estimateDuration(L.tts);
     const row = { id: L.id, speaker: L.speaker, start: +t.toFixed(2), end: +(t + dur).toFixed(2), duration: dur, source: 'estimated' };
-    t += dur + GAP;
+    t += dur + GAP + (L.settleAfter || 0);
     return row;
   });
   return { fps: 30, total: +(t - GAP + 7.5).toFixed(2), lines };
@@ -59,15 +62,32 @@ function fitCanvas(renderer, camera) {
   camera.updateProjectionMatrix();
 }
 
+// Merge multiple library/props/<pack>.json packs into one propsDef.
+// Array-valued keys (foods, …) concatenate; object values shallow-merge.
+function mergeProps(packs) {
+  const out = {};
+  for (const pack of packs) {
+    for (const [k, v] of Object.entries(pack)) {
+      if (Array.isArray(v) && Array.isArray(out[k])) out[k] = out[k].concat(v);
+      else if (v && typeof v === 'object' && !Array.isArray(v) && out[k] && typeof out[k] === 'object' && !Array.isArray(out[k])) Object.assign(out[k], v);
+      else out[k] = v;
+    }
+  }
+  return out;
+}
+
 async function boot() {
-  const [scenario, doctorDef, motherDef, childDef, roomDef, propsDef] = await Promise.all([
-    loadJSON('../scenario.json'),
-    loadJSON('../assets/characters/doctor.json'),
-    loadJSON('../assets/characters/mother.json'),
-    loadJSON('../assets/characters/child.json'),
-    loadJSON('../assets/room/visit-room.json'),
-    loadJSON('../assets/props/props.json'),
+  const scenario = await loadJSON(EP_URL + '/scenario.json');
+  // Cast, room and prop packs are declared by the episode manifest, loaded
+  // from the shared library so every episode reuses the same definitions.
+  const [roomDef, ...charDefs] = await Promise.all([
+    loadJSON('../library/room/' + scenario.location + '.json'),
+    ...scenario.characters.map((id) => loadJSON('../library/characters/' + id + '.json')),
   ]);
+  const charById = Object.fromEntries(charDefs.map((d) => [d.id, d]));
+  const propPacks = await Promise.all(
+    (scenario.props || ['explainer-props']).map((id) => loadJSON('../library/props/' + id + '.json')));
+  const propsDef = mergeProps(propPacks);
   document.title = scenario.title + ' — انیمیشن وکسل';
   document.getElementById('ovTitle').textContent = scenario.title;
   document.getElementById('ovSub').textContent = scenario.subtitle + ' — انیمیشن وکسل';
@@ -125,7 +145,9 @@ async function boot() {
   // ---- world + characters ----
   const world = buildWorld(scene, roomDef, propsDef, marks);
   const rigs = {};
-  for (const [id, def] of [['doctor', doctorDef], ['mother', motherDef], ['child', childDef]]) {
+  for (const id of scenario.characters) {
+    const def = charById[id];
+    if (!def) throw new Error('scenario.characters references unknown library character: ' + id);
     const rig = { char: buildCharacter(def), anim: { talking: false, walking: false, walkStart: 0, sit: false, wave: null, nod: null } };
     rig.setFacing = (x, z) => {
       const p = rig.char.group.position;
@@ -135,18 +157,21 @@ async function boot() {
     scene.add(rig.char.group);
   }
 
-  // start: family outside the door, doctor seated behind his desk facing the chairs
-  rigs.doctor.char.group.position.set(marks.doctorSit.x, 0, marks.doctorSit.z);
-  rigs.doctor.setFacing(marks.doctorFace.x, marks.doctorFace.z);
-  rigs.doctor.anim.sit = true;
-  rigs.mother.char.group.position.set(marks.motherStart.x, 0, marks.motherStart.z);
-  rigs.child.char.group.position.set(marks.childStart.x, 0, marks.childStart.z);
+  // start positions from staging.initial (mark names from the room blocking)
+  for (const init of (scenario.staging && scenario.staging.initial) || []) {
+    const rig = rigs[init.char];
+    if (!rig) continue;
+    const m = marks[init.at];
+    if (m) rig.char.group.position.set(m.x, 0, m.z);
+    if (init.face && marks[init.face]) rig.setFacing(marks[init.face].x, marks[init.face].z);
+    if (init.sit) rig.anim.sit = true;
+  }
 
   // ---- timing (measured when audio exists, estimates otherwise) ----
-  const timing = (await loadJSON('../timing.json', false)) || localTiming(scenario);
+  const timing = (await loadJSON(EP_URL + '/timing.json', false)) || localTiming(scenario);
 
   // ---- audio ----
-  const audio = new LineAudio(timing, RENDER_MODE);
+  const audio = new LineAudio(timing, RENDER_MODE, EP_URL + '/audio/');
 
   // ---- end card content ----
   document.getElementById('endTitle').textContent = scenario.endCard.title;
@@ -159,16 +184,17 @@ async function boot() {
   document.getElementById('endNote').textContent = scenario.endCard.note;
 
   // ---- UI ----
-  // Subtitle box background color per speaker (doctor=blue, mother=gray,
-  // child=teal; any extra speaker gets the fallback via 'other')
-  const SPEAKER_KEYS = { 'دکتر': 'doctor', 'مادر': 'mother', 'کودک': 'child' };
+  // Subtitle box color comes from library/characters/<id>.json → subtitleColor
+  // (falling back to the CSS [data-speaker] rules when a character lacks one)
   const ui = {
-    showSubtitle(label, text) {
+    showSubtitle(speakerId, text) {
       const box = document.getElementById('subtitleBox');
+      const sub = document.getElementById('subtitle');
       if (!text) { box.classList.remove('on'); return; }
-      // Color the subtitle box by speaker instead of showing a name tag
-      box.dataset.speaker = SPEAKER_KEYS[label] || 'other';
-      document.getElementById('subtitle').textContent = text;
+      const def = charById[speakerId];
+      box.dataset.speaker = speakerId;
+      sub.style.background = def && def.subtitleColor ? def.subtitleColor : '';
+      sub.textContent = text;
       box.classList.add('on');
     },
     showEndCard(on) {
@@ -183,7 +209,7 @@ async function boot() {
 
   const cam = { pos: { px: 8, py: 36, pz: 145 }, target: { tx: 6, ty: 12, tz: -18 } };
   const tl = gsap.timeline({ paused: true });
-  buildTimeline({ tl, scenario, timing, rigs, world, cam, ui, audio, marks });
+  buildTimeline({ tl, scenario, timing, rigs, world, cam, ui, audio, marks, roomDef });
 
   function start() {
     overlay.style.display = 'none';

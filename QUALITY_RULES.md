@@ -58,7 +58,7 @@ Floor checkers, ground plane around the building, wall trim — these set the ov
 The outdoor ground plane (`#b9c6cb` → `#ccd5d8`) sits in the foreground of dollhouse
 shots; a dark band there darkens the whole frame.
 
-- Palette lives in `assets/room/*.json` — change JSON, not code.
+- Palette lives in `library/room/*.json` — change JSON, not code.
 - Every scenario gets its own room JSON with its own palette; copy the values from the
   reference image, don't approximate from memory.
 

@@ -4,14 +4,15 @@
 // Usage:
 //   1) Put your voice IDs in config/voices.json  (find them at https://elevenlabs.io -> Voices)
 //   2) set ELEVENLABS_API_KEY=...                (https://elevenlabs.io -> Profile)
-//   3) node tools/generate-voice-elevenlabs.js [--model eleven_flash_v2_5]
+//   3) node tools/generate-voice-elevenlabs.js [--model eleven_flash_v2_5] [--ep <episode-id>]
 //
 // The text spoken is each line's "tts" field (formal spelling with diacritics for correct pronunciation).
 // Afterwards run:  node tools/compute-timing.js  &&  node tools/build-subtitles.js
 const fs = require('fs');
 const path = require('path');
+const { resolveEp } = require('./ep');
 
-const ROOT = path.join(__dirname, '..');
+const { id: EP, ROOT, EP_DIR } = resolveEp();
 
 // --- tiny arg parsing ---
 let model = 'eleven_flash_v2_5';
@@ -25,11 +26,11 @@ if (!apiKey) {
   process.exit(1);
 }
 
-const scenario = JSON.parse(fs.readFileSync(path.join(ROOT, 'scenario.json'), 'utf8'));
+const scenario = JSON.parse(fs.readFileSync(path.join(EP_DIR, 'scenario.json'), 'utf8'));
 const cfg = JSON.parse(fs.readFileSync(path.join(ROOT, 'config', 'voices.json'), 'utf8')).elevenlabs;
 if (argv.indexOf('--model') === -1 && cfg.model_id) model = cfg.model_id;
 
-const outDir = path.join(ROOT, 'audio');
+const outDir = path.join(EP_DIR, 'audio');
 if (!fs.existsSync(outDir)) fs.mkdirSync(outDir);
 
 async function synthesize(line) {

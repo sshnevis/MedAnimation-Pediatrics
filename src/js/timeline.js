@@ -1,5 +1,7 @@
 // Storyboard + master GSAP timeline.
-// Blocking marks + SHOTS come from assets/room/visit-room.json via blocking.js.
+// All episode choreography (shots per line, walk-in, effects, ending) comes
+// from the episode's scenario.json → "staging" section. Blocking marks +
+// shots come from library/room/<location>.json via blocking.js.
 
 import { buildShots } from './blocking.js';
 
@@ -33,9 +35,8 @@ function talkWindow(tl, rigs, L) {
 }
 
 function subtitle(tl, ui, scenario, L) {
-  const speakerLabel = scenario.lines.find((x) => x.id === L.id).speaker;
-  const label = { doctor: 'دکتر', mother: 'مادر', child: 'کودک' }[speakerLabel] || '';
-  tl.call(() => ui.showSubtitle(label, scenario.lines.find((x) => x.id === L.id).display), null, L.start - 0.1);
+  const line = scenario.lines.find((x) => x.id === L.id);
+  tl.call(() => ui.showSubtitle(line.speaker, line.display), null, L.start - 0.1);
   tl.call(() => ui.showSubtitle(null), null, L.end + 0.05);
 }
 
@@ -51,60 +52,52 @@ function pop(tl, obj, at, size = 1) {
 }
 
 export function buildTimeline(ctx) {
-  const { tl, scenario, timing, rigs, world, cam, ui, audio, marks } = ctx;
-  const shots = buildShots(marks);
+  const { tl, scenario, timing, rigs, world, cam, ui, audio, marks, roomDef } = ctx;
+  const shots = buildShots(marks, roomDef);
   const S = (id) => timing.lines.find((l) => l.id === id);
-
-  // Walk durations tuned to the v3 room path (~75 units door→chair);
-  // must finish before L02.start (timing.json ≈ 5.81)
-  const WALK_MOTHER = 4.4;
-  const WALK_CHILD = 4.3;
-  const WALK_START_M = 1.0;
-  const WALK_START_C = 1.15;
-  const ARRIVE_M = WALK_START_M + WALK_MOTHER; // 5.4
-  const ARRIVE_C = WALK_START_C + WALK_CHILD;  // 5.45
+  const staging = scenario.staging || {};
+  const plan = staging.plan || [];
+  const faceAfterWalk = staging.faceAfterWalk ? marks[staging.faceAfterWalk] : null;
+  const walkIns = staging.walkIn || [];
+  const lastArrive = walkIns.reduce((a, w) => Math.max(a, w.start + w.dur), 0);
 
   tl.fromTo('#fade', { opacity: 1 }, { opacity: 0, duration: 0.7, ease: 'power1.out', overwrite: 'auto' }, 0);
 
-  // --- opening: door opens → family walks in → doctor greets ---
-  const L1 = S('L01');
-  tl.to(world.doorPivot.rotation, { y: -1.85, duration: 1.0, ease: 'power2.out', overwrite: 'auto' }, 0.12);
-  setShot(tl, cam, shots, 'wide-door', 0, Math.max(L1.end, ARRIVE_M + 0.4));
-  let currentShot = 'wide-door';
+  // --- opening: door opens → family walks in → first line ---
+  // The opening shot holds from 0 until every walk-in has arrived (+0.4 beat).
+  const firstPlan = plan[0];
+  const first = firstPlan ? S(firstPlan.id) : S(timing.lines[0].id);
+  const openingShot = firstPlan ? firstPlan.shot : 'wide-door';
+  if (staging.openDoor && world.doorPivot) {
+    tl.to(world.doorPivot.rotation, {
+      y: staging.openDoor.angle != null ? staging.openDoor.angle : -1.85,
+      duration: staging.openDoor.dur || 1.0,
+      ease: 'power2.out', overwrite: 'auto',
+    }, staging.openDoor.at || 0.12);
+  }
+  setShot(tl, cam, shots, openingShot, 0, Math.max(first.end, lastArrive + 0.4));
+  let currentShot = openingShot;
 
-  rigWalk(tl, rigs.mother, marks.motherSit, WALK_START_M, WALK_MOTHER);
-  rigWalk(tl, rigs.child, marks.childSit, WALK_START_C, WALK_CHILD);
+  for (const w of walkIns) {
+    const rig = rigs[w.char];
+    if (!rig || !marks[w.dest]) continue;
+    rigWalk(tl, rig, marks[w.dest], w.start, w.dur);
+    tl.call(() => {
+      if (w.sit !== false) { rig.anim.sit = true; rig.anim.walking = false; }
+      if (faceAfterWalk) rig.setFacing(faceAfterWalk.x, faceAfterWalk.z);
+    }, null, w.start + w.dur + 0.05);
+  }
+  if (staging.wave && rigs[staging.wave.char]) {
+    const w = staging.wave;
+    tl.call(() => { rigs[w.char].anim.wave = { start: w.at, dur: w.dur || 2.2 }; }, null, w.at);
+  }
 
-  tl.call(() => { rigs.doctor.anim.wave = { start: 0.5, dur: 2.2 }; }, null, 0.5);
-  talkWindow(tl, rigs, L1);
-  subtitle(tl, ui, scenario, L1);
-  audioCue(tl, audio, L1);
+  talkWindow(tl, rigs, first);
+  subtitle(tl, ui, scenario, first);
+  audioCue(tl, audio, first);
 
-  // Sit + face doctor (both mother and child sit on the guest chairs)
-  tl.call(() => {
-    rigs.mother.anim.sit = true;
-    rigs.mother.anim.walking = false;
-  }, null, ARRIVE_M + 0.05);
-  tl.call(() => {
-    rigs.child.anim.sit = true;
-    rigs.child.anim.walking = false;
-    rigs.child.setFacing(marks.familyFace.x, marks.familyFace.z);
-  }, null, ARRIVE_C);
-  tl.call(() => rigs.mother.setFacing(marks.familyFace.x, marks.familyFace.z), null, ARRIVE_M + 0.05);
-
-  // --- dialogue (setShot only when the shot name changes → L03–L04 hold) ---
-  const plan = [
-    { id: 'L02', shot: 'over-doctor' },
-    { id: 'L03', shot: 'food-wall', foods: true },
-    { id: 'L04', shot: 'medium-doctor', warning: true },
-    { id: 'L05', shot: 'medium-doctor-2' },
-    { id: 'L06', shot: 'child', heart: true },
-    { id: 'L07', shot: 'medium-doctor-2' },
-    { id: 'L08', shot: 'over-doctor' },
-    { id: 'L09', shot: 'wide-final', nod: true },
-  ];
-
-  for (let i = 0; i < plan.length; i++) {
+  // --- dialogue (setShot only when the shot name changes → holds) ---
+  for (let i = 1; i < plan.length; i++) {
     const p = plan[i];
     const L = S(p.id);
     if (p.shot !== currentShot) {
@@ -130,13 +123,12 @@ export function buildTimeline(ctx) {
       tl.fromTo(world.props.tray.position,
         { y: -8 }, { y: 9, duration: 0.8, ease: 'power3.out', overwrite: 'auto' }, L.start + 0.05);
       const fr = [0.10, 0.30, 0.50, 0.72];
-      const posterIds = ['potato', 'yogurt', 'katmast', 'ors'];
       world.props.foodGroups.forEach((fg, i) => {
-        pop(tl, fg, L.start + L.duration * fr[i]);
+        pop(tl, fg, L.start + L.duration * fr[i % fr.length]);
         // the matching food poster on the back wall pulses in sync
-        const poster = world.foodPosters && world.foodPosters[posterIds[i]];
+        const poster = world.foodPosters && world.foodPosters[fg.userData.foodId];
         if (poster) {
-          const at = L.start + L.duration * fr[i];
+          const at = L.start + L.duration * fr[i % fr.length];
           tl.to(poster.scale, { x: 1.16, y: 1.16, z: 1.16, duration: 0.18, ease: 'power2.out', overwrite: 'auto' }, at);
           tl.to(poster.scale, { x: 1, y: 1, z: 1, duration: 0.35, ease: 'power2.inOut', overwrite: 'auto' }, at + 0.2);
         }
@@ -159,15 +151,23 @@ export function buildTimeline(ctx) {
       tl.set(world.props.heart, { visible: false }, L.end + 0.8);
     }
     if (p.nod) {
-      tl.call(() => { rigs.doctor.anim.nod = { start: L.end - 1.6, end: L.end - 0.2 }; }, null, L.end - 1.6);
+      const nodChar = (p.nod && p.nod.char) || L.speaker;
+      tl.call(() => { rigs[nodChar].anim.nod = { start: L.end - 1.6, end: L.end - 0.2 }; }, null, L.end - 1.6);
     }
   }
 
+  // --- ending: end card + slow push + fade ---
   const tEnd = timing.total;
-  tl.call(() => ui.showEndCard(true), null, tEnd - 7.4);
-  tl.to(cam.pos, { py: '+=6', pz: '+=5', duration: 6.6, ease: 'power1.inOut', overwrite: 'auto' }, tEnd - 7.2);
-  tl.to('#endCard', { opacity: 1, duration: 0.9, ease: 'power1.out', overwrite: 'auto' }, tEnd - 7.2);
-  tl.to('#fade', { opacity: 1, duration: 0.8, ease: 'power1.in', overwrite: 'auto' }, tEnd - 0.85);
+  const ending = staging.ending || { leadIn: 7.4, camPush: { py: 6, pz: 5, dur: 6.6 }, fadeOut: 0.85 };
+  tl.call(() => ui.showEndCard(true), null, tEnd - ending.leadIn);
+  tl.to(cam.pos, {
+    py: '+=' + (ending.camPush ? ending.camPush.py : 6),
+    pz: '+=' + (ending.camPush ? ending.camPush.pz : 5),
+    duration: ending.camPush ? ending.camPush.dur : 6.6,
+    ease: 'power1.inOut', overwrite: 'auto',
+  }, tEnd - ending.leadIn + 0.2);
+  tl.to('#endCard', { opacity: 1, duration: 0.9, ease: 'power1.out', overwrite: 'auto' }, tEnd - ending.leadIn + 0.2);
+  tl.to('#fade', { opacity: 1, duration: 0.8, ease: 'power1.in', overwrite: 'auto' }, tEnd - (ending.fadeOut != null ? ending.fadeOut : 0.85));
   tl.set({}, {}, tEnd);
 
   return tl;

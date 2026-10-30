@@ -5,11 +5,13 @@
   "language": "fa",
   "location": "visit-room",
   "characters": ["doctor", "mother", "child"],
+  "props": ["explainer-props"],
   "hooks": {
     "intro": {
       "duration": 0.5,
       "kicker": "این قسمت",
       "title": "نحوه برخورد با اسهال کودکان",
+      "frame": 200,
       "frameAt": 0.42
     },
     "outro": {
@@ -25,6 +27,7 @@
       "display": "سلام! خوش اومدین.",
       "tts": "سَلام! خوش آمدید.",
       "camera": "wide-door",
+      "settleAfter": 1.9,
       "action": "Door opens; the mother and child walk in and sit on the guest chairs as the doctor waves from behind his desk."
     },
     {
@@ -92,6 +95,32 @@
       "action": "Doctor nods; wide closing shot."
     }
   ],
+  "staging": {
+    "_comment": "Choreography consumed by src/js/timeline.js and main.js. Marks refer to library/room/<location>.json blocking keys. Walk times must let walk-in finish before L02 (L02.start ≈ 5.81 in timing.json).",
+    "initial": [
+      { "char": "doctor", "at": "doctorSit", "sit": true, "face": "doctorFace" },
+      { "char": "mother", "at": "motherStart" },
+      { "char": "child", "at": "childStart" }
+    ],
+    "openDoor": { "at": 0.12, "dur": 1.0, "angle": -1.85 },
+    "walkIn": [
+      { "char": "mother", "dest": "motherSit", "start": 1.0, "dur": 4.4 },
+      { "char": "child", "dest": "childSit", "start": 1.15, "dur": 4.3 }
+    ],
+    "faceAfterWalk": "familyFace",
+    "wave": { "char": "doctor", "at": 0.5, "dur": 2.2 },
+    "plan": [
+      { "id": "L02", "shot": "over-doctor" },
+      { "id": "L03", "shot": "food-wall", "foods": true },
+      { "id": "L04", "shot": "medium-doctor", "warning": true },
+      { "id": "L05", "shot": "medium-doctor-2" },
+      { "id": "L06", "shot": "child", "heart": true },
+      { "id": "L07", "shot": "medium-doctor-2" },
+      { "id": "L08", "shot": "over-doctor" },
+      { "id": "L09", "shot": "wide-final", "nod": true }
+    ],
+    "ending": { "leadIn": 7.4, "camPush": { "py": 6, "pz": 5, "dur": 6.6 }, "fadeOut": 0.85 }
+  },
   "endCard": {
     "title": "علائم کم‌آبی بدن در کودکان",
     "items": [

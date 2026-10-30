@@ -3,14 +3,15 @@
 //
 // Usage:
 //   npm install                (once — installs puppeteer + its Chrome)
-//   node tools/render.js [--fps 30] [--scale 1] [--from <frame>]
+//   node tools/render.js [--fps 30] [--scale 1] [--from <frame>] [--ep <episode-id>]
 //
-// Output: render/frames/f_00000.png ...   then run tools/assemble.js
+// Output: episodes/<ep>/render/frames/f_00000.png ...   then run tools/assemble.js
 const path = require('path');
 const fs = require('fs');
 const { startServer } = require('./serve');
+const { resolveEp } = require('./ep');
 
-const ROOT = path.join(__dirname, '..');
+const { id: EP, ROOT, EP_DIR } = resolveEp();
 
 // --- args ---
 let FPS = 30, SCALE = 1, FROM = 0;
@@ -32,7 +33,7 @@ FROM = argValue('--from') || FROM;
     process.exit(1);
   }
 
-  const framesDir = path.join(ROOT, 'render', 'frames');
+  const framesDir = path.join(EP_DIR, 'render', 'frames');
   fs.mkdirSync(framesDir, { recursive: true });
 
   const port = 8093;
@@ -53,7 +54,7 @@ FROM = argValue('--from') || FROM;
     if (m.type() === 'error') console.log('[page]', m.text());
   });
 
-  await page.goto('http://127.0.0.1:' + port + '/src/index.html?render=1&fps=' + FPS, { waitUntil: 'networkidle0' });
+  await page.goto('http://127.0.0.1:' + port + '/src/index.html?ep=' + EP + '&render=1&fps=' + FPS, { waitUntil: 'networkidle0' });
   await page.waitForFunction('window.__ready === true', { timeout: 60000 });
 
   const duration = await page.evaluate('window.__duration');
@@ -69,5 +70,5 @@ FROM = argValue('--from') || FROM;
 
   await browser.close();
   server.close();
-  console.log('\nFrames written to render/frames. Now run:  node tools/assemble.js');
+  console.log('\nFrames written to episodes/' + EP + '/render/frames. Now run:  node tools/assemble.js --ep ' + EP);
 })().catch((e) => { console.error(e); process.exit(1); });

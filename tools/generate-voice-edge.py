@@ -3,7 +3,7 @@
 #
 # Usage:
 #   pip install edge-tts
-#   python tools/generate-voice-edge.py
+#   python tools/generate-voice-edge.py [--ep <episode-id>]
 #
 # Afterwards run:  node tools/compute-timing.js && node tools/build-subtitles.js
 import asyncio
@@ -13,6 +13,17 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+DEFAULT_EP = "ep01-childhood-diarrhea"
+
+
+def episode_dir():
+    argv = sys.argv[1:]
+    if "--ep" in argv:
+        ep = argv[argv.index("--ep") + 1]
+    else:
+        ep = os.environ.get("EP", DEFAULT_EP)
+    return ROOT / "episodes" / ep
+
 
 try:
     import edge_tts
@@ -26,10 +37,11 @@ async def gen(text, voice, rate, pitch, out):
 
 
 def main():
-    scenario = json.loads((ROOT / "scenario.json").read_text(encoding="utf-8"))
+    ep_dir = episode_dir()
+    scenario = json.loads((ep_dir / "scenario.json").read_text(encoding="utf-8"))
     voices = json.loads((ROOT / "config" / "voices.json").read_text(encoding="utf-8"))["edge"]
 
-    out_dir = ROOT / "audio"
+    out_dir = ep_dir / "audio"
     out_dir.mkdir(exist_ok=True)
 
     for line in scenario["lines"]:

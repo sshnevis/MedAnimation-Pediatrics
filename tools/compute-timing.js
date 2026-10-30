@@ -1,16 +1,19 @@
 // Computes per-line start/end times for the master timeline.
-// Uses real audio durations (via ffprobe) when audio/<id>.mp3 exists,
+// Uses real audio durations (via ffprobe) when episodes/<ep>/audio/<id>.mp3 exists,
 // otherwise falls back to a text-length estimate.
-// Output: timing.json (consumed by the browser app, subtitles and the assembler).
+// Output: episodes/<ep>/timing.json (consumed by the browser app, subtitles and the assembler).
+//
+// Usage:  node tools/compute-timing.js [--ep <episode-id>]
 const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
+const { resolveEp } = require('./ep');
 
-const ROOT = path.join(__dirname, '..');
+const { id: EP, ROOT, EP_DIR } = resolveEp();
 const LEAD_IN = 1.4;   // seconds before the first line
 const GAP = 0.45;      // pause between lines
-// Extra beat after L01 so the family can finish the walk-in / sit before L02.
-const SETTLE_AFTER_L01 = 1.9;
+// Per-line extra beat (scenario lines may carry "settleAfter", e.g. after an
+// opening line whose walk-in must finish before the next line starts).
 const END_CARD = 7.5;  // closing summary duration
 
 function estimateDuration(text) {
@@ -51,13 +54,13 @@ function mp3DurationFallback(file) {
   }
 }
 
-const scenario = JSON.parse(fs.readFileSync(path.join(ROOT, 'scenario.json'), 'utf8'));
+const scenario = JSON.parse(fs.readFileSync(path.join(EP_DIR, 'scenario.json'), 'utf8'));
 let t = LEAD_IN;
 const lines = [];
 for (const L of scenario.lines) {
   let dur = null;
   let source = 'estimated';
-  const audioFile = path.join(ROOT, 'audio', L.id + '.mp3');
+  const audioFile = path.join(EP_DIR, 'audio', L.id + '.mp3');
   if (fs.existsSync(audioFile)) {
     let d = ffprobeDuration(audioFile);
     if (d && isFinite(d) && d > 0.2) {
@@ -77,12 +80,12 @@ for (const L of scenario.lines) {
     source: source,
   });
   t += dur + GAP;
-  if (L.id === 'L01') t += SETTLE_AFTER_L01;
+  if (L.settleAfter) t += L.settleAfter;
 }
 const total = +(t - GAP + END_CARD).toFixed(2);
 
 const timing = { fps: 30, leadIn: LEAD_IN, gap: GAP, endCard: END_CARD, total, lines };
-fs.writeFileSync(path.join(ROOT, 'timing.json'), JSON.stringify(timing, null, 2));
+fs.writeFileSync(path.join(EP_DIR, 'timing.json'), JSON.stringify(timing, null, 2));
 
 for (const L of lines) {
   console.log(L.id.padEnd(5), L.speaker.padEnd(7),
