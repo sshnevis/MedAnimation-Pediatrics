@@ -90,7 +90,7 @@ if (!hasHooks) {
 function encodeCard(png, dur, outMp4, label) {
   ffmpeg([
     '-loop', '1', '-t', String(dur), '-i', png,
-    '-f', 'lavfi', '-t', String(dur), '-i', 'anullsrc=r=44100:cl=stereo',
+    '-f', 'lavfi', '-t', String(dur), '-i', 'anullsrc=r=44100:cl=mono',
     '-c:v', 'libx264',
     '-preset', 'medium',
     '-crf', '18',

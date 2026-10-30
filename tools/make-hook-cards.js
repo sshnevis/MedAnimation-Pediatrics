@@ -37,8 +37,10 @@ const H = 1920;
     process.exit(1);
   }
 
-  const frameAt = hooks.intro.frameAt != null ? hooks.intro.frameAt : 0.42;
-  const srcName = files[Math.min(files.length - 1, Math.floor(frameAt * files.length))];
+  // Intro background: fixed shot 200 (matches the hand-made reference card).
+  const srcName = files.some((f) => f === 'f_00200.png')
+    ? 'f_00200.png'
+    : files[Math.min(files.length - 1, Math.floor((hooks.intro.frameAt != null ? hooks.intro.frameAt : 0.42) * files.length))];
   const srcRel = '/render/frames/' + srcName;
   console.log('Background frame:', srcName, '(frameAt=' + frameAt + ')');
 
@@ -75,6 +77,23 @@ html, body { margin: 0; width: ${W}px; height: ${H}px; overflow: hidden; backgro
   filter: blur(16px);
 }
 .veil { position: absolute; inset: 0; background: rgba(0,0,0,0.35); }
+.card {
+  position: absolute; left: 50%; top: 38%; transform: translate(-50%, -50%);
+  width: 88%; box-sizing: border-box;
+  background: rgba(216, 179, 242, 0.92);
+  border-radius: 96px; padding: 140px 60px;
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center;
+  font-family: Vazirmatn, Tahoma, sans-serif;
+}
+.card .kicker {
+  font-weight: 400; font-size: 46px; color: #2a9d8f;
+  margin-bottom: 26px; letter-spacing: 0.02em;
+}
+.card .title {
+  font-weight: 700; font-size: 88px; line-height: 1.4; color: #fff;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.15);
+}
 .copy {
   position: absolute; left: 0; right: 0;
   display: flex; flex-direction: column; align-items: center;
@@ -91,7 +110,7 @@ html, body { margin: 0; width: ${W}px; height: ${H}px; overflow: hidden; backgro
 </head>
 <body>
   <div class="bg"></div>
-  <div class="veil"></div>
+  ${kind === 'intro' ? '' : '<div class="veil"></div>'}
   ${htmlBody}
 </body>
 </html>`;
@@ -104,7 +123,7 @@ html, body { margin: 0; width: ${W}px; height: ${H}px; overflow: hidden; backgro
     console.log('Wrote', path.relative(ROOT, outPath), '(' + kind + ')');
   }
 
-  const introBody = `<div class="copy" style="top:38%">
+  const introBody = `<div class="card">
     <div class="kicker">${escapeHtml(hooks.intro.kicker || '')}</div>
     <div class="title">${escapeHtml(hooks.intro.title || '')}</div>
   </div>`;

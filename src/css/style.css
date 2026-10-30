@@ -45,16 +45,7 @@ canvas#scene {
   pointer-events: none;
 }
 #subtitleBox.on { opacity: 1; }
-#speakerTag {
-  display: inline-block;
-  margin-bottom: 6px;
-  padding: 2px 14px;
-  border-radius: 999px;
-  background: #0d7a70;
-  color: #eafffb;
-  font-size: clamp(12px, 2vmin, 17px);
-  font-weight: 700;
-}
+#speakerTag { display: none; }
 #subtitle {
   background: rgba(8, 24, 32, 0.82);
   color: #ffffff;
@@ -64,6 +55,11 @@ canvas#scene {
   padding: 0.5em 1.1em;
   border-radius: 18px;
 }
+/* Subtitle background color per speaker */
+#subtitleBox[data-speaker="doctor"] #subtitle { background: rgba(21, 74, 138, 0.88); }
+#subtitleBox[data-speaker="mother"] #subtitle { background: rgba(70, 74, 80, 0.88); }
+#subtitleBox[data-speaker="child"] #subtitle { background: rgba(13, 122, 112, 0.88); }
+#subtitleBox[data-speaker="other"] #subtitle { background: rgba(8, 24, 32, 0.82); }
 
 /* ---- end card ---- */
 #endCard {

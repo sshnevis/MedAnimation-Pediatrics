@@ -159,11 +159,15 @@ async function boot() {
   document.getElementById('endNote').textContent = scenario.endCard.note;
 
   // ---- UI ----
+  // Subtitle box background color per speaker (doctor=blue, mother=gray,
+  // child=teal; any extra speaker gets the fallback via 'other')
+  const SPEAKER_KEYS = { 'دکتر': 'doctor', 'مادر': 'mother', 'کودک': 'child' };
   const ui = {
     showSubtitle(label, text) {
       const box = document.getElementById('subtitleBox');
       if (!text) { box.classList.remove('on'); return; }
-      document.getElementById('speakerTag').textContent = label;
+      // Color the subtitle box by speaker instead of showing a name tag
+      box.dataset.speaker = SPEAKER_KEYS[label] || 'other';
       document.getElementById('subtitle').textContent = text;
       box.classList.add('on');
     },
