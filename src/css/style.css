@@ -159,6 +159,32 @@ canvas#scene {
 #btnStart:hover { background: #17b7a6; transform: scale(1.04); }
 #startOverlay .hint { color: #7fa8ab; font-size: clamp(11px, 1.9vmin, 14px); }
 
+/* ---- episode picker (shown when no ?ep= is given) ---- */
+.ep-list {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: min(78vw, 560px);
+}
+.ep-list a {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 22px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #fff;
+  text-decoration: none;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.ep-list a:hover { background: rgba(20, 163, 148, 0.35); transform: translateY(-2px); }
+.ep-list .ep-title { font-weight: 700; font-size: clamp(17px, 3.6vmin, 26px); }
+.ep-list .ep-sub { color: #bfe3e0; font-size: clamp(12px, 2.4vmin, 17px); }
+
 /* ---- fade ---- */
 #fade {
   position: absolute;

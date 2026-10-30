@@ -10,8 +10,39 @@ const qs = new URLSearchParams(location.search);
 const RENDER_MODE = qs.get('render') === '1';
 const FPS = Number(qs.get('fps') || 30);
 // Active episode: episodes/<id>/ holds scenario.json, audio/, timing.json, render output.
-const EP = qs.get('ep') || 'ep01-childhood-diarrhea';
-const EP_URL = '../episodes/' + EP;
+// Without ?ep= the start overlay becomes an episode picker instead.
+const EP = qs.get('ep');
+
+// Episode picker: lists episodes/<id>/ via the dev server (/api/episodes).
+async function showEpisodePicker() {
+  const overlay = document.getElementById('startOverlay');
+  const card = overlay.querySelector('.card');
+  let episodes = [];
+  let error = '';
+  try {
+    const r = await fetch('/api/episodes');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    episodes = await r.json();
+  } catch (e) {
+    error = 'دریافت فهرست قسمت‌ها ممکن نشد — سرور را با Run.bat یا tools/serve.js اجرا کنید.';
+  }
+  const items = episodes.map((ep) =>
+    '<li><a href="index.html?ep=' + encodeURIComponent(ep.id) + '">' +
+    '<span class="ep-title">' + escapeHtml(ep.title) + '</span>' +
+    (ep.subtitle ? '<span class="ep-sub">' + escapeHtml(ep.subtitle) + '</span>' : '') +
+    '</a></li>'
+  ).join('');
+  card.innerHTML =
+    '<h1>انتخاب قسمت</h1>' +
+    (items
+      ? '<ul class="ep-list">' + items + '</ul>'
+      : '<p>' + (error || 'هیچ قسمتی یافت نشد — یک پوشه در episodes/ بسازید.') + '</p>');
+  overlay.style.display = 'flex';
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
 
 // Output format: vertical 9:16 (Instagram/TikTok Reels). Change to 16/9 for landscape.
 const ASPECT = 9 / 16;
@@ -77,6 +108,12 @@ function mergeProps(packs) {
 }
 
 async function boot() {
+  if (!EP) {
+    if (RENDER_MODE) throw new Error('render mode requires ?ep=<episode-id>');
+    await showEpisodePicker();
+    return;
+  }
+  const EP_URL = '../episodes/' + EP;
   const scenario = await loadJSON(EP_URL + '/scenario.json');
   // Cast, room and prop packs are declared by the episode manifest, loaded
   // from the shared library so every episode reuses the same definitions.

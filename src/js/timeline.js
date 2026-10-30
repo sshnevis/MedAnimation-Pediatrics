@@ -64,10 +64,13 @@ export function buildTimeline(ctx) {
   tl.fromTo('#fade', { opacity: 1 }, { opacity: 0, duration: 0.7, ease: 'power1.out', overwrite: 'auto' }, 0);
 
   // --- opening: door opens → family walks in → first line ---
+  // The opening is the FIRST dialogue line (timing.lines[0]) with the camera
+  // its scenario line names (e.g. wide-door). staging.plan covers the REST of
+  // the dialogue and must not include it (entries for it are skipped below).
   // The opening shot holds from 0 until every walk-in has arrived (+0.4 beat).
-  const firstPlan = plan[0];
-  const first = firstPlan ? S(firstPlan.id) : S(timing.lines[0].id);
-  const openingShot = firstPlan ? firstPlan.shot : 'wide-door';
+  const firstLine = scenario.lines[0];
+  const first = S(firstLine.id);
+  const openingShot = firstLine.camera || (plan[0] && plan[0].shot) || 'wide-door';
   if (staging.openDoor && world.doorPivot) {
     tl.to(world.doorPivot.rotation, {
       y: staging.openDoor.angle != null ? staging.openDoor.angle : -1.85,
@@ -97,8 +100,9 @@ export function buildTimeline(ctx) {
   audioCue(tl, audio, first);
 
   // --- dialogue (setShot only when the shot name changes → holds) ---
-  for (let i = 1; i < plan.length; i++) {
+  for (let i = 0; i < plan.length; i++) {
     const p = plan[i];
+    if (p.id === firstLine.id) continue; // already handled by the opening
     const L = S(p.id);
     if (p.shot !== currentShot) {
       // Span consecutive lines that hold the same angle (e.g. L03–L04)

@@ -28,6 +28,21 @@ function startServer(port, root) {
       res.writeHead(301, { Location: '/src/index.html' });
       return res.end();
     }
+    if (urlPath === '/api/episodes') {
+      // List available episodes (episodes/*/scenario.json) for the picker UI.
+      const list = [];
+      try {
+        const dir = path.join(root, 'episodes');
+        for (const name of fs.readdirSync(dir).sort()) {
+          try {
+            const s = JSON.parse(fs.readFileSync(path.join(dir, name, 'scenario.json'), 'utf8'));
+            list.push({ id: name, title: s.title || name, subtitle: s.subtitle || '' });
+          } catch (e) { /* skip folders without a valid scenario.json */ }
+        }
+      } catch (e) { /* no episodes/ dir yet */ }
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+      return res.end(JSON.stringify(list));
+    }
     const filePath = path.join(root, urlPath);
     if (!filePath.startsWith(root)) {
       res.writeHead(403);
