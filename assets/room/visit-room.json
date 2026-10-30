@@ -1,6 +1,7 @@
 {
   "id": "visit-room",
   "label": "اتاق ویزیت",
+  "description": "Pediatric consultation room: checkered floor, curtained window with sky view, wooden desk with drawers and lamp, upholstered chairs with armrests, exam bed with rail and step stool, supply cabinet, patterned rug.",
   "size": [110, 90],
   "wallHeight": 36,
   "palette": {
@@ -15,16 +16,21 @@
     "white": "#fafafa"
   },
   "door": { "x": 8, "width": 14, "height": 28, "color": "#795548" },
-  "window": { "x": -22, "y": 16, "width": 18, "height": 13 },
+  "window": {
+    "x": -22, "y": 16, "width": 18, "height": 13,
+    "sky": "#aee3f5",
+    "glassTint": "#cfeef8",
+    "curtain": "#7aa9b8"
+  },
   "furniture": [
     { "type": "desk",    "pos": [-30, -16], "rotY": 0.1,  "size": [20, 9, 12] },
     { "type": "chair",   "pos": [-30, -26], "rotY": 0.1 },
     { "type": "chair",   "pos": [0, 14],    "rotY": -2.55 },
     { "type": "examBed", "pos": [38, -10],  "rotY": 0,    "size": [26, 9, 14] },
     { "type": "cabinet", "pos": [-44, -30], "rotY": 0,    "size": [11, 20, 7] },
-    { "type": "rug",     "pos": [8, 12],    "size": [36, 24] },
+    { "type": "rug",     "pos": [8, 12],    "size": [36, 24], "colors": { "inner": "#80cbc4", "outer": "#4db6ac" } },
     { "type": "clock",   "pos": [-4, 23] },
-    { "type": "plant",   "pos": [26, -34] },
+    { "type": "plant",   "pos": [26, -34], "colors": { "pot": "#bf6b3f", "leaf": "#43a047" } },
     { "type": "poster",  "pos": [22, 15], "text": "ORS" }
   ],
   "blocking": {

@@ -16,6 +16,10 @@ api.txt
 *.key
 .env
 
+# Optional local Node 24+ pin (full path to node.exe)
+.node-path
+
+
 # OS / editor noise
 Thumbs.db
 .DS_Store

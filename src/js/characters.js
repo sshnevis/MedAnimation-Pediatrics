@@ -41,7 +41,9 @@ export function applyPose(rig, t) {
     const wt = t - a.wave.start;
     if (wt >= 0 && wt <= a.wave.dur) {
       const env = Math.min(wt / 0.3, 1) * Math.min((a.wave.dur - wt) / 0.3, 1);
-      parts.armR.rotation.z = -2.25 * env;
+      // positive z raises the RIGHT arm up-outward; negative would fold it
+      // inward across the head and the flap reads as moving backwards
+      parts.armR.rotation.z = 2.25 * env;
       parts.armR.rotation.x = Math.sin(wt * 13) * 0.35 * env;
     } else if (wt > a.wave.dur) {
       parts.armR.rotation.z = 0;

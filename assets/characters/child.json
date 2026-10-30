@@ -1,6 +1,7 @@
 {
   "id": "child",
   "label": "کودک",
+  "description": "Boy around 5 years old: bright red tee with collar trim, navy shorts, white socks and red sneakers, rosy cheeks and a tousled short haircut.",
   "scale": 0.62,
   "phase": 2.1,
   "parts": {
@@ -11,22 +12,42 @@
   },
   "colors": {
     "skin": "#f2c29b",
+    "skinShade": "#d6a67e",
     "hair": "#2f2f2f",
+    "hairShade": "#1b1b1b",
     "coat": null,
     "shirt": "#e74c3c",
     "pants": "#34495e",
-    "shoes": "#222222",
+    "pantsShade": "#243442",
+    "shoes": "#c0392b",
+    "sole": "#eceff1",
     "eye": "#2b1d16",
+    "brow": "#2f2f2f",
     "mouth": "#a9714b",
-    "scarf": null
+    "cheek": "#f19b93",
+    "sock": "#ffffff"
   },
   "features": {
     "hairStyle": "short",
     "glasses": false,
     "stethoscope": false,
     "coat": false,
+    "coatButtons": 0,
     "longCoat": false,
     "hijab": false,
-    "cheeks": true
+    "cheeks": true,
+    "beard": false,
+    "mustache": false,
+    "eyebrows": true,
+    "nose": true,
+    "ears": true,
+    "belt": false,
+    "buttons": 2,
+    "pocket": false,
+    "badge": false,
+    "collar": true,
+    "socks": true,
+    "watch": null,
+    "sneakers": true
   }
 }

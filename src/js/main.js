@@ -89,7 +89,9 @@ async function boot() {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('#dcecf2');
   // Slightly wider FOV so vertical Reels shots forgive small framing errors
-  const camera = new THREE.PerspectiveCamera(52, ASPECT, 0.1, 500);
+  // near=1 (no geometry ever comes close to the camera) → ~10× better depth
+  // precision, which kills the z-fighting flicker on close-but-not-coplanar faces
+  const camera = new THREE.PerspectiveCamera(52, ASPECT, 1, 300);
   fitCanvas(renderer, camera);
   window.addEventListener('resize', () => fitCanvas(renderer, camera));
 
@@ -104,7 +106,10 @@ async function boot() {
   sun.shadow.camera.bottom = -80;
   sun.shadow.camera.near = 5;
   sun.shadow.camera.far = 200;
-  sun.shadow.bias = -0.0005;
+  sun.shadow.bias = -0.0002;
+  // normalBias kills the crawling stripe artifacts (shadow acne) on box faces
+  // — e.g. the flicker under the door and around the doctor's collar
+  sun.shadow.normalBias = 0.6;
   scene.add(sun);
 
   // ---- blocking marks (single source of truth for positions) ----

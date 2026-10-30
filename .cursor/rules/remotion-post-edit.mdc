@@ -1,0 +1,11 @@
+---
+description: Prefer Remotion only as a post-edit layer on rendered MP4, not as the 3D engine
+alwaysApply: true
+---
+
+# Remotion for post-edit only
+
+- Core pipeline stays **Three.js + GSAP → Puppeteer frames → ffmpeg** (`tools/render.js`, `tools/assemble.js` → `render/final.mp4`).
+- Do **not** migrate the voxel/Three.js scene or GSAP timeline into Remotion for better encode quality.
+- If we later need a **compositing / editing layer** on the finished video (intro/outro, logo, kinetic captions, transitions, multi-clip assembly), use **[Remotion](https://github.com/remotion-dev/remotion)** on top of rendered clips / `final.mp4`.
+- Suggest Remotion only when that post-edit need comes up—not as a default stack change.

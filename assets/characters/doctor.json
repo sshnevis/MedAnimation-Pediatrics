@@ -1,6 +1,7 @@
 {
   "id": "doctor",
   "label": "دکتر",
+  "description": "Schematic self-portrait of Dr. Sina: short black hair with volume on top, black goatee (connected mustache + chin beard), light warm skin, white coat over teal scrubs, ID badge and wristwatch.",
   "scale": 1.0,
   "phase": 0.0,
   "parts": {
@@ -10,23 +11,49 @@
     "leg": [4, 12, 4]
   },
   "colors": {
-    "skin": "#e8b184",
-    "hair": "#3a3f45",
+    "skin": "#f0c8a0",
+    "skinShade": "#d1a97f",
+    "hair": "#1c1c1e",
+    "hairShade": "#101012",
     "coat": "#f5f6f7",
     "shirt": "#2fa39a",
     "pants": "#37474f",
+    "pantsShade": "#263238",
     "shoes": "#263238",
     "eye": "#263238",
+    "brow": "#2b3036",
     "mouth": "#a9714b",
+    "beard": "#1c1c1e",
+    "belt": "#3e2723",
+    "buckle": "#ffd54f",
+    "buttons": "#1f7d76",
+    "lanyard": "#1565c0",
+    "badge": "#42a5f5",
+    "watch": "#263238",
     "scarf": null
   },
   "features": {
     "hairStyle": "short",
-    "glasses": true,
+    "glasses": false,
     "stethoscope": true,
     "coat": true,
+    "coatButtons": 3,
     "longCoat": false,
     "hijab": false,
-    "cheeks": false
+    "cheeks": false,
+    "beard": true,
+    "beardStyle": "goatee",
+    "mustache": true,
+    "eyebrows": true,
+    "nose": true,
+    "ears": true,
+    "belt": true,
+    "buttons": 0,
+    "pocket": true,
+    "pen": "#c62828",
+    "badge": true,
+    "socks": false,
+    "watch": "left",
+    "sneakers": false
   }
 }
