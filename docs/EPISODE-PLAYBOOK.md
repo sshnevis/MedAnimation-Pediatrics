@@ -101,6 +101,19 @@ After each episode, append lessons learned to this file (below) and, where gener
 - **Serve-root gotcha**: `serve.js` rejects paths when `root` uses forward slashes on
   Windows (`path.join` normalizes to backslashes → `startsWith` fails → 403). Always pass
   the resolver's `ROOT` (backslash form), not a hand-built forward-slash path.
+- **Camera facing vs. seat facing (L02 iteration)**: the family sits facing the doctor
+  (−Z), so a camera parked on +Z in front of them captures the mother's back — the
+  first `family-two-shot` attempt failed this way. Family shots with faces visible go
+  on the doctor's side of the axis; verify character facing before choosing a camera
+  position, and check the preview still (a back-of-head reads immediately).
+- **Desk-prop scale**: props popping onto the desk at scale 1 read oversized next to a
+  seated character (the medicine insert took user markup twice). World-space desk
+  inserts pop at **0.5** (`timeline.js pop(..., 0.5)`); size new desk props against a
+  seated character in a preview still before showing the user.
+- **Iterative prop resizing**: the desk monitor needed two "bigger + further out"
+  rounds (6×4 → 8×5.4 → 12×8, edge z 0.5 → 5.6). When a user marks a prop in a
+  screenshot, apply their markup literally (units matter to them) and re-render the
+  exact frames they referenced before replying.
 
 ### Hook-card rules (ep02 fix — apply to every episode)
 - **`page.setContent()` is a null-origin page**: root-relative URLs (`/episodes/...`,

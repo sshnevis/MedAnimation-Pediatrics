@@ -4,9 +4,16 @@ Voxel (Minecraft-style) 3D explainer videos built with **HTML5 + Three.js + GSAP
 voiced with **TTS**, subtitled in Persian, and rendered to **vertical MP4 (1080×1920, 9:16 Reels)**.
 
 This is a **multi-episode** project: one shared asset **library** (characters, rooms,
-props) reused by every **episode** under `episodes/`. Episode 1 —
-`ep01-childhood-diarrhea` (~63 s, 9 dialogue lines between a doctor, a mother, and
-her 5-year-old son) — is complete; `episodes/ep01-childhood-diarrhea/render/final.mp4`.
+props) reused by every **episode** under `episodes/`. Complete episodes:
+
+- **Episode 1** — `ep01-childhood-diarrhea` (~63 s, 9 dialogue lines between a doctor,
+  a mother, and her 5-year-old son) → `episodes/ep01-childhood-diarrhea/render/final.mp4`.
+- **Episode 2** — `ep02-child-fever` «نحوه برخورد با تب در کودکان» (~97 s, 16 dialogue
+  lines, same cast) → `episodes/ep02-child-fever/render/final.mp4`.
+
+> **Starting a new episode?** Follow `docs/EPISODE-PLAYBOOK.md` — the repeatable
+> per-episode process (planning artifacts → implementation prompt → pipeline → QA loop
+> → retrospective).
 
 ---
 
@@ -38,6 +45,9 @@ src/                              ← engine (episode-agnostic)
 
 tools/                            ← pipeline (all accept --ep <episode-id>, or EP env var)
 config/voices.json                TTS voice settings (ElevenLabs + Edge), keyed by speaker id
+docs/EPISODE-PLAYBOOK.md          the repeatable per-episode production process + lessons log
+scenario/                         source materials (project N.txt/.png/.md) + per-episode
+                                  planning artifacts (epNN-plan.md, epNN-implementation-prompt.md)
 ```
 
 ### How an episode wires itself to the library
@@ -62,6 +72,11 @@ opening line whose walk-in must finish before the next line starts.
 
 ## Adding episode N (recipe)
 
+0. **Plan first** (per `docs/EPISODE-PLAYBOOK.md`): read the source materials in
+   `scenario/project N.*`, write `scenario/epNN-plan.md` (line breakdown with verbatim
+   diacritized `tts`, shot mapping, room spec vs. reference PNG, new engine features,
+   runbook, acceptance checklist) and `scenario/epNN-implementation-prompt.md`, then run
+   the implementation as a separate task using that prompt.
 1. `episodes/epNN-<slug>/scenario.json` — copy ep01 as template: new `id`, `title`,
    `subtitle`, `hooks`, `endCard`, `lines` (display + diacritized `tts`), and a new
    `staging` plan. Reuse the same `location`/`characters`/`props` if the episode
@@ -182,6 +197,12 @@ step from an updated terminal; `Run.bat`/`tools/node24.cmd` handle this).
   entry carries a boolean flag.
 - `blocking.js buildShots()` now applies the room JSON `shots` override (the
   dead-code merge after `return` was fixed); ep02's shots are declared entirely
-  in the room JSON.
+  in the room JSON. User-directed shot reworks: L02 uses `family-two-shot`
+  (mother+child from the doctor's side of the axis) and L12's `close-mother` is
+  an over-the-family angle (backs to camera, doctor facing lens).
+- Rooms with a side window (`window.side === "left"`) get a cool directional
+  window-light wash in `main.js` (`#ddf2ff`, 0.75, no castShadow).
+- The medicine insert pops at **0.5 scale** and the desk monitor is 12×8 at the
+  desk's outer edge (user markup) — size desk props against a seated character.
 - L13 speaker label in the source (`مادر/دُکتُر`) was a typo — it is the doctor.
   L16 (narrator) is voiced with the doctor voice.

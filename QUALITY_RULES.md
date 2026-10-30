@@ -114,3 +114,17 @@ default to the previously approved look:
   `window.curtainSide` (unset = legacy symmetric pair).
 - After touching any shared builder, re-render previews for **all** episodes
   that use it and compare against their approved shots.
+
+## Rule Q11 — A visible window must also be a light source (ep02, 2026-10-31)
+
+A curtained "light-catching" window that contributes no light reads as set
+decoration. When a room JSON declares a side window, `main.js` adds a cool
+directional wash from the window's side into the room:
+
+- `DirectionalLight('#ddf2ff', 0.75)` positioned beyond the window wall,
+  aimed at the room's mid/far side, `castShadow = false` so it lifts surfaces
+  without fighting the sun's shadows (extends the Q1 recipe; gated on
+  `roomDef.window.side === 'left'` so rooms without a side window are untouched).
+- Verify with a preview still: the wall/floor nearest the window should read
+  slightly cooler and brighter than the far side, but not enough to gray the
+  near-white walls (Q1).

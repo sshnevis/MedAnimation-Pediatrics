@@ -71,3 +71,29 @@ roughly ⅓–½ of frame height.
 | Food posters | back wall x=24/33/42/51, pulse in sync with each food | L03 |
 | Water + warning | float above the desk (-28,-16) / (-16,-18) | L04 |
 | Heart | above seated child y≈22 | L06 |
+
+---
+
+# Floor plan — pediatric-visit-room (ep02, fever)
+
+Full definition: `library/room/pediatric-visit-room.json` (its shots are declared
+entirely in the room JSON — no per-episode blocking.js edits). Rebuilt 1:1 against
+`scenario/project 2.png`; built with the wall-tunnel window construction (see
+"Wall & window construction" above) and ep02's furniture types
+(`drawerCabinet`, `examBed`, `growthChart`, `heartPoster`).
+
+| Shot | Used for |
+|---|---|
+| `wide-establishing` | L01 — Camera A, slow push-in then hold |
+| `family-two-shot` | L02 — mother+child two-shot from the doctor's side of the axis (both faces visible) |
+| `medium-doctor` | doctor lines (Camera B) |
+| `medium-family` / `medium-family-close` | mother+child lines (Camera C) |
+| `close-mother` | L12 — over-the-family shot from front-right +Z (their backs; doctor + desk face the camera), lower and wider than the opening wide |
+| `close-doctor` | L15 (infant warning lead-in) |
+| `insert-medicine` | L11 / L16 — desk medicine insert (props pop at 0.5 scale) |
+
+Axis discipline: doctor on one side, family on the other in every shot. The family
+sits facing the doctor (−Z), so any camera placed on +Z in front of them sees their
+BACKS — a family two-shot with faces visible must sit on the doctor's side of the
+axis (see `family-two-shot`); an intentional backs-shot of the family with the
+doctor facing camera goes far out on +Z and lower (`close-mother`).
