@@ -100,12 +100,12 @@ async function boot() {
   sun.position.set(28, 70, 40);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
-  sun.shadow.camera.left = -80;
-  sun.shadow.camera.right = 80;
-  sun.shadow.camera.top = 80;
-  sun.shadow.camera.bottom = -80;
+  sun.shadow.camera.left = -100;
+  sun.shadow.camera.right = 100;
+  sun.shadow.camera.top = 100;
+  sun.shadow.camera.bottom = -100;
   sun.shadow.camera.near = 5;
-  sun.shadow.camera.far = 200;
+  sun.shadow.camera.far = 250;
   sun.shadow.bias = -0.0002;
   // normalBias kills the crawling stripe artifacts (shadow acne) on box faces
   // — e.g. the flicker under the door and around the doctor's collar
@@ -128,9 +128,10 @@ async function boot() {
     scene.add(rig.char.group);
   }
 
-  // start: family outside door, doctor at stand mark facing the chairs
-  rigs.doctor.char.group.position.set(marks.doctorStand.x, 0, marks.doctorStand.z);
+  // start: family outside the door, doctor seated behind his desk facing the chairs
+  rigs.doctor.char.group.position.set(marks.doctorSit.x, 0, marks.doctorSit.z);
   rigs.doctor.setFacing(marks.doctorFace.x, marks.doctorFace.z);
+  rigs.doctor.anim.sit = true;
   rigs.mother.char.group.position.set(marks.motherStart.x, 0, marks.motherStart.z);
   rigs.child.char.group.position.set(marks.childStart.x, 0, marks.childStart.z);
 

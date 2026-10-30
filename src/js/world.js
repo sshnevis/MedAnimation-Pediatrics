@@ -53,39 +53,64 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   right.position.set(W / 2 + 0.6, wallH / 2, -D / 2 + rightDepth / 2);
   scene.add(right);
 
-  // ---- window (back wall) ----
+  // ---- window (back wall by default; win.side === 'left' puts it on the left wall) ----
+  // Everything is built in a group using back-wall-local coords
+  // (x = along the wall, z = into the room), then the group is placed+rotated.
   const win = R.window;
-  // sky panel on the wall behind the glass so the window reads as "outside"
-  // (placed just in front of the wall surface — behind it, it would be hidden
-  // by the wall itself and fight its faces)
+  const winG = new THREE.Group();
+  // sky panel just in front of the wall surface — behind it, it would be hidden
+  // by the wall itself and fight its faces
   const sky = boxMesh(win.width, win.height, 0.6, win.sky || '#aee3f5');
-  sky.position.set(win.x, win.y, -D / 2 + 0.35);
+  sky.position.set(win.x, win.y, 0.35);
   sky.castShadow = false;
-  scene.add(sky);
+  winG.add(sky);
+  // voxel greenery outside the window (trees seen through the glass)
+  if (win.greenery) {
+    const treeDefs = [
+      [win.x - win.width * 0.28, 3.2, 6, '#66bb6a'],
+      [win.x - win.width * 0.05, 2.4, 5, '#81c784'],
+      [win.x + win.width * 0.24, 3.8, 7, '#4caf50'],
+    ];
+    for (const [tx, baseH, th, tc] of treeDefs) {
+      const trunk = boxMesh(1.4, baseH, 1.2, '#6d4c41');
+      trunk.position.set(tx, win.y - win.height / 2 + baseH / 2, 0.4);
+      const crown = boxMesh(5, th, 3, tc);
+      crown.position.set(tx, win.y - win.height / 2 + baseH + th / 2, 0.4);
+      winG.add(trunk, crown);
+    }
+  }
   const cloud = boxMesh(win.width * 0.3, 1.6, 0.3, '#ffffff');
-  cloud.position.set(win.x - win.width * 0.18, win.y + win.height * 0.2, -D / 2 + 0.7);
+  cloud.position.set(win.x - win.width * 0.18, win.y + win.height * 0.32, 0.7);
   const cloud2 = boxMesh(win.width * 0.2, 1.2, 0.3, '#ffffff');
-  cloud2.position.set(win.x + win.width * 0.25, win.y - win.height * 0.15, -D / 2 + 0.7);
-  scene.add(cloud, cloud2);
+  cloud2.position.set(win.x + win.width * 0.25, win.y - win.height * 0.05, 0.7);
+  winG.add(cloud, cloud2);
   const wf = boxMesh(win.width + 2, win.height + 2, 0.8, P.metal);
-  wf.position.set(win.x, win.y, -D / 2 - 0.1);
+  wf.position.set(win.x, win.y, -0.1);
   const glass = boxMesh(win.width, win.height, 1.2, win.glassTint || '#cfeef8');
   glass.position.copy(wf.position);
   glass.material.transparent = true;
   glass.material.opacity = 0.35;
-  scene.add(wf, glass);
+  winG.add(wf, glass);
   const barV = boxMesh(0.7, win.height, 1.0, P.metal); barV.position.copy(wf.position);
   const barH = boxMesh(win.width, 0.7, 1.0, P.metal); barH.position.copy(wf.position);
-  scene.add(barV, barH);
+  winG.add(barV, barH);
   // window sill
   const sill = boxMesh(win.width + 3.2, 1, 2.2, P.wallTrim);
-  sill.position.set(win.x, win.y - win.height / 2 - 1.4, -D / 2 + 0.6);
-  scene.add(sill);
+  sill.position.set(win.x, win.y - win.height / 2 - 1.4, 0.6);
+  winG.add(sill);
+  // little cactus pot on the sill
+  const cacPot = boxMesh(3, 2.6, 3, '#bf6b3f');
+  cacPot.position.set(win.x + win.width * 0.3, win.y - win.height / 2 - 0.6, 0.6);
+  const cacBody = boxMesh(2, 4, 2, '#66bb6a');
+  cacBody.position.set(win.x + win.width * 0.3, win.y - win.height / 2 + 1.8, 0.6);
+  const cacArm = boxMesh(2.6, 1.4, 1.6, '#81c784');
+  cacArm.position.set(win.x + win.width * 0.3 - 1.8, win.y - win.height / 2 + 2.4, 0.6);
+  winG.add(cacPot, cacBody, cacArm);
   // curtains on both sides
   if (win.curtain) {
     const cw = 3.2;
     const curL = boxMesh(cw, win.height + 4, 0.8, win.curtain);
-    curL.position.set(win.x - win.width / 2 - cw / 2 + 0.4, win.y + 0.6, -D / 2 + 1.0);
+    curL.position.set(win.x - win.width / 2 - cw / 2 + 0.4, win.y + 0.6, 1.0);
     const curR = curL.clone();
     curR.position.x = win.x + win.width / 2 + cw / 2 - 0.4;
     // folded look: thin darker stripes
@@ -95,9 +120,16 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
     const foldR = foldL.clone();
     foldR.position.x = curR.position.x;
     const rod = boxMesh(win.width + cw * 2 + 2, 0.8, 0.8, P.woodDark);
-    rod.position.set(win.x, win.y + win.height / 2 + 2.6, -D / 2 + 1.0);
-    scene.add(curL, curR, foldL, foldR, rod);
+    rod.position.set(win.x, win.y + win.height / 2 + 2.6, 1.0);
+    winG.add(curL, curR, foldL, foldR, rod);
   }
+  if (win.side === 'left') {
+    winG.position.set(-W / 2, 0, 0);
+    winG.rotation.y = Math.PI / 2; // local +z (into room) → world +x
+  } else {
+    winG.position.set(0, 0, -D / 2);
+  }
+  scene.add(winG);
 
   // ---- door (back wall, hinged) ----
   const door = R.door;
@@ -108,12 +140,13 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   const panel = boxMesh(door.width, door.height, 1, door.color);
   panel.position.set(door.width / 2, door.height / 2 + 0.06, 0);
   doorPivot.add(panel);
-  const handle = boxMesh(1.2, 1.2, 1.6, '#ffd54f');
+  const handle = boxMesh(1.2, 1.2, 1.6, '#cfd8dc');
   handle.position.set(door.width - 1.2, door.height / 2, 0.8);
   doorPivot.add(handle);
   // nudged forward of the baseboard strip (front face would otherwise be at
   // exactly the same z-plane, -D/2+0.5, and the two flicker against each other)
-  const frame = boxMesh(door.width + 2.4, door.height + 1.4, 1.4, P.woodDark);
+  // Frame lightened vs woodDark so it still reads against the light door panel
+  const frame = boxMesh(door.width + 2.4, door.height + 1.4, 1.4, '#8d6e63');
   frame.position.set(door.x, (door.height + 1.4) / 2, -D / 2 - 0.12);
   scene.add(frame, doorPivot);
   world.doorPivot = doorPivot;
@@ -126,18 +159,19 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
     switch (item.type) {
       case 'desk': {
         const [w, h, d] = item.size;
+        // Image: wooden top on a white/cream body
         const top = boxMesh(w, 1.6, d, P.wood);
         top.position.set(0, h - 0.8, 0);
         g.add(top);
         for (const [sx, sz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
-          const leg = boxMesh(1.4, h - 1.6, 1.4, P.woodDark);
+          const leg = boxMesh(1.4, h - 1.6, 1.4, P.white);
           leg.position.set(sx * (w / 2 - 1.2), (h - 1.6) / 2, sz * (d / 2 - 1.2));
           g.add(leg);
         }
-        // drawer unit under the desktop
-        const drawer = boxMesh(w * 0.42, h - 2.4, d - 2.5, P.wood);
+        // drawer unit under the desktop (cream body)
+        const drawer = boxMesh(w * 0.42, h - 2.4, d - 2.5, '#eceff1');
         drawer.position.set(w * 0.26, (h - 2.4) / 2, 0);
-        const drawerLine1 = boxMesh(w * 0.42 - 0.6, 0.4, d - 2.2, P.woodDark);
+        const drawerLine1 = boxMesh(w * 0.42 - 0.6, 0.4, d - 2.2, '#cfd8dc');
         drawerLine1.position.set(w * 0.26, h * 0.55, 0);
         const drawerLine2 = drawerLine1.clone();
         drawerLine2.position.y = h * 0.3;
@@ -146,19 +180,27 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
         const knob2 = knob.clone();
         knob2.position.y = h * 0.37;
         g.add(drawer, drawerLine1, drawerLine2, knob, knob2);
-        // small monitor + clipboard on desk
+        // monitor on desk — screen faces the DOCTOR (local -z side, where he sits)
         const mon = boxMesh(6, 4, 0.8, '#37474f');
-        mon.position.set(-4, h + 2.8, -1.5);
+        mon.position.set(-3, h + 2.8, 0.5);
         const monScreen = boxMesh(5.2, 3.2, 0.3, '#4fc3f7');
-        monScreen.position.set(-4, h + 2.8, -1.05);
+        monScreen.position.set(-3, h + 2.8, 0.05);
         const monStand = boxMesh(1.2, 1.6, 1.2, '#263238');
-        monStand.position.set(-4, h + 0.6, -1.5);
+        monStand.position.set(-3, h + 0.6, 0.5);
+        const keyboard = boxMesh(6, 0.5, 2.2, '#263238');
+        keyboard.position.set(-2.5, h + 0.35, -3.4);
         const papers = boxMesh(4, 0.3, 3, '#ffffff');
-        papers.position.set(3.4, h + 0.2, 0.8);
+        papers.position.set(4.2, h + 0.25, -1.5);
         papers.rotation.y = 0.3;
+        // stack of reference books
+        const book1 = boxMesh(4.4, 0.9, 3, '#1e88e5');
+        book1.position.set(6.5, h + 0.55, 2.4);
+        const book2 = boxMesh(4, 0.8, 2.7, '#e53935');
+        book2.position.set(6.4, h + 1.4, 2.5);
+        book2.rotation.y = -0.25;
         const penTray = boxMesh(2.4, 0.5, 1.4, '#eceff1');
-        penTray.position.set(0.5, h + 0.4, -3.2);
-        g.add(mon, monScreen, monStand, papers, penTray);
+        penTray.position.set(1.5, h + 0.4, 2.8);
+        g.add(mon, monScreen, monStand, keyboard, papers, book1, book2, penTray);
         // desk lamp
         const lampBase = new THREE.Mesh(
           new THREE.CylinderGeometry(1.3, 1.5, 0.6, 10),
@@ -196,14 +238,277 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
         }
         break;
       }
+      case 'officeChair': {
+        // black swivel desk chair the doctor sits in
+        const dark = '#37474f';
+        const darker = '#263238';
+        const seat = boxMesh(7, 1.4, 7, dark);
+        seat.position.set(0, 8, 0);
+        const backrest = boxMesh(7, 9, 1.4, dark);
+        backrest.position.set(0, 13.5, -3);
+        const post = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.9, 0.9, 6.2, 8),
+          new THREE.MeshLambertMaterial({ color: darker })
+        );
+        post.position.set(0, 4.2, 0);
+        g.add(seat, backrest, post);
+        for (let i = 0; i < 4; i++) {
+          const ang = (i / 4) * Math.PI * 2 + Math.PI / 4;
+          const arm = boxMesh(5, 0.9, 1.2, darker);
+          arm.position.set(Math.sin(ang) * 2.2, 1, Math.cos(ang) * 2.2);
+          arm.rotation.y = ang;
+          const wheel = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.8, 0.8, 0.6, 8),
+            new THREE.MeshLambertMaterial({ color: '#111111' })
+          );
+          wheel.rotation.z = Math.PI / 2;
+          wheel.rotation.y = ang;
+          wheel.position.set(Math.sin(ang) * 4.2, 0.8, Math.cos(ang) * 4.2);
+          g.add(arm, wheel);
+        }
+        break;
+      }
+      case 'stool': {
+        // rolling exam stool with teal round seat
+        const seatC = new THREE.Mesh(
+          new THREE.CylinderGeometry(3.4, 3.4, 1.4, 12),
+          new THREE.MeshLambertMaterial({ color: P.accent })
+        );
+        seatC.position.y = 7.2;
+        seatC.castShadow = true;
+        const postS = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.7, 0.7, 6, 8),
+          new THREE.MeshLambertMaterial({ color: P.metal })
+        );
+        postS.position.y = 3.6;
+        g.add(seatC, postS);
+        for (let i = 0; i < 4; i++) {
+          const ang = (i / 4) * Math.PI * 2;
+          const legS = boxMesh(4.5, 0.8, 1, P.metal);
+          legS.position.set(Math.sin(ang) * 1.8, 0.9, Math.cos(ang) * 1.8);
+          legS.rotation.y = ang;
+          const caster = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.7, 0.7, 0.6, 8),
+            new THREE.MeshLambertMaterial({ color: '#111111' })
+          );
+          caster.rotation.z = Math.PI / 2;
+          caster.rotation.y = ang;
+          caster.position.set(Math.sin(ang) * 3.4, 0.7, Math.cos(ang) * 3.4);
+          g.add(legS, caster);
+        }
+        break;
+      }
+      case 'bookshelf': {
+        const bw = 14, bh = 22, bd = 6;
+        const wood = '#a1887f';
+        for (const [sx, sz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
+          const post = boxMesh(1, bh, 1, '#8d6e63');
+          post.position.set(sx * (bw / 2 - 0.5), bh / 2, sz * (bd / 2 - 0.5));
+          g.add(post);
+        }
+        const bookColors = ['#e53935', '#1e88e5', '#43a047', '#fdd835', '#8e24aa'];
+        for (let s = 0; s < 3; s++) {
+          const shelf = boxMesh(bw, 0.7, bd, wood);
+          shelf.position.set(0, 2.5 + s * 7, 0);
+          g.add(shelf);
+          // row of books on each shelf
+          let bx = -bw / 2 + 1.6;
+          let bi = s;
+          while (bx < bw / 2 - 2) {
+            const bwid = 1.1 + ((s * 7 + bi) % 3) * 0.35;
+            const bhei = 4 + ((bi * 3) % 2);
+            const book = boxMesh(bwid, bhei, 4.4, bookColors[bi % bookColors.length]);
+            book.position.set(bx + bwid / 2, 2.5 + s * 7 + 0.35 + bhei / 2, 0.4);
+            g.add(book);
+            bx += bwid + 0.35;
+            bi++;
+          }
+        }
+        const topShelf = boxMesh(bw + 0.8, 0.8, bd + 0.8, wood);
+        topShelf.position.y = bh;
+        g.add(topShelf);
+        break;
+      }
+      case 'sideTable': {
+        const top = boxMesh(11, 1, 9, P.wood);
+        top.position.y = 8.5;
+        const body = boxMesh(9.5, 8, 7.5, '#78909c');
+        body.position.y = 4;
+        g.add(top, body);
+        // tissue box
+        const tBox = boxMesh(5, 3.4, 4, P.accent);
+        tBox.position.set(-2, 10.7, 0.5);
+        const tissue = boxMesh(2.6, 1.6, 2, '#ffffff');
+        tissue.position.set(-2, 12.8, 0.5);
+        g.add(tBox, tissue);
+        // small cactus in a white pot
+        const cpot = boxMesh(3, 2.6, 3, '#eceff1');
+        cpot.position.set(3, 10.3, 0.5);
+        const cbody = boxMesh(1.8, 3.6, 1.8, '#66bb6a');
+        cbody.position.set(3, 13, 0.5);
+        const carm = boxMesh(2.2, 1.2, 1.4, '#81c784');
+        carm.position.set(1.6, 13.5, 0.5);
+        g.add(cpot, cbody, carm);
+        break;
+      }
+      case 'welcomePoster': {
+        // framed "welcome" poster with a teddy bear (back wall, pos[1] = height)
+        g.position.set(item.pos[0], item.pos[1], -R.size[1] / 2 + 1.0);
+        // frame sits BEHIND the board front face so the board stays visible
+        const frame = boxMesh(0.6, 13, 11, P.woodDark);
+        frame.position.set(0, 0, -0.55);
+        const board = boxMesh(0.7, 12, 10, '#e3f2fd');
+        board.position.set(0, 0, 0.35);
+        g.add(frame, board);
+        // teddy head + ears + muzzle (proud of the board face at z≈5.3)
+        const bear = '#a1704f';
+        const head = boxMesh(4.2, 3.8, 0.8, bear);
+        head.position.set(0.1, 2.6, 5.1);
+        for (const ex of [-1.7, 1.7]) {
+          const ear = boxMesh(1.4, 1.4, 0.7, shade(bear, 0.8));
+          ear.position.set(0.1 + ex, 4.6, 5.1);
+          g.add(ear);
+        }
+        const muzzle = boxMesh(1.8, 1.2, 0.5, '#d7a97c');
+        muzzle.position.set(0.1, 2.1, 5.6);
+        g.add(head, muzzle);
+        // text bars + heart
+        const bar1 = boxMesh(0.6, 1.1, 6.4, '#37474f');
+        bar1.position.set(0.15, 0.4, 5.2);
+        const bar2 = boxMesh(0.6, 1.1, 5, '#37474f');
+        bar2.position.set(0.15, -1.2, 5.2);
+        const heartP = boxMesh(1.6, 1.6, 0.6, '#e53935');
+        heartP.rotation.z = Math.PI / 4;
+        heartP.position.set(0.3, -3, 5.3);
+        g.add(bar1, bar2, heartP);
+        break;
+      }
+      case 'foodPoster': {
+        // colorful food poster matching the L03 props (back wall, pos[1] = height)
+        g.position.set(item.pos[0], item.pos[1], -R.size[1] / 2 + 1.0);
+        const bg = item.bg || '#fdd835';
+        const frame = boxMesh(0.6, 10.5, 9.5, shade(bg, 0.7));
+        frame.position.set(0, 0, -0.55);
+        const board = boxMesh(0.7, 9.5, 8.5, bg);
+        board.position.set(0, 0, 0.35);
+        g.add(frame, board);
+        const c = item.icon === 'potato' ? { dish: '#ffffff', food: '#f3d36b' }
+          : item.icon === 'yogurt' ? { dish: '#fafafa', food: '#e53935' }
+          : item.icon === 'katmast' ? { dish: '#ffffff', food: '#f6f1e3' }
+          : { dish: '#cfe9f7', food: '#7fc9ec' };
+        if (item.icon === 'ors') {
+          // little ORS bottle
+          const bottle = boxMesh(2.4, 4.6, 2, c.dish);
+          bottle.position.set(0, 1.6, 5.2);
+          const neck = boxMesh(1.2, 1.2, 1.2, c.dish);
+          neck.position.set(0, 4.4, 5.2);
+          const cap = boxMesh(1.5, 0.7, 1.5, '#e53935');
+          cap.position.set(0, 5.2, 5.2);
+          const liquidP = boxMesh(1.7, 2.4, 1.4, c.food);
+          liquidP.position.set(0, 1, 5.9);
+          g.add(bottle, neck, cap, liquidP);
+        } else {
+          const dish = boxMesh(4.6, 1.2, 4, c.dish);
+          dish.position.set(0, 0.4, 5.2);
+          const food = boxMesh(3.4, 2, 3, c.food);
+          food.position.set(0, 1.9, 5.2);
+          g.add(dish, food);
+        }
+        if (item.label) {
+          const lbl = textSprite(item.label, { fontSize: 34 });
+          lbl.position.set(0.6, -2.9, 5.2);
+          lbl.scale.multiplyScalar(0.5);
+          g.add(lbl);
+        }
+        world.foodPosters = world.foodPosters || {};
+        world.foodPosters[item.icon] = g;
+        break;
+      }
+      case 'whiteboard': {
+        // teal-framed whiteboard with heart + pulse line; rotY aims local +z
+        // Center on the wall (~eye height); board is 15 tall so y≈14 keeps it clear of the floor
+        g.position.y = 14;
+        const wframe = boxMesh(1, 15, 18, P.accent);
+        wframe.position.y = 0;
+        const wboard = boxMesh(0.8, 13.6, 16.6, '#ffffff');
+        wboard.position.set(-0.2, 0, 0);
+        g.add(wframe, wboard);
+        // red heart icon
+        const hw = 2.6;
+        const hd = boxMesh(hw, hw, 0.5, '#e53935');
+        hd.rotation.z = Math.PI / 4;
+        hd.position.set(0.3, 3.2, 0.4);
+        const hl1 = boxMesh(1.7, 1.7, 0.5, '#e53935');
+        hl1.position.set(0.3 - 0.9, 3.2 + 0.9, 0.4);
+        const hl2 = hl1.clone();
+        hl2.position.x = 0.3 + 0.9;
+        g.add(hd, hl1, hl2);
+        // pulse line: segments in the board plane (local YZ)
+        const pulse = [[-5.4, -2.4], [-3.6, -2.4], [-2.6, -0.6], [-1.2, -4], [0.2, -1.4], [1.4, -2.4], [5.4, -2.4]];
+        for (let i = 0; i < pulse.length - 1; i++) {
+          const [ay, az] = pulse[i];
+          const [by, bz] = pulse[i + 1];
+          const len = Math.hypot(by - ay, bz - az);
+          const seg = boxMesh(0.5, 0.5, len, '#e53935');
+          seg.rotation.x = Math.atan2(-(by - ay), bz - az);
+          seg.position.set(0.3, (ay + by) / 2, (az + bz) / 2);
+          g.add(seg);
+        }
+        // marker tray
+        const trayW = boxMesh(1.6, 0.7, 12, '#b2dfdb');
+        trayW.position.set(-0.8, -7.2, 0);
+        const marker = boxMesh(0.6, 0.6, 3, '#ef5350');
+        marker.position.set(-1, -6.6, -2);
+        g.add(trayW, marker);
+        break;
+      }
+      case 'stetho': {
+        // stethoscope hanging on the back wall
+        g.position.set(item.pos[0], item.pos[1], -R.size[1] / 2 + 0.9);
+        const hook = boxMesh(1.4, 1.2, 0.8, '#78909c');
+        hook.position.set(0, 4.6, -0.2);
+        const tubeC = '#90a4ae';
+        const tubeL = boxMesh(0.8, 5.5, 0.7, tubeC);
+        tubeL.position.set(-1.5, 1.2, 0);
+        tubeL.rotation.z = 0.18;
+        const tubeR = tubeL.clone();
+        tubeR.position.x = 1.5;
+        tubeR.rotation.z = -0.18;
+        const bridge = boxMesh(3.4, 0.8, 0.7, tubeC);
+        bridge.position.set(0, 4, 0);
+        const chest = new THREE.Mesh(
+          new THREE.CylinderGeometry(1.6, 1.6, 0.7, 12),
+          new THREE.MeshLambertMaterial({ color: '#546e7a' })
+        );
+        chest.rotation.x = Math.PI / 2;
+        chest.position.set(0, -2.4, 0.3);
+        g.add(hook, tubeL, tubeR, bridge, chest);
+        break;
+      }
       case 'examBed': {
         const [w, h, d] = item.size;
-        const base = boxMesh(w, h - 3.5, d - 1, P.metal);
-        base.position.set(0, (h - 3.5) / 2, 0);
+        const baseH = h - 3.5;
+        const base = boxMesh(w, baseH, d - 1, P.metal);
+        base.position.set(0, baseH / 2, 0);
         const mattress = boxMesh(w - 1, 2.6, d, '#ffffff');
         mattress.position.set(0, h - 2.2, 0);
+        // Teal pad proud of the white mattress (Rule 1: ≥ 0.1 clearance)
+        const mattressTop = (h - 2.2) + 1.3;
+        const padH = 1.0;
+        const tealPad = boxMesh(w - 2.2, padH, d - 1.2, '#4db6ac');
+        tealPad.position.set(0, mattressTop + 0.1 + padH / 2, 0);
         const pillow = boxMesh(4.5, 1.8, d - 2, '#b2ebf2');
-        pillow.position.set(-w / 2 + 3.4, h - 0.6, 0);
+        pillow.position.set(-w / 2 + 3.4, mattressTop + 0.1 + padH + 0.9, 0);
+        // Drawers on the room-facing side (local -Z → world −X when rotY=π/2)
+        const baseFrontZ = -(d - 1) / 2;
+        const drawerFront = boxMesh(w * 0.38, baseH * 0.36, 0.6, '#eceff1');
+        drawerFront.position.set(-w * 0.22, baseH * 0.55, baseFrontZ - 0.1 - 0.3);
+        const drawerFront2 = drawerFront.clone();
+        drawerFront2.position.x = w * 0.22;
+        const dKnob = boxMesh(0.7, 0.7, 0.5, '#78909c');
+        dKnob.position.set(-w * 0.22, baseH * 0.55, baseFrontZ - 0.1 - 0.65);
+        const dKnob2 = dKnob.clone();
+        dKnob2.position.x = w * 0.22;
         // side safety rail
         const railTop = boxMesh(w - 4, 0.8, 0.8, P.metal);
         railTop.position.set(0, h + 3.4, d / 2 - 0.6);
@@ -217,7 +522,7 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
         step.position.set(w / 2 + 3, 1.2, 0);
         const stepTop = boxMesh(6.4, 0.8, 3.4, '#eceff1');
         stepTop.position.set(w / 2 + 3, 2.8, 0);
-        g.add(base, mattress, pillow, railTop, step, stepTop);
+        g.add(base, mattress, tealPad, pillow, drawerFront, drawerFront2, dKnob, dKnob2, railTop, step, stepTop);
         break;
       }
       case 'cabinet': {
@@ -513,7 +818,7 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   under.position.set(0, -1.2, 0);
   under.rotation.z = Math.PI / 4;
   heart.add(diamond, bumpL, bumpR, hl, under);
-  heart.position.set(heartXZ.x, 22, heartXZ.z);
+  heart.position.set(heartXZ.x, 26, heartXZ.z);
   heart.visible = false;
   scene.add(heart);
 
@@ -529,7 +834,7 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
       const pulse = Math.pow(Math.max(0, Math.sin(t * Math.PI * 2 * 1.6)), 2);
       const s = 1 + 0.28 * pulse;
       heart.scale.setScalar(s);
-      heart.position.y = 22 + Math.sin(t * 2.2) * 0.6;
+      heart.position.y = 26 + Math.sin(t * 2.2) * 0.6;
       heart.rotation.y = Math.sin(t * 1.3) * 0.25;
     }
   };

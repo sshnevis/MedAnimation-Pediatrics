@@ -38,7 +38,9 @@ scenario.json ──► voices (audio/L01..L09.mp3) ──► timing.json + subt
                       │
         tools/render.js  (headless Chrome, frame-by-frame PNGs)
                       │
-        tools/assemble.js (ffmpeg: frames + audio mix → render/final.mp4)
+        tools/make-hook-cards.js  (blurred mid-frame + Persian title/outro PNGs)
+                      │
+        tools/assemble.js (ffmpeg: intro + main + outro → render/final.mp4)
 ```
 
 Everything is driven by data files, so a **new episode = new `scenario.json`**
@@ -75,8 +77,13 @@ node tools/serve.js              # http://127.0.0.1:8090/src/index.html
 ```
 npm install                      # puppeteer (requires Node 18+)
 node tools/render.js             # writes render/frames/*.png (deterministic seeks)
-node tools/assemble.js           # mixes audio at line positions, encodes render/final.mp4
+node tools/make-hook-cards.js    # blurred mid-scenario frame + Persian intro/outro cards
+node tools/assemble.js           # mixes audio, encodes main.mp4, concats hooks → final.mp4
 ```
+
+Hook cards are driven by `scenario.json` → `hooks` (intro 0.5 s title card, outro ~1 s
+«ادامه دارد»). Text is shaped in the browser with Vazirmatn; assemble wraps the cards
+as silent clips around the main video.
 Subtitles are already baked into the captured frames (HTML overlay), and
 `subtitles.srt` is provided separately for platforms.
 

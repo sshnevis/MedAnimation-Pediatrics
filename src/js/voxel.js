@@ -95,11 +95,16 @@ export function buildCharacter(def) {
       leg.add(sock);
     }
     const shoeH = 2.2, shoeD = 5.2;
+    // z = 0.7 keeps the shoe's back face 0.1 in front of the leg's back face —
+    // at z = 0.6 the two are exactly coplanar and the ankle z-fights
     const shoe = boxMesh(4.3, shoeH, shoeD, C.shoes);
-    shoe.position.set(0, -P.leg[1] + shoeH / 2 + 0.4, 0.6);
+    shoe.position.set(0, -P.leg[1] + shoeH / 2 + 0.4, 0.7);
     leg.add(shoe);
     const sole = boxMesh(4.5, 0.7, shoeD + 0.4, F.sneakers ? (C.sole || '#eceff1') : shade(C.shoes, 0.55));
-    sole.position.set(0, -P.leg[1] + 0.35, 0.6);
+    // y puts the sole 0.05 below the leg's bottom face (coplanar there, and
+    // coplanar with the floor when standing) so the leg/floor never z-fights
+    // with the sole bottom
+    sole.position.set(0, -P.leg[1] + 0.3, 0.7);
     leg.add(sole);
     if (F.sneakers) { // lace strip on top of the shoe
       const lace = boxMesh(1.2, 0.4, 3, '#ffffff');
@@ -378,8 +383,10 @@ export function buildCharacter(def) {
     drapeR.position.x = 4.1;
     headGroup.add(drapeL, drapeR);
     if (F.hijabPin) {
+      // z puts the pin's front face 0.25 past the fold's front face at z=4.9 —
+      // flush there, the pin and the fold z-fight at the corner of the face
       const pin = boxMesh(1, 1, 0.4, C.hijabPin || '#ffd54f');
-      pin.position.set(-3.4, 7.6, 4.7);
+      pin.position.set(-3.4, 7.6, 4.95);
       headGroup.add(pin);
     }
   }

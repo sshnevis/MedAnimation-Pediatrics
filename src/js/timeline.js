@@ -55,13 +55,14 @@ export function buildTimeline(ctx) {
   const shots = buildShots(marks);
   const S = (id) => timing.lines.find((l) => l.id === id);
 
-  // Walk durations tuned to the larger room path length (~55 units door→chair)
-  const WALK_MOTHER = 4.0;
-  const WALK_CHILD = 3.9;
+  // Walk durations tuned to the v3 room path (~75 units door→chair);
+  // must finish before L02.start (timing.json ≈ 5.81)
+  const WALK_MOTHER = 4.4;
+  const WALK_CHILD = 4.3;
   const WALK_START_M = 1.0;
   const WALK_START_C = 1.15;
-  const ARRIVE_M = WALK_START_M + WALK_MOTHER; // 5.0
-  const ARRIVE_C = WALK_START_C + WALK_CHILD;  // 5.05
+  const ARRIVE_M = WALK_START_M + WALK_MOTHER; // 5.4
+  const ARRIVE_C = WALK_START_C + WALK_CHILD;  // 5.45
 
   tl.fromTo('#fade', { opacity: 1 }, { opacity: 0, duration: 0.7, ease: 'power1.out', overwrite: 'auto' }, 0);
 
@@ -69,38 +70,54 @@ export function buildTimeline(ctx) {
   const L1 = S('L01');
   tl.to(world.doorPivot.rotation, { y: -1.85, duration: 1.0, ease: 'power2.out', overwrite: 'auto' }, 0.12);
   setShot(tl, cam, shots, 'wide-door', 0, Math.max(L1.end, ARRIVE_M + 0.4));
+  let currentShot = 'wide-door';
 
   rigWalk(tl, rigs.mother, marks.motherSit, WALK_START_M, WALK_MOTHER);
-  rigWalk(tl, rigs.child, marks.childStand, WALK_START_C, WALK_CHILD);
+  rigWalk(tl, rigs.child, marks.childSit, WALK_START_C, WALK_CHILD);
 
   tl.call(() => { rigs.doctor.anim.wave = { start: 0.5, dur: 2.2 }; }, null, 0.5);
   talkWindow(tl, rigs, L1);
   subtitle(tl, ui, scenario, L1);
   audioCue(tl, audio, L1);
 
-  // Arrive: sit + face doctor
+  // Sit + face doctor (both mother and child sit on the guest chairs)
   tl.call(() => {
     rigs.mother.anim.sit = true;
     rigs.mother.anim.walking = false;
   }, null, ARRIVE_M + 0.05);
-  tl.call(() => rigs.child.setFacing(marks.familyFace.x, marks.familyFace.z), null, ARRIVE_C);
+  tl.call(() => {
+    rigs.child.anim.sit = true;
+    rigs.child.anim.walking = false;
+    rigs.child.setFacing(marks.familyFace.x, marks.familyFace.z);
+  }, null, ARRIVE_C);
   tl.call(() => rigs.mother.setFacing(marks.familyFace.x, marks.familyFace.z), null, ARRIVE_M + 0.05);
 
-  // --- dialogue ---
+  // --- dialogue (setShot only when the shot name changes → L03–L04 hold) ---
   const plan = [
     { id: 'L02', shot: 'over-doctor' },
     { id: 'L03', shot: 'medium-doctor', foods: true },
-    { id: 'L04', shot: 'close-doctor', warning: true },
+    { id: 'L04', shot: 'medium-doctor', warning: true },
     { id: 'L05', shot: 'medium-doctor-2' },
     { id: 'L06', shot: 'child', heart: true },
-    { id: 'L07', shot: 'close-doctor' },
-    { id: 'L08', shot: 'over-doctor-2' },
+    { id: 'L07', shot: 'medium-doctor-2' },
+    { id: 'L08', shot: 'over-doctor' },
     { id: 'L09', shot: 'wide-final', nod: true },
   ];
 
-  for (const p of plan) {
+  for (let i = 0; i < plan.length; i++) {
+    const p = plan[i];
     const L = S(p.id);
-    setShot(tl, cam, shots, p.shot, Math.max(0, L.start - 0.35), L.duration + 0.7);
+    if (p.shot !== currentShot) {
+      // Span consecutive lines that hold the same angle (e.g. L03–L04)
+      let last = L;
+      for (let j = i + 1; j < plan.length && plan[j].shot === p.shot; j++) {
+        last = S(plan[j].id);
+      }
+      const at = Math.max(0, L.start - 0.35);
+      const dur = (last.end + 0.35) - at;
+      setShot(tl, cam, shots, p.shot, at, dur);
+      currentShot = p.shot;
+    }
     talkWindow(tl, rigs, L);
     subtitle(tl, ui, scenario, L);
     audioCue(tl, audio, L);
@@ -110,7 +127,17 @@ export function buildTimeline(ctx) {
       tl.fromTo(world.props.tray.position,
         { y: -8 }, { y: 14, duration: 0.8, ease: 'power3.out', overwrite: 'auto' }, L.start + 0.05);
       const fr = [0.10, 0.30, 0.50, 0.72];
-      world.props.foodGroups.forEach((fg, i) => pop(tl, fg, L.start + L.duration * fr[i]));
+      const posterIds = ['potato', 'yogurt', 'katmast', 'ors'];
+      world.props.foodGroups.forEach((fg, i) => {
+        pop(tl, fg, L.start + L.duration * fr[i]);
+        // the matching food poster on the back wall pulses in sync
+        const poster = world.foodPosters && world.foodPosters[posterIds[i]];
+        if (poster) {
+          const at = L.start + L.duration * fr[i];
+          tl.to(poster.scale, { x: 1.16, y: 1.16, z: 1.16, duration: 0.18, ease: 'power2.out', overwrite: 'auto' }, at);
+          tl.to(poster.scale, { x: 1, y: 1, z: 1, duration: 0.35, ease: 'power2.inOut', overwrite: 'auto' }, at + 0.2);
+        }
+      });
       tl.set(world.props.tray, { visible: false }, L.end + 0.55);
       tl.set(world.props.tray.position, { y: -8 }, L.end + 0.55);
       world.props.foodGroups.forEach((fg) => {

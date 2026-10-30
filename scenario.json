@@ -5,6 +5,19 @@
   "language": "fa",
   "location": "visit-room",
   "characters": ["doctor", "mother", "child"],
+  "hooks": {
+    "intro": {
+      "duration": 0.5,
+      "kicker": "این قسمت",
+      "title": "نحوه برخورد با اسهال کودکان",
+      "frameAt": 0.42
+    },
+    "outro": {
+      "duration": 1.0,
+      "title": "ادامه دارد",
+      "frameAt": 0.42
+    }
+  },
   "lines": [
     {
       "id": "L01",
@@ -12,7 +25,7 @@
       "display": "سلام! خوش اومدین.",
       "tts": "سَلام! خوش آمدید.",
       "camera": "wide-door",
-      "action": "Doctor waves as the mother and child enter and walk to the chairs."
+      "action": "Door opens; the mother and child walk in and sit on the guest chairs as the doctor waves from behind his desk."
     },
     {
       "id": "L02",
@@ -20,7 +33,7 @@
       "display": "سلام. پسرم اسهال شده؛ چه غذاهایی برایش بهتر است؟",
       "tts": "سَلام. پِسَرَم اِسْهال شُده اَست؛ چه غَذاهایی بَرایَش بِهتَر اَست؟",
       "camera": "over-doctor",
-      "action": "Mother sits on the chair, child stands beside her; she gestures toward the child."
+      "action": "Mother sits with her child beside her on the chairs; she gestures toward the child."
     },
     {
       "id": "L03",
@@ -28,15 +41,15 @@
       "display": "بر طبق آخرین مقالات، استفاده از پوره‌ی سیب‌زمینی، ماست پروبیوتیک، کته‌ماست و مایعات به میزان کافی — حتی اگر ORS باشد خیلی بهتر است — می‌تواند روند بهبودی را سریع‌تر کند.",
       "tts": "بَر طِبقِ آخَرین مَقالات، اِستِفادِه اَز پورِه‌یِ سِیب‌زَمینی، ماستِ پِروبیوتیک، کَته‌ماست و مایِعات بِه مِقدارِ کافی؛ حَتّی اَگَر اُ آر اِس باشَد، خیلی بِهتَر اَست؛ می‌تَوانَد رَوَندِ بِهبودی را سِریع‌تَر کُنَد.",
       "camera": "medium-doctor",
-      "action": "A tray rises beside the doctor; food props pop in one by one: mashed potato, probiotic yogurt, kate-mast, ORS glass."
+      "action": "A tray rises beside the desk; food props pop in one by one — mashed potato, probiotic yogurt, kate-mast, ORS — and the matching food poster on the back wall pulses with each one."
     },
     {
       "id": "L04",
       "speaker": "doctor",
       "display": "در اسهال کودکان باید خیلی حواستان به کم‌آب شدن بدن کودک باشد.",
       "tts": "دَر اِسْهالِ کودَکان باید خیلی حَواسِتان بِه کَم‌آب شُدَنِ بَدَنِ کودَک باشَد.",
-      "camera": "close-doctor",
-      "action": "Water glass and warning sign pop on the desk."
+      "camera": "medium-doctor",
+      "action": "Water glass and warning sign pop on the desk; camera holds from L03."
     },
     {
       "id": "L05",
@@ -59,15 +72,15 @@
       "speaker": "doctor",
       "display": "ادرار می‌کنه؟",
       "tts": "اِدرار می‌کُنه؟",
-      "camera": "close-doctor",
-      "action": "Close-up on the doctor."
+      "camera": "medium-doctor-2",
+      "action": "Medium on the doctor from the right flank."
     },
     {
       "id": "L08",
       "speaker": "mother",
       "display": "بله، اما کمی کم شده است.",
       "tts": "بَله، اَمّا کَمی کَم شُدِه اَست.",
-      "camera": "over-doctor-2",
+      "camera": "over-doctor",
       "action": "Mother nods."
     },
     {

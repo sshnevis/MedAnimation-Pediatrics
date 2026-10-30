@@ -8,79 +8,76 @@ export function marksFromRoom(roomDef) {
     return Array.isArray(v) ? { x: v[0], z: v[1] } : { x: fallback[0], z: fallback[1] };
   };
   return {
-    doctorStand: xz('doctorStand', [-14, -8]),
-    doctorFace: xz('doctorFace', [6, 12]),
-    motherStart: xz('motherStart', [8, -52]),
-    childStart: xz('childStart', [5, -50]),
-    motherSit: xz('motherSit', [4, 12]),
-    childStand: xz('childStand', [12, 14]),
-    familyFace: xz('familyFace', [-14, -8]),
-    tray: xz('tray', [-4, 2]),
-    water: xz('water', [-8, -2]),
-    warn: xz('warn', [-2, 2]),
-    heart: xz('heart', [12, 14]),
+    doctorSit: xz('doctorSit', [-30, -30]),
+    doctorFace: xz('doctorFace', [12, 13]),
+    motherStart: xz('motherStart', [6, -62]),
+    childStart: xz('childStart', [2, -60]),
+    motherSit: xz('motherSit', [18, 12]),
+    childSit: xz('childSit', [5, 15]),
+    familyFace: xz('familyFace', [-30, -30]),
+    tray: xz('tray', [-6, 2]),
+    water: xz('water', [-28, -16]),
+    warn: xz('warn', [-16, -18]),
+    heart: xz('heart', [5, 15]),
   };
 }
 
 /**
- * Vertical Reels SHOTS derived from the same marks.
+ * Vertical Reels SHOTS derived from the same marks (v3 room: doctor seated
+ * behind the desk on the LEFT, family seated on guest chairs on the rug).
+ *
+ * Grammar: medium/wide only — no close head shots. dolly 0 = fully static hold
+ * (except wide-door's tiny opening push-in). Subjects sit at ~⅓–½ of frame height.
  *
  * Clear sightlines (do NOT shoot through the other party):
- *   doctor  → camera on the RIGHT (+X), near doctor's Z  (exam-bed flank)
- *   family  → camera on the FRONT (+Z), slightly left
- *   child   → camera straight in front of child on +Z
+ *   doctor  → camera on the FRONT-LEFT / RIGHT flank, family stays clear
+ *   child   → camera on +Z in front of child (heart stacks above)
  *   wide    → far on +Z
  */
 export function buildShots(M) {
-  const D = M.doctorStand;
+  const D = M.doctorSit;
   const Mo = M.motherSit;
-  const Ch = M.childStand;
+  const Ch = M.childSit;
   const midX = (Mo.x + Ch.x) / 2;
   const midZ = (Mo.z + Ch.z) / 2;
   return {
-    // Opening — pulled way back so the whole room + walk path reads
+    // Opening — only slow push-in in the film
     'wide-door': {
-      pos: [8, 36, 145],
-      target: [6, 12, -18],
+      pos: [8, 40, 158],
+      target: [6, 12, -12],
       dolly: 0.03,
     },
-    // Family: both mother + child readable with spacing between them
+    // Family from behind the doctor's shoulder (camera stays near doctor on +Z,
+    // not level with the chairs — D.z+36 sat on top of the sit marks and crushed the pose)
     'over-doctor': {
-      pos: [midX - 4, 18, midZ + 62],
-      target: [midX, 12, midZ],
-      dolly: 0.03,
+      pos: [D.x - 8, 26, D.z + 20],
+      target: [midX, 11, midZ],
+      dolly: 0,
     },
-    // Doctor from the RIGHT flank, farther out
+    // Doctor medium — held across L03 + L04 (bias a little toward the tray
+    // so L03 food pops stay in frame)
     'medium-doctor': {
-      pos: [D.x + 58, 18, D.z + 10],
-      target: [D.x, 14, D.z],
-      dolly: 0.04,
+      pos: [D.x - 20, 24, D.z + 48],
+      target: [D.x + 6, 12, D.z + 8],
+      dolly: 0,
     },
-    // Still a "close" but not glued to the face
-    'close-doctor': {
-      pos: [D.x + 40, 20, D.z + 6],
-      target: [D.x, 18, D.z],
-      dolly: 0.03,
-    },
+    // Doctor from the right flank
     'medium-doctor-2': {
-      pos: [D.x + 60, 18, D.z + 14],
-      target: [D.x, 14, D.z],
-      dolly: 0.03,
+      pos: [D.x + 18, 22, D.z + 46],
+      target: [D.x, 13, D.z],
+      dolly: 0,
     },
+    // Pulled-back medium on the child from the FRONT (faces doctor → −Z/−X;
+    // a +Z camera would only see backs). Heart stacks above the head.
     'child': {
-      pos: [Ch.x, 14, Ch.z + 55],
+      pos: [Ch.x - 16, 20, Ch.z - 36],
       target: [Ch.x, 12, Ch.z],
-      dolly: 0.04,
-    },
-    'over-doctor-2': {
-      pos: [midX - 2, 18, midZ + 64],
-      target: [midX, 12, midZ],
-      dolly: 0.03,
+      dolly: 0,
     },
     'wide-final': {
-      pos: [6, 30, 120],
-      target: [(D.x + midX) / 2, 12, (D.z + midZ) / 2],
-      dolly: 0.03,
+      pos: [8, 34, 148],
+      target: [(D.x + midX) / 2, 11, (D.z + midZ) / 2],
+      dolly: 0,
     },
   };
 }
