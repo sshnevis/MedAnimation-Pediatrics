@@ -28,9 +28,12 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   scene.add(ground);
 
   // ---- walls: back (z=-D/2), left, right ----
+  // Walls have real thickness (wallThickness, default 5) so openings — the
+  // window — read as cut THROUGH the wall, not as decals on a paper-thin slab.
   const wallH = R.wallHeight;
-  const back = boxMesh(W, wallH, 1.2, P.wall);
-  back.position.set(0, wallH / 2, -D / 2 - 0.6);
+  const WT = R.wallThickness || 5;
+  const back = boxMesh(W, wallH, WT, P.wall);
+  back.position.set(0, wallH / 2, -D / 2 - WT / 2);
   back.castShadow = false;
   scene.add(back);
   const trimB = boxMesh(W, 1.4, 1.5, P.wallTrim);
@@ -41,16 +44,44 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   baseB.position.set(0, 1.3, -D / 2 + 0.1);
   baseB.castShadow = false;
   scene.add(baseB);
-  const left = boxMesh(1.2, wallH, D, P.wall);
-  left.position.set(-W / 2 - 0.6, wallH / 2, 0);
-  scene.add(left);
+  const win = R.window;
+  const winOnLeft = win && win.side === 'left';
+  // Left wall — either one solid slab, or (window wall) four segments around
+  // the window opening: below sill, above head, and one flank on each side.
+  // World z of the opening on the left wall (local +x maps to world −z):
+  const wz0 = winOnLeft ? -win.x - win.width / 2 : 0;
+  const wz1 = winOnLeft ? -win.x + win.width / 2 : 0;
+  const hy0 = winOnLeft ? win.y - win.height / 2 : 0;
+  const hy1 = winOnLeft ? win.y + win.height / 2 : 0;
+  if (winOnLeft) {
+    const lx = -W / 2 - WT / 2;
+    // below the sill — full depth of the wall
+    const segBelow = boxMesh(WT, hy0, D, P.wall);
+    segBelow.position.set(lx, hy0 / 2, 0);
+    // above the head
+    const segAbove = boxMesh(WT, wallH - hy1, D, P.wall);
+    segAbove.position.set(lx, hy1 + (wallH - hy1) / 2, 0);
+    scene.add(segBelow, segAbove);
+    // the two flanks beside the opening
+    for (const [a, b] of [[-D / 2, wz0], [wz1, D / 2]]) {
+      const len = b - a;
+      if (len <= 0.5) continue;
+      const seg = boxMesh(WT, hy1 - hy0, len, P.wall);
+      seg.position.set(lx, (hy0 + hy1) / 2, a + len / 2);
+      scene.add(seg);
+    }
+  } else {
+    const left = boxMesh(WT, wallH, D, P.wall);
+    left.position.set(-W / 2 - WT / 2, wallH / 2, 0);
+    scene.add(left);
+  }
   const baseL = boxMesh(0.8, 2.6, D, P.wallTrim);
   baseL.position.set(-W / 2 + 0.1, 1.3, 0);
   baseL.castShadow = false;
   scene.add(baseL);
   const rightDepth = D;
-  const right = boxMesh(1.2, wallH, rightDepth, P.wall);
-  right.position.set(W / 2 + 0.6, wallH / 2, -D / 2 + rightDepth / 2);
+  const right = boxMesh(WT, wallH, rightDepth, P.wall);
+  right.position.set(W / 2 + WT / 2, wallH / 2, -D / 2 + rightDepth / 2);
   scene.add(right);
 
   // ---- wainscot: gray tile band along the lower walls (project 2.png) ----
@@ -61,9 +92,32 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
     const backW = boxMesh(W, wh, 0.5, wc);
     backW.position.set(0, wh / 2, -D / 2 + 0.85);
     backW.castShadow = false;
-    const leftW = boxMesh(0.5, wh, D, wc);
-    leftW.position.set(-W / 2 + 0.85, wh / 2, 0);
-    leftW.castShadow = false;
+    const leftW = winOnLeft
+      ? null // segmented below — the band is cut by the window opening too
+      : (() => {
+          const b = boxMesh(0.5, wh, D, wc);
+          b.position.set(-W / 2 + 0.85, wh / 2, 0);
+          b.castShadow = false;
+          scene.add(b);
+          return b;
+        })();
+    if (winOnLeft) {
+      // band on the two flanks (full height) + a shorter band under the sill
+      for (const [a, b] of [[-D / 2, wz0], [wz1, D / 2]]) {
+        const len = b - a;
+        if (len <= 0.5) continue;
+        const seg = boxMesh(0.5, wh, len, wc);
+        seg.position.set(-W / 2 + 0.85, wh / 2, a + len / 2);
+        seg.castShadow = false;
+        scene.add(seg);
+      }
+      if (hy0 > 1) {
+        const under = boxMesh(0.5, Math.min(wh, hy0), wz1 - wz0, wc);
+        under.position.set(-W / 2 + 0.85, Math.min(wh, hy0) / 2, (wz0 + wz1) / 2);
+        under.castShadow = false;
+        scene.add(under);
+      }
+    }
     const rightW = boxMesh(0.5, wh, rightDepth, wc);
     rightW.position.set(W / 2 - 0.85, wh / 2, -D / 2 + rightDepth / 2);
     rightW.castShadow = false;
@@ -72,8 +126,22 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
     if (R.wainscot.rail) {
       const railB = boxMesh(W, 0.9, 0.8, R.wainscot.rail);
       railB.position.set(0, wh + 0.45, -D / 2 + 1.0);
-      const railL = boxMesh(0.8, 0.9, D, R.wainscot.rail);
-      railL.position.set(-W / 2 + 1.0, wh + 0.45, 0);
+      const railL = winOnLeft
+        ? null // rail is cut by the window opening on the window wall
+        : (() => {
+            const r = boxMesh(0.8, 0.9, D, R.wainscot.rail);
+            r.position.set(-W / 2 + 1.0, wh + 0.45, 0);
+            return r;
+          })();
+      if (winOnLeft) {
+        for (const [a, b] of [[-D / 2, wz0], [wz1, D / 2]]) {
+          const len = b - a;
+          if (len <= 0.5) continue;
+          const r = boxMesh(0.8, 0.9, len, R.wainscot.rail);
+          r.position.set(-W / 2 + 1.0, wh + 0.45, a + len / 2);
+          scene.add(r);
+        }
+      }
       const railR = boxMesh(0.8, 0.9, rightDepth, R.wainscot.rail);
       railR.position.set(W / 2 - 1.0, wh + 0.45, -D / 2 + rightDepth / 2);
       scene.add(railB, railL, railR);
@@ -83,72 +151,178 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   // ---- window (back wall by default; win.side === 'left' puts it on the left wall) ----
   // Everything is built in a group using back-wall-local coords
   // (x = along the wall, z = into the room), then the group is placed+rotated.
-  const win = R.window;
+  // Rebuilt to match the reference frame (window corner of the visit room):
+  // deep voxel scenery OUTSIDE the glass — layered sky, sun, clouds, multi-block
+  // trees on a grass strip — plus a white frame, roller blind, white curtain
+  // and a leafy plant on the sill.
   const winG = new THREE.Group();
-  // sky panel just in front of the wall surface — behind it, it would be hidden
-  // by the wall itself and fight its faces
-  const sky = boxMesh(win.width, win.height, 0.6, win.sky || '#aee3f5');
-  sky.position.set(win.x, win.y, 0.35);
+  const winFrameC = win.frame || P.metal; // ep01 keeps the metal frame; new rooms opt into white
+  const sillY = win.y - win.height / 2;
+  // The window is a TUNNEL through the thick wall: local z=0 is the inner wall
+  // face, negative z goes into the wall depth. Scenery sits deep in the tunnel
+  // (no coplanar faces with the wall → no z-fighting flicker), the glass mid-
+  // tunnel, and blind/curtain/sill near the inner face.
+  const TZ = -WT; // outer wall face in window-local z
+  // 1) sky panel + horizon band — slightly oversized so the tunnel edges never
+  // show past it at oblique camera angles
+  const sky = boxMesh(win.width + 2, win.height + 2, 0.8, win.sky || '#aee3f5');
+  sky.position.set(win.x, win.y, TZ + 0.5);
   sky.castShadow = false;
   winG.add(sky);
-  // voxel greenery outside the window (trees seen through the glass)
+  const horizon = boxMesh(win.width + 2, win.height * 0.45, 0.6, '#8fd08a');
+  horizon.position.set(win.x, sillY + win.height * 0.14, TZ + 0.7);
+  horizon.castShadow = false;
+  winG.add(horizon);
+  // 2) sun disc (upper corner, away from the curtain side)
+  const sunDisc = boxMesh(4.2, 4.2, 0.5, '#fff3b0');
+  sunDisc.position.set(win.x + win.width * 0.32, win.y + win.height * 0.3, TZ + 1.1);
+  sunDisc.castShadow = false;
+  const sunGlow = boxMesh(5.6, 5.6, 0.4, '#ffe37e');
+  sunGlow.position.copy(sunDisc.position);
+  sunGlow.position.z -= 0.15;
+  winG.add(sunGlow, sunDisc);
+  // 3) voxel trees OUTSIDE the glass — layered blocky crowns like the reference
   if (win.greenery) {
     const treeDefs = [
-      [win.x - win.width * 0.28, 3.2, 6, '#66bb6a'],
-      [win.x - win.width * 0.05, 2.4, 5, '#81c784'],
-      [win.x + win.width * 0.24, 3.8, 7, '#4caf50'],
+      // [x, trunkH, crownLayers, crownW, color]
+      [win.x - win.width * 0.32, 7, 4, 8, '#66bb6a'],
+      [win.x - win.width * 0.08, 4, 3, 7, '#81c784'],
+      [win.x + win.width * 0.2, 9, 4, 9, '#4caf50'],
+      [win.x + win.width * 0.38, 5, 3, 6, '#7cb342'],
     ];
-    for (const [tx, baseH, th, tc] of treeDefs) {
-      const trunk = boxMesh(1.4, baseH, 1.2, '#6d4c41');
-      trunk.position.set(tx, win.y - win.height / 2 + baseH / 2, 0.4);
-      const crown = boxMesh(5, th, 3, tc);
-      crown.position.set(tx, win.y - win.height / 2 + baseH + th / 2, 0.4);
-      winG.add(trunk, crown);
+    for (const [tx, trunkH, layers, crownW, tc] of treeDefs) {
+      const trunk = boxMesh(1.6, trunkH, 1.2, '#6d4c41');
+      trunk.position.set(tx, sillY + 1 + trunkH / 2, TZ + 1.2);
+      winG.add(trunk);
+      let ly = sillY + 1 + trunkH;
+      for (let i = 0; i < layers; i++) {
+        const lw = crownW - i * 1.7;
+        const crown = boxMesh(lw, 2.6, 1.2, i % 2 ? shade(tc, 1.15) : tc);
+        crown.position.set(tx, ly + 1.3, TZ + 1.3 + i * 0.1);
+        crown.castShadow = false;
+        winG.add(crown);
+        ly += 2.3;
+      }
+    }
+    // low bushes along the grass strip
+    for (const [bx, bs] of [[win.x - win.width * 0.18, 3.4], [win.x + win.width * 0.06, 2.8], [win.x + win.width * 0.3, 3.8]]) {
+      const bush = boxMesh(bs, bs * 0.75, 1.2, '#7cb342');
+      bush.position.set(bx, sillY + 1 + bs * 0.3, TZ + 1.2);
+      bush.castShadow = false;
+      winG.add(bush);
     }
   }
-  const cloud = boxMesh(win.width * 0.3, 1.6, 0.3, '#ffffff');
-  cloud.position.set(win.x - win.width * 0.18, win.y + win.height * 0.32, 0.7);
-  const cloud2 = boxMesh(win.width * 0.2, 1.2, 0.3, '#ffffff');
-  cloud2.position.set(win.x + win.width * 0.25, win.y - win.height * 0.05, 0.7);
-  winG.add(cloud, cloud2);
-  const wf = boxMesh(win.width + 2, win.height + 2, 0.8, P.metal);
-  wf.position.set(win.x, win.y, -0.1);
-  const glass = boxMesh(win.width, win.height, 1.2, win.glassTint || '#cfeef8');
-  glass.position.copy(wf.position);
+  // 4) clouds drifting in the upper sky
+  const cloudDefs = [
+    [win.x - win.width * 0.22, win.y + win.height * 0.3, 3],
+    [win.x + win.width * 0.1, win.y + win.height * 0.18, 2.4],
+    [win.x + win.width * 0.34, win.y + win.height * 0.02, 2],
+  ];
+  for (const [cx, cy, cs] of cloudDefs) {
+    const c1 = boxMesh(cs * 3, cs, 0.5, '#ffffff');
+    c1.position.set(cx, cy, TZ + 1.6);
+    const c2 = boxMesh(cs * 1.6, cs * 0.8, 0.6, '#ffffff');
+    c2.position.set(cx + cs * 1.2, cy + cs * 0.5, TZ + 1.65);
+    const c3 = boxMesh(cs * 1.4, cs * 0.7, 0.6, '#ffffff');
+    c3.position.set(cx - cs * 1.1, cy + cs * 0.35, TZ + 1.65);
+    winG.add(c1, c2, c3);
+  }
+  // 5) frame border around the opening (4 bars, NOT a solid slab — scenery is
+  // deep inside the tunnel now) + mid-tunnel glass and mullions. The cut wall
+  // segments provide the real jambs/reveal.
+  const fw = win.width + 2.4, fh = win.height + 2.4;
+  const frameTop = boxMesh(fw, 1.2, 1.4, winFrameC);
+  frameTop.position.set(win.x, win.y + win.height / 2 + 0.6, -0.2);
+  const frameBot = frameTop.clone();
+  frameBot.position.y = win.y - win.height / 2 - 0.6;
+  const frameL = boxMesh(1.2, fh, 1.4, winFrameC);
+  frameL.position.set(win.x - win.width / 2 - 0.6, win.y, -0.2);
+  const frameR = frameL.clone();
+  frameR.position.x = win.x + win.width / 2 + 0.6;
+  winG.add(frameTop, frameBot, frameL, frameR);
+  // glass tint kept VERY light so the deep scenery behind stays readable
+  const glass = boxMesh(win.width, win.height, 0.4, win.glassTint || '#cfeef8');
+  glass.position.set(win.x, win.y, TZ / 2);
   glass.material.transparent = true;
-  glass.material.opacity = 0.35;
-  winG.add(wf, glass);
-  const barV = boxMesh(0.7, win.height, 1.0, P.metal); barV.position.copy(wf.position);
-  const barH = boxMesh(win.width, 0.7, 1.0, P.metal); barH.position.copy(wf.position);
+  glass.material.opacity = 0.14;
+  glass.castShadow = false;
+  winG.add(glass);
+  // cross mullions with the glass, mid-tunnel
+  const barV = boxMesh(0.8, win.height, 0.9, winFrameC); barV.position.set(win.x, win.y, TZ / 2);
+  const barH = boxMesh(win.width, 0.8, 0.9, winFrameC); barH.position.set(win.x, win.y, TZ / 2);
   winG.add(barV, barH);
-  // window sill
-  const sill = boxMesh(win.width + 3.2, 1, 2.2, P.wallTrim);
-  sill.position.set(win.x, win.y - win.height / 2 - 1.4, 0.6);
+  // 6) roller blind (half-lowered white blind at the top, like the reference)
+  // Opt-in via win.blind:true — older rooms (ep01) keep their approved look.
+  if (win.blind) {
+    const blindH = win.height * 0.28;
+    const blind = boxMesh(win.width, blindH, 0.5, '#f5f5f2');
+    blind.position.set(win.x, win.y + win.height / 2 - blindH / 2, 0.45);
+    blind.castShadow = false;
+    winG.add(blind);
+    // horizontal slat lines on the blind
+    for (let sy = 1; sy <= 3; sy++) {
+      const slat = boxMesh(win.width - 0.6, 0.28, 0.2, '#d9d9d4');
+      slat.position.set(win.x, win.y + win.height / 2 - (blindH / 4) * sy, 0.65);
+      winG.add(slat);
+    }
+    const roller = boxMesh(win.width + 1.4, 1.6, 1.6, '#e3e3de');
+    roller.position.set(win.x, win.y + win.height / 2 + 0.6, 0.45);
+    winG.add(roller);
+  }
+  // 7) window sill — a slab that spans the full wall depth and protrudes
+  // into the room, like a real cut-wall sill — + leafy plant in a white pot
+  const sill = boxMesh(win.width + 3.2, 1.2, WT + 1.6, winFrameC);
+  sill.position.set(win.x, sillY - 0.6, 0.2);
   winG.add(sill);
-  // little cactus pot on the sill
-  const cacPot = boxMesh(3, 2.6, 3, '#bf6b3f');
-  cacPot.position.set(win.x + win.width * 0.3, win.y - win.height / 2 - 0.6, 0.6);
-  const cacBody = boxMesh(2, 4, 2, '#66bb6a');
-  cacBody.position.set(win.x + win.width * 0.3, win.y - win.height / 2 + 1.8, 0.6);
-  const cacArm = boxMesh(2.6, 1.4, 1.6, '#81c784');
-  cacArm.position.set(win.x + win.width * 0.3 - 1.8, win.y - win.height / 2 + 2.4, 0.6);
-  winG.add(cacPot, cacBody, cacArm);
-  // curtains on both sides
+  const silPotX = win.x + win.width * 0.28;
+  const silPot = boxMesh(3.4, 3, 3.4, '#eceff1');
+  silPot.position.set(silPotX, sillY - 0.1, 0.9);
+  const silSoil = boxMesh(2.9, 0.4, 2.9, '#4e342e');
+  silSoil.position.set(silPotX, sillY + 1.3, 0.9);
+  winG.add(silPot, silSoil);
+  for (let i = 0; i < 3; i++) {
+    const leafS = 2.6 - i * 0.5;
+    const leaf = boxMesh(leafS, 2.2, leafS, i % 2 ? '#66bb6a' : '#81c784');
+    leaf.position.set(silPotX + (i % 2 ? -0.5 : 0.5), sillY + 2.4 + i * 1.4, 1.0 + (i % 2 ? 0.3 : -0.3));
+    leaf.rotation.y = i * 0.5;
+    winG.add(leaf);
+  }
+  // 8) curtain — folded panels on a wooden rod. Rooms that set curtainSide get
+  // ONE bunched panel on that side (reference look); rooms without it keep the
+  // legacy symmetric pair (ep01's approved look).
   if (win.curtain) {
-    const cw = 3.2;
-    const curL = boxMesh(cw, win.height + 4, 0.8, win.curtain);
-    curL.position.set(win.x - win.width / 2 - cw / 2 + 0.4, win.y + 0.6, 1.0);
-    const curR = curL.clone();
-    curR.position.x = win.x + win.width / 2 + cw / 2 - 0.4;
-    // folded look: thin darker stripes
-    const foldL = boxMesh(0.6, win.height + 4, 0.9, shade(win.curtain, 0.75));
-    foldL.position.copy(curL.position);
-    foldL.position.z += 0.05;
-    const foldR = foldL.clone();
-    foldR.position.x = curR.position.x;
-    const rod = boxMesh(win.width + cw * 2 + 2, 0.8, 0.8, P.woodDark);
-    rod.position.set(win.x, win.y + win.height / 2 + 2.6, 1.0);
-    winG.add(curL, curR, foldL, foldR, rod);
+    const cw = 4.2;
+    const sides = win.curtainSide
+      ? [win.curtainSide === 'right' ? 1 : -1]
+      : [-1, 1];
+    const rodY = win.y + win.height / 2 + 2.8;
+    const rod = boxMesh(win.width + cw * 2 + 4, 0.9, 0.9, P.woodDark);
+    rod.position.set(win.x, rodY, 1.5);
+    const rodFinL = boxMesh(1.2, 1.2, 1.2, P.woodDark);
+    rodFinL.position.set(win.x - (win.width + cw * 2 + 4) / 2 - 0.4, rodY, 1.5);
+    const rodFinR = rodFinL.clone();
+    rodFinR.position.x = win.x + (win.width + cw * 2 + 4) / 2 + 0.4;
+    winG.add(rod, rodFinL, rodFinR);
+    // curtain hangs from the rod, slightly wider than tall enough to pool
+    const curH = win.height + 6;
+    for (const side of sides) {
+      const panel = new THREE.Group();
+      // bunched look: 4 vertical folds with alternating shades
+      const folds = 4;
+      for (let fi = 0; fi < folds; fi++) {
+        const fold = boxMesh(cw / folds, curH, cw / folds * 0.55,
+          fi % 2 ? shade(win.curtain, 0.86) : win.curtain);
+        fold.position.set(-cw / 2 + (cw / folds) * (fi + 0.5), -curH / 2, 0);
+        fold.castShadow = false;
+        panel.add(fold);
+      }
+      panel.position.set(
+        win.x + side * (win.width / 2 + cw / 2 - 0.6),
+        rodY - 0.6,
+        1.7
+      );
+      winG.add(panel);
+    }
   }
   if (win.side === 'left') {
     winG.position.set(-W / 2, 0, 0);
@@ -156,6 +330,8 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   } else {
     winG.position.set(0, 0, -D / 2);
   }
+  // Wall decor rule (Q2): the window assembly casts no shadows — clean walls
+  winG.traverse((o) => { o.castShadow = false; });
   scene.add(winG);
 
   // ---- door (back wall, hinged) ----
@@ -338,7 +514,9 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
           post.position.set(sx * (bw / 2 - 0.5), bh / 2, sz * (bd / 2 - 0.5));
           g.add(post);
         }
-        const bookColors = ['#e53935', '#1e88e5', '#43a047', '#fdd835', '#8e24aa'];
+        // muted, darkened book palette — readable color variety without
+        // screaming saturation next to the window light
+        const bookColors = ['#a35d52', '#52708a', '#5f7d63', '#b3a06e', '#7a6591'];
         for (let s = 0; s < 3; s++) {
           const shelf = boxMesh(bw, 0.7, bd, wood);
           shelf.position.set(0, 2.5 + s * 7, 0);

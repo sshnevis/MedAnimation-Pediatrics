@@ -76,3 +76,41 @@ shots; a dark band there darkens the whole frame.
 Eyes/brows in near-black with white highlights, warm skin (`#f0c8a0`), clearly darker
 hair block — this is what makes close-up shots (doctor, mother, child) look intentional.
 When adding a new character, verify its close-up shot first; wide shots hide flat faces.
+
+---
+
+# Window & palette session (ep02) — added 2026-10-31
+
+## Rule Q8 — A window must show a place, not a colored rectangle
+
+A window that renders as a flat sky-colored panel reads as "no image inside"
+(the user's exact complaint on ep02). Every room window gets a real outdoor
+scene, built deep in the wall tunnel:
+
+- Layered backdrop: sky + green horizon strip, sun disc with glow, voxel trees
+  with multi-block layered crowns, low bushes, 3-part clouds.
+- Glass tint near-transparent (opacity ≈ 0.14) so the scenery actually reads;
+  white frame border + cross mullions; half-lowered roller blind; one bunched
+  curtain panel on a rod; leafy plant on the sill (reference project 2.png).
+- Window position is part of composition: it belongs near a wall corner and
+  must be fully in frame in the opening wide shot — reframe the establishing
+  camera if the opening clips it.
+
+## Rule Q9 — Saturated accent colors get muted when they sit in large groups
+
+The bookshelf's five book colors (pure red/blue/green/yellow/purple) fought
+with the window light and looked toy-like. Group-filled props (book rows,
+drawer fronts, tile patterns) use darkened, desaturated versions of the same
+hues (`#a35d52 #52708a #5f7d63 #b3a06e #7a6591`). Rule of thumb: pure
+saturated hues are for small focal accents only, never for repeated fills.
+
+## Rule Q10 — New builder features are opt-in; never silently restyle approved rooms
+
+Shared-library builders (`world.js`) serve every episode. When adding a new
+detail (white frame, blind, single curtain), gate it behind a JSON key and
+default to the previously approved look:
+
+- `window.frame` (default `P.metal`), `window.blind: true` (off by default),
+  `window.curtainSide` (unset = legacy symmetric pair).
+- After touching any shared builder, re-render previews for **all** episodes
+  that use it and compare against their approved shots.

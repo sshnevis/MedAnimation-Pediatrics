@@ -301,3 +301,47 @@ When a reference image is given, layout tidiness is part of acceptance:
     subject; label sprites non-overlapping.
 15. GSAP: never `tl.set(obj, {scale})` on an Object3D — components or
     setScalar via `tl.call`.
+
+---
+
+# Wall-depth & window session (ep02 rebuild)
+
+Lessons from rebuilding the ep02 window (user-reported "پرش تصویر" flicker +
+"no picture inside the window" + "walls are paper-thin"). Apply to every room
+with a window from now on.
+
+## Rule 21 — A backdrop panel flush with its wall z-fights; recess openings into real wall depth
+
+The window's sky panel was a box whose back face sat exactly on the wall's
+inner face (both z=0) — coplanar over the whole opening → full-opening
+flicker, invisible in any single still frame.
+
+- Rooms have `wallThickness` (default 5). A window is a **tunnel**: the wall is
+  built as 4 segments around the opening (below sill / above head / two
+  flanks), scenery sits deep at the outer face, glass mid-tunnel, blind /
+  curtain / sill near the inner face. Nothing is coplanar with anything.
+- The wainscot band and its cap rail are segmented around the opening too —
+  a proud band crossing a cut opening reads as broken.
+- After building any wall-mounted assembly, list which of its faces touch the
+  wall's inner-face plane and push each strictly off it (Rule 1 margin).
+
+## Rule 22 — An opening frame is a border, never a slab
+
+The rebuilt window's frame was first made as one solid box spanning the whole
+opening (width+2.4 × height+2.4) — once the scenery moved *inside* the wall,
+the slab hid it completely and the window went blank. Caught only because the
+preview loop was re-run.
+
+- Window/door frames are built as 4 bars (top/bottom/left/right) around the
+  opening. If any part of the assembly is a full-size panel, ask what is
+  behind it — a solid panel in front of scenery is a bug.
+- When a fix changes the layering order (what is in front of what), re-render
+  the affected shots and re-check them — do not trust the previous pass.
+
+## Checklist additions
+
+16. Openings cut through `wallThickness` walls: scenery deep, glass mid,
+    dressing near the inner face; no face flush with any wall face.
+17. Frames around openings are borders (4 bars), not slabs; re-render after
+    any layering-order change.
+

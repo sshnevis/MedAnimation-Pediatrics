@@ -19,8 +19,20 @@ No ceiling (dollhouse cameras look down from +Z).
     |                         FRONT  (+Z)
     |              📷 wide cameras out here (~ z 148–158)
 
-  LEFT WALL: large window (36×18) with trees + sill cactus (side:"left")
+  LEFT WALL: large window (36×18) cut through the 5-unit-thick wall —
+  scenery tunnel (sky/sun/trees/bushes/clouds), glass mid-tunnel, sill +
+  plant inside the room (side:"left")
 ```
+
+### Wall & window construction (all rooms, since ep02)
+
+- Walls have real thickness (`wallThickness`, default 5) — the window wall is
+  built as 4 segments around the opening, so the window is a true tunnel.
+- Window dressing keys in the room JSON: `frame` (white when set, else legacy
+  metal), `blind: true` (roller blind), `curtainSide` (one bunched panel;
+  unset = legacy pair), `greenery` (voxel trees/bushes).
+- Composition: window near the back-wall corner, fully visible in the opening
+  wide shot; see QUALITY_RULES Q8–Q10 and BUGFIX_RULES 21–22.
 
 ## Entry & blocking (ep01, v3)
 

@@ -19,10 +19,13 @@
   "door": { "x": 42, "width": 16, "height": 30, "color": "#b08968" },
   "window": {
     "side": "left",
-    "x": -4, "y": 19, "width": 40, "height": 20,
-    "sky": "#bfe8f7",
+    "x": 18, "y": 19, "width": 40, "height": 20,
+    "sky": "#a8e0f6",
     "glassTint": "#dff2fa",
+    "frame": "#ffffff",
     "curtain": "#f7f5f0",
+    "curtainSide": "left",
+    "blind": true,
     "greenery": true
   },
   "furniture": [
@@ -56,7 +59,7 @@
     "medicine":    [-26, -6]
   },
   "shots": {
-    "wide-establishing": { "pos": [48, 46, 132], "target": [-18, 6, -16], "dolly": 0.03 },
+    "wide-establishing": { "pos": [54, 46, 128], "target": [-26, 8, -12], "dolly": 0.03 },
     "medium-doctor":     { "pos": [-4, 26, 30], "target": [-36, 14, -24], "dolly": 0 },
     "medium-family":     { "pos": [-32, 24, 34], "target": [29, 12, 12], "dolly": 0 },
     "medium-family-close": { "pos": [-26, 22, 34], "target": [28, 13, 13], "dolly": 0 },
