@@ -1,0 +1,68 @@
+{
+  "id": "pediatric-visit-room",
+  "label": "اتاق معاینه کودکان",
+  "description": "Pediatric exam room rebuilt 1:1 from scenario/project 2.png: warm light walls with a gray tile wainscot band, wooden door on the back wall right, large left window with daylight/greenery/white curtain, wooden doctor desk with monitor + papers front-left with a black office chair, teal exam bed in the right background, teal storage cabinets with white drawers, wooden bookshelf with colored books + plants, teddy-bear poster «سلامت کودکان», framed heart posters, giraffe growth chart, wall clock, and teal visitor chairs where the mother (purple) and child (red) sit facing the doctor.",
+  "size": [138, 108],
+  "wallHeight": 36,
+  "palette": {
+    "floorA": "#e8dfd2",
+    "floorB": "#d6cbb9",
+    "wall": "#f3ecdf",
+    "wallTrim": "#cfd4d6",
+    "accent": "#35b0a8",
+    "wood": "#a9825f",
+    "woodDark": "#6d4c41",
+    "metal": "#90a4ae",
+    "white": "#fafafa"
+  },
+  "wainscot": { "height": 11, "color": "#c2ccd0", "rail": "#eef1f2" },
+  "door": { "x": 42, "width": 16, "height": 30, "color": "#b08968" },
+  "window": {
+    "side": "left",
+    "x": -4, "y": 19, "width": 40, "height": 20,
+    "sky": "#bfe8f7",
+    "glassTint": "#dff2fa",
+    "curtain": "#f7f5f0",
+    "greenery": true
+  },
+  "furniture": [
+    { "type": "desk",          "pos": [-34, -6],  "rotY": 0,       "size": [36, 10, 14] },
+    { "type": "officeChair",   "pos": [-34, -24], "rotY": 0 },
+    { "type": "bookshelf",     "pos": [-62, 6],   "rotY": 1.5708 },
+    { "type": "bookshelf",     "pos": [-62, 28],  "rotY": 1.5708 },
+    { "type": "plant",         "pos": [-58, -44], "colors": { "pot": "#bf6b3f", "leaf": "#43a047" } },
+    { "type": "plant",         "pos": [64, 44],   "colors": { "pot": "#e0a25e", "leaf": "#66bb6a" } },
+    { "type": "drawerCabinet", "pos": [24, -48],  "rotY": 0,       "size": [22, 16, 10] },
+    { "type": "drawerCabinet", "pos": [66, -6],   "rotY": -1.5708, "size": [20, 16, 10] },
+    { "type": "examBed",       "pos": [56, -30],  "rotY": 1.5708,  "size": [26, 9, 14] },
+    { "type": "stool",         "pos": [42, -30],  "rotY": 0 },
+    { "type": "chair",         "pos": [20, 16],   "rotY": -2.2 },
+    { "type": "chair",         "pos": [38, 12],   "rotY": -2.4 },
+    { "type": "sideTable",     "pos": [56, 28],   "rotY": 0 },
+    { "type": "rug",           "pos": [12, 12],   "size": [52, 32], "colors": { "inner": "#a7d8d3", "outer": "#5cbdb4" } },
+    { "type": "welcomePoster", "pos": [-28, 25],  "label": "سلامت کودکان" },
+    { "type": "heartPoster",   "pos": [-6, 27] },
+    { "type": "heartPoster",   "pos": [8, 27] },
+    { "type": "clock",         "pos": [-48, 28] },
+    { "type": "growthChart",   "pos": [52, 24] }
+  ],
+  "blocking": {
+    "_comment": "Marks are [x, z]. +X=right (exam bed, cabinets), -X=left (window, bookshelves, desk), -Z=back wall/door, +Z=front (wide camera). Doctor seated behind the desk facing the family; mother+child already seated on the teal visitor chairs at t=0.",
+    "doctorSit":   [-34, -24],
+    "doctorFace":  [28, 14],
+    "motherSit":   [20, 16],
+    "childSit":    [38, 12],
+    "familyFace":  [-34, -24],
+    "medicine":    [-26, -6]
+  },
+  "shots": {
+    "wide-establishing": { "pos": [48, 46, 132], "target": [-18, 6, -16], "dolly": 0.03 },
+    "medium-doctor":     { "pos": [-4, 26, 30], "target": [-36, 14, -24], "dolly": 0 },
+    "medium-family":     { "pos": [-32, 24, 34], "target": [29, 12, 12], "dolly": 0 },
+    "medium-family-close": { "pos": [-26, 22, 34], "target": [28, 13, 13], "dolly": 0 },
+    "family-two-shot":   { "pos": [-26, 19, -22], "target": [24, 12, 12], "dolly": 0 },
+    "close-mother":      { "pos": [62, 36, 148], "target": [-2, 9, -16], "dolly": 0 },
+    "close-doctor":      { "pos": [-8, 18, 8],  "target": [-34, 15, -24], "dolly": 0 },
+    "insert-medicine":   { "pos": [-16, 18, 40], "target": [-26, 11, -6], "dolly": 0.04 }
+  }
+}

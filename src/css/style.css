@@ -103,6 +103,108 @@ canvas#scene {
   font-weight: 700;
 }
 
+/* ---- full-frame effect cards (danger / infant / dose) ---- */
+.fx-card {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(6, 18, 24, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.fx-card.on { opacity: 1; }
+.fx-card-inner {
+  background: #ffffff;
+  border-radius: 22px;
+  padding: 34px 40px;
+  max-width: 82vw;
+  direction: rtl;
+  text-align: right;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+}
+.fx-card-inner.danger { border-top: 10px solid #c62828; }
+.fx-card-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #c62828;
+  font-weight: 700;
+  font-size: clamp(22px, 4.6vmin, 38px);
+  margin-bottom: 12px;
+}
+.fx-warn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #c62828;
+  color: #fff;
+  border-radius: 10px;
+  padding: 2px 12px;
+  font-size: clamp(20px, 4.2vmin, 34px);
+}
+#dangerItems {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: clamp(16px, 3.2vmin, 25px);
+  font-weight: 700;
+  color: #233239;
+}
+#dangerItems li {
+  margin: 9px 0;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+#dangerItems li.shown { opacity: 1; transform: none; }
+#dangerItems li .ic { margin-left: 10px; }
+.fx-note {
+  margin: 16px 0 0;
+  color: #c62828;
+  font-size: clamp(13px, 2.4vmin, 19px);
+  font-weight: 700;
+}
+.fx-card-inner.infant {
+  background: #fdf6f4;
+  border: 7px solid #c62828;
+  text-align: center;
+}
+.fx-icon-big { font-size: clamp(40px, 9vmin, 76px); margin-bottom: 10px; }
+.fx-card-inner.infant h3 {
+  margin: 0;
+  color: #233239;
+  font-size: clamp(20px, 4.2vmin, 34px);
+}
+.fx-card-inner.infant p {
+  margin: 12px 0 0;
+  color: #c62828;
+  font-weight: 700;
+  font-size: clamp(18px, 3.8vmin, 30px);
+}
+.fx-card-inner.dose {
+  background: #fffdf6;
+  border: 6px solid #35b0a8;
+  text-align: center;
+}
+.fx-card-inner.dose p {
+  margin: 8px 0 14px;
+  color: #233239;
+  font-weight: 700;
+  font-size: clamp(18px, 3.8vmin, 30px);
+}
+.fx-badge {
+  display: inline-block;
+  background: #35b0a8;
+  color: #fff;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 6px 22px;
+  font-size: clamp(14px, 2.8vmin, 22px);
+}
+
 /* ---- HUD ---- */
 #hud {
   position: absolute;

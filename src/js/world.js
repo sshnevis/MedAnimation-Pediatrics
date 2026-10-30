@@ -53,6 +53,33 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   right.position.set(W / 2 + 0.6, wallH / 2, -D / 2 + rightDepth / 2);
   scene.add(right);
 
+  // ---- wainscot: gray tile band along the lower walls (project 2.png) ----
+  if (R.wainscot) {
+    const wh = R.wainscot.height;
+    const wc = R.wainscot.color;
+    // bands sit proud of the wall faces (walls are at -D/2 and -W/2 outer edges)
+    const backW = boxMesh(W, wh, 0.5, wc);
+    backW.position.set(0, wh / 2, -D / 2 + 0.85);
+    backW.castShadow = false;
+    const leftW = boxMesh(0.5, wh, D, wc);
+    leftW.position.set(-W / 2 + 0.85, wh / 2, 0);
+    leftW.castShadow = false;
+    const rightW = boxMesh(0.5, wh, rightDepth, wc);
+    rightW.position.set(W / 2 - 0.85, wh / 2, -D / 2 + rightDepth / 2);
+    rightW.castShadow = false;
+    scene.add(backW, leftW, rightW);
+    // thin cap rail on top of the band — proud of the band face, not flush
+    if (R.wainscot.rail) {
+      const railB = boxMesh(W, 0.9, 0.8, R.wainscot.rail);
+      railB.position.set(0, wh + 0.45, -D / 2 + 1.0);
+      const railL = boxMesh(0.8, 0.9, D, R.wainscot.rail);
+      railL.position.set(-W / 2 + 1.0, wh + 0.45, 0);
+      const railR = boxMesh(0.8, 0.9, rightDepth, R.wainscot.rail);
+      railR.position.set(W / 2 - 1.0, wh + 0.45, -D / 2 + rightDepth / 2);
+      scene.add(railB, railL, railR);
+    }
+  }
+
   // ---- window (back wall by default; win.side === 'left' puts it on the left wall) ----
   // Everything is built in a group using back-wall-local coords
   // (x = along the wall, z = into the room), then the group is placed+rotated.
@@ -180,15 +207,17 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
         const knob2 = knob.clone();
         knob2.position.y = h * 0.37;
         g.add(drawer, drawerLine1, drawerLine2, knob, knob2);
-        // monitor on desk — screen faces the DOCTOR (local -z side, where he sits)
-        const mon = boxMesh(6, 4, 0.8, '#37474f');
-        mon.position.set(-3, h + 2.8, 0.5);
-        const monScreen = boxMesh(5.2, 3.2, 0.3, '#4fc3f7');
-        monScreen.position.set(-3, h + 2.8, 0.05);
-        const monStand = boxMesh(1.2, 1.6, 1.2, '#263238');
-        monStand.position.set(-3, h + 0.6, 0.5);
+        // monitor on desk — screen faces the DOCTOR (local -z side, where he sits).
+        // Large body pushed close to the desk's outer (+z, family-side) edge,
+        // per the user's markup on project 2.png (2 rounds of "bigger, further out")
+        const mon = boxMesh(12, 8, 1.2, '#37474f');
+        mon.position.set(-3, h + 5, 5.6);
+        const monScreen = boxMesh(10.4, 6.8, 0.4, '#4fc3f7');
+        monScreen.position.set(-3, h + 5, 4.9);
+        const monStand = boxMesh(1.8, 2.2, 1.8, '#263238');
+        monStand.position.set(-3, h + 1.1, 5.6);
         const keyboard = boxMesh(6, 0.5, 2.2, '#263238');
-        keyboard.position.set(-2.5, h + 0.35, -3.4);
+        keyboard.position.set(-2.5, h + 0.35, 1.4);
         const papers = boxMesh(4, 0.3, 3, '#ffffff');
         papers.position.set(4.2, h + 0.25, -1.5);
         papers.rotation.y = 0.3;
@@ -385,6 +414,13 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
         heartP.rotation.z = Math.PI / 4;
         heartP.position.set(0.3, -3, 0.9);
         g.add(bar1, bar2, heartP);
+        // Persian label printed ON the poster (e.g. «سلامت کودکان»)
+        if (item.label) {
+          const lbl = textSprite(item.label, { fontSize: 36, bg: 'rgba(0,0,0,0)', fg: '#263238' });
+          lbl.position.set(0.15, -4.6, 1.0);
+          lbl.scale.multiplyScalar(0.42);
+          g.add(lbl);
+        }
         // wall decor: no cast shadows (reference image has clean walls)
         g.traverse((o) => { o.castShadow = false; });
         break;
@@ -628,6 +664,90 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
         }
         break;
       }
+      case 'drawerCabinet': {
+        // teal storage cabinet with stacked white drawers (project 2.png)
+        const [w, h, d] = item.size;
+        const body = boxMesh(w, h, d, P.accent);
+        body.position.set(0, h / 2, 0);
+        g.add(body);
+        const rows = item.rows || 3;
+        const dh = (h - 2.4) / rows;
+        for (let r = 0; r < rows; r++) {
+          const front = boxMesh(w - 2, dh - 1, 0.6, '#eceff1');
+          // proud of the body's front face (d/2), never flush (Rule 1)
+          front.position.set(0, 1.2 + dh * r + dh / 2, d / 2 + 0.35);
+          const line = boxMesh(w - 3.4, 0.35, 0.2, '#b0bec5');
+          line.position.set(0, front.position.y + dh / 2 - 1.2, d / 2 + 0.7);
+          const knob = boxMesh(1.6, 0.6, 0.5, '#78909c');
+          knob.position.set(0, front.position.y, d / 2 + 0.7);
+          g.add(front, line, knob);
+        }
+        // top slab + plant pot on top
+        const top = boxMesh(w + 1, 0.8, d + 1, shade(P.accent, 0.85));
+        top.position.y = h + 0.4;
+        g.add(top);
+        break;
+      }
+      case 'heartPoster': {
+        // small framed heart/medical poster on the back wall (pos[1] = height)
+        g.position.set(item.pos[0], item.pos[1], -R.size[1] / 2 + 1.0);
+        const frame = boxMesh(8, 9, 0.6, '#8fa8bf');
+        frame.position.set(0, 0, -0.3);
+        const board = boxMesh(7, 8, 0.7, '#fdf6f6');
+        board.position.set(0, 0, 0.3);
+        g.add(frame, board);
+        const hc = '#e53935';
+        const hd = boxMesh(2.4, 2.4, 0.6, hc);
+        hd.rotation.z = Math.PI / 4;
+        hd.position.set(0, 1.2, 0.9);
+        const hl1 = boxMesh(1.5, 1.5, 0.6, hc);
+        hl1.position.set(-0.9, 2.1, 0.9);
+        const hl2 = hl1.clone();
+        hl2.position.x = 0.9;
+        const pulse = boxMesh(4.6, 0.6, 0.5, hc);
+        pulse.position.set(0, -1.8, 0.9);
+        const pulseUp = boxMesh(0.6, 1.4, 0.5, hc);
+        pulseUp.position.set(-0.8, -1.2, 0.9);
+        const pulseDn = pulseUp.clone();
+        pulseDn.position.x = 0.8;
+        pulseDn.position.y = -2.4;
+        g.add(hd, hl1, hl2, pulse, pulseUp, pulseDn);
+        g.traverse((o) => { o.castShadow = false; });
+        break;
+      }
+      case 'growthChart': {
+        // giraffe growth-chart poster near the exam bed (back wall, pos[1]=height)
+        g.position.set(item.pos[0], item.pos[1], -R.size[1] / 2 + 1.0);
+        const frame = boxMesh(9, 22, 0.6, '#a1887f');
+        frame.position.set(0, 0, -0.3);
+        const board = boxMesh(8, 21, 0.7, '#fdf3e3');
+        board.position.set(0, 0, 0.3);
+        g.add(frame, board);
+        // measurement ticks along the right side
+        for (let i = 0; i < 7; i++) {
+          const tick = boxMesh(1.6, 0.35, 0.5, '#8d6e63');
+          tick.position.set(2.6, 8 - i * 2.6, 0.85);
+          g.add(tick);
+        }
+        // giraffe: neck + head + muzzle + ear + spots
+        const gc = '#f0b429';
+        const neck = boxMesh(1.8, 10, 0.7, gc);
+        neck.position.set(-2, -4.5, 0.85);
+        const head = boxMesh(3, 2.4, 0.8, gc);
+        head.position.set(-1.4, 1.6, 0.85);
+        const muzzle = boxMesh(1.4, 1.2, 0.5, '#e3993c');
+        muzzle.position.set(-0.4, 1.2, 1.0);
+        const ear = boxMesh(1, 1, 0.5, '#e3993c');
+        ear.position.set(-2.6, 2.6, 0.95);
+        g.add(neck, head, muzzle, ear);
+        for (const [sx, sy] of [[-2.4, -2], [-1.7, -5], [-2.2, -8], [-1.2, -10.5]]) {
+          const spot = boxMesh(0.8, 0.8, 0.3, '#b07b20');
+          spot.position.set(sx, sy, 1.05);
+          g.add(spot);
+        }
+        g.traverse((o) => { o.castShadow = false; });
+        break;
+      }
       case 'poster': {
         const frame = boxMesh(0.5, 10, 8, P.woodDark);
         frame.position.set(0, 0, -0.3);
@@ -662,16 +782,19 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   }
 
   // ---- explainer props ----
+  // Every prop family is optional: an episode's pack may define only the props
+  // it uses (e.g. fever-props defines only `medicine`).
   const PR = propsDef;
 
   // floating tray with foods (hidden until L03)
   const tray = new THREE.Group();
+  const foodGroups = [];
+  if (PR.tray && PR.foods) {
   const trayBox = boxMesh(PR.tray.size[0], PR.tray.size[1], PR.tray.size[2], PR.tray.color);
   tray.add(trayBox);
   const trayRim = boxMesh(PR.tray.size[0] + 0.6, PR.tray.size[1] * 0.7, PR.tray.size[2] + 0.6, shade(PR.tray.color, 0.75));
   trayRim.position.y = PR.tray.size[1] * 0.6;
   tray.add(trayRim);
-  const foodGroups = [];
   // Wide X spacing (gap 10) so the bowl/plate dishes never overlap each other
   const offsets = [-15, -5, 5, 15];
   PR.foods.forEach((food, i) => {
@@ -781,6 +904,7 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
     tray.add(fg);
     foodGroups.push(fg);
   });
+  }
   const trayXZ = M.tray || { x: -4, z: 2 };
   const waterXZ = M.water || { x: -8, z: -2 };
   const warnXZ = M.warn || { x: -2, z: 2 };
@@ -791,6 +915,7 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   scene.add(tray);
 
   const waterGroup = new THREE.Group();
+  if (PR.water) {
   const wg = new THREE.MeshLambertMaterial({ color: PR.water.glass, transparent: true, opacity: 0.55 });
   const wglass = new THREE.Mesh(new THREE.BoxGeometry(4.5, 6.5, 4.5), wg);
   wglass.position.y = 3.25;
@@ -801,8 +926,10 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   waterGroup.position.set(waterXZ.x, 15, waterXZ.z);
   waterGroup.scale.setScalar(0.001);
   scene.add(waterGroup);
+  }
 
   const warnGroup = new THREE.Group();
+  if (PR.warning) {
   const cone = new THREE.Mesh(
     new THREE.ConeGeometry(3.2, 5.5, 3),
     new THREE.MeshLambertMaterial({ color: PR.warning.sign })
@@ -820,8 +947,10 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   warnGroup.position.set(warnXZ.x, 18, warnXZ.z);
   warnGroup.scale.setScalar(0.001);
   scene.add(warnGroup);
+  }
 
   const heart = new THREE.Group();
+  if (PR.heart) {
   const hc = PR.heart.color;
   const diamond = boxMesh(6, 6, 2.2, hc);
   diamond.rotation.z = Math.PI / 4;
@@ -840,8 +969,58 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   heart.position.set(heartXZ.x, 26, heartXZ.z);
   heart.visible = false;
   scene.add(heart);
+  }
 
-  world.props = { tray, foodGroups, waterGroup, warnGroup, heart };
+  // ---- medicine insert props (fever episode): amber bottle + dropper + water cup,
+  // sitting on the desk at the `medicine` mark. Hidden until a medicineInsert /
+  // insert-medicine line. MEDICAL SAFETY: no dosage amount is ever rendered. ----
+  let medicineGroup = null;
+  if (PR.medicine) {
+    const mc = PR.medicine;
+    medicineGroup = new THREE.Group();
+    const bBody = boxMesh(5, 8, 5, mc.bottle.body);
+    bBody.position.y = 4;
+    const bCap = boxMesh(3, 1.6, 3, mc.bottle.cap);
+    bCap.position.y = 8.8;
+    const bLabel = boxMesh(5.2, 4, 5.2, mc.bottle.label);
+    bLabel.position.y = 4;
+    const bBand = boxMesh(5.35, 1.1, 5.35, mc.bottle.labelBand);
+    bBand.position.y = 5.6;
+    medicineGroup.add(bBody, bCap, bLabel, bBand);
+    // dropper leaning beside the bottle
+    const dBulb = boxMesh(1.8, 1.8, 1.8, mc.dropper.bulb);
+    dBulb.position.set(-5, 6.6, 0.6);
+    const dTube = boxMesh(1.1, 4.4, 1.1, mc.dropper.tube);
+    dTube.position.set(-5, 4, 0.6);
+    dTube.rotation.z = 0.12;
+    const dTip = boxMesh(0.7, 1.8, 0.7, mc.dropper.tip);
+    dTip.position.set(-4.7, 1.4, 0.6);
+    medicineGroup.add(dBulb, dTube, dTip);
+    // water cup
+    const cupG = new THREE.MeshLambertMaterial({ color: mc.cup.glass, transparent: true, opacity: 0.55 });
+    const cupB = new THREE.Mesh(new THREE.BoxGeometry(4, 5.5, 4), cupG);
+    cupB.position.set(7.4, 2.75, 0.6);
+    cupB.castShadow = true;
+    const cupL = boxMesh(3.3, 3, 3.3, mc.cup.liquid);
+    cupL.position.set(7.4, 1.7, 0.6);
+    medicineGroup.add(cupB, cupL);
+    // pill + suppository on the desk surface
+    const pill = boxMesh(2.6, 1.2, 1.6, mc.pill);
+    pill.position.set(3, 0.6, 3.2);
+    pill.rotation.y = 0.5;
+    const supp = boxMesh(1.8, 3, 1.8, mc.suppository);
+    supp.position.set(-8.6, 1.5, 2.6);
+    supp.rotation.z = -0.25;
+    medicineGroup.add(pill, supp);
+
+    const mxz = M.medicine || { x: -26, z: -6 };
+    // y=10 → the group's floor sits on a desk top of height 10 (desk size [*,10,*])
+    medicineGroup.position.set(mxz.x, 10, mxz.z);
+    medicineGroup.scale.setScalar(0.001);
+    scene.add(medicineGroup);
+  }
+
+  world.props = { tray, foodGroups, waterGroup, warnGroup, heart, medicineGroup };
 
   // ---- per-frame pure-time updates (clock hands, heart pulse) ----
   world.apply = function (t) {

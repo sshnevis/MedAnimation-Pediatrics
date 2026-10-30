@@ -74,10 +74,43 @@ After each episode, append lessons learned to this file (below) and, where gener
   needed, keep them episode-agnostic and driven by data flags.
 
 ### Known issues to watch
-- `src/js/blocking.js` `buildShots()`: the `roomDef.shots` merge block sits after
-  `return shots;` (dead code) — room-level shot overrides never applied. Fix in ep02.
+- ~~`src/js/blocking.js` `buildShots()`: the `roomDef.shots` merge block sits after
+  `return shots;` (dead code)~~ — FIXED in ep02.
 - Camera-axis discipline: hold doctor on one side / family on the other across all shots;
   never cut across the axis without an intermediate framing.
 
 ### From ep02 (child fever)
-- (to be filled after implementation)
+- **buildShots dead-code fix**: `return {…}` followed by unreachable merge code was replaced
+  with `const shots = {…}` + merge + return. Room JSON `shots{}` now works — declare ALL
+  episode shots there instead of editing blocking.js per episode.
+- **Card flags pattern**: full-frame graphic cards (danger/infant/dose) are DOM overlays;
+  the plan entry carries a boolean flag and the card *content* lives on the scenario line —
+  do not duplicate config in staging.plan.
+- **Card config lookup bug**: reading card config from the plan flag (boolean `true`) does
+  not throw on property access (primitive boxing) — it silently produces empty card text.
+  Always resolve config via `scenario.lines.find(x => x.id === p.id)`.
+- **Guard optional prop packs**: world.js built the explainer tray/water/warning/heart
+  unconditionally and crashed when a pack (fever-props) omitted them. Every prop family is
+  now guarded; new episodes can ship minimal prop packs.
+- **Close-up distances**: at fov 52 vertical, a head-and-shoulders needs ~35–40 units of
+  camera-to-subject distance; 15–20 units fills the frame with the torso (took 3 iterations).
+- **Room shots in JSON**: static camera coordinates in the room JSON iterate exactly like
+  ep01's code-derived shots and keep the engine untouched per episode.
+- **api.txt format**: the ElevenLabs key sits on line 2 (line 1 is the label
+  `elevenlabs.io`); strip CR/LF before exporting ELEVENLABS_API_KEY.
+- **Serve-root gotcha**: `serve.js` rejects paths when `root` uses forward slashes on
+  Windows (`path.join` normalizes to backslashes → `startsWith` fails → 403). Always pass
+  the resolver's `ROOT` (backslash form), not a hand-built forward-slash path.
+
+### Hook-card rules (ep02 fix — apply to every episode)
+- **`page.setContent()` is a null-origin page**: root-relative URLs (`/episodes/...`,
+  `/src/lib/fonts/...`) cannot resolve there, and cross-origin font/image fetches from a
+  null origin are blocked without CORS. Symptom: hook card renders **black with a fallback
+  font** (exactly what ep02's first cards looked like vs ep01's fixed ones).
+  Fix (now in `make-hook-cards.js`): embed the background frame and the Vazirmatn woff2
+  files as **`data:` URLs** — the card HTML is fully self-contained, no server/CORS.
+- **Never trust a hook card without opening the PNG**: after `make-hook-cards.js`, view
+  `render/hook-intro.png` / `hook-outro.png` — verify (a) blurred in-scene background is
+  visible, (b) text is shaped in Vazirmatn (not Tahoma fallback). Then run assemble.
+- **Hook durations**: intro 0.5 s, outro **1.0 s** (`hooks.outro.duration` in
+  scenario.json — verify the value, don't assume; the user wants the outro at 1 s).

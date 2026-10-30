@@ -40,7 +40,7 @@ export function buildShots(M, roomDef) {
   const Ch = M.childSit;
   const midX = (Mo.x + Ch.x) / 2;
   const midZ = (Mo.z + Ch.z) / 2;
-  return {
+  const shots = {
     // Opening — only slow push-in in the film
     'wide-door': {
       pos: [8, 40, 158],

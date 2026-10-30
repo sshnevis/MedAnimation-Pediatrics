@@ -175,6 +175,17 @@ async function boot() {
   const fill = new THREE.DirectionalLight('#f4f8fb', 0.85);
   fill.position.set(-10, 45, 130);
   scene.add(fill);
+  // Cool daylight streaming in through the side window (project 2.png: the
+  // curtained light-catching window on the wall behind the doctor). Aimed from
+  // the window's side of the room into the desk/family area, no castShadow so
+  // it lifts the room without fighting the sun's shadows.
+  if (roomDef.window && roomDef.window.side === 'left') {
+    const winLight = new THREE.DirectionalLight('#ddf2ff', 0.75);
+    winLight.position.set(-120, 60, 10);
+    winLight.target.position.set(30, 0, 0);
+    winLight.castShadow = false;
+    scene.add(winLight, winLight.target);
+  }
 
   // ---- blocking marks (single source of truth for positions) ----
   const marks = marksFromRoom(roomDef);
@@ -236,6 +247,39 @@ async function boot() {
     },
     showEndCard(on) {
       // opacity handled by the timeline tween; this guarantees content state
+    },
+    // Full-frame effect cards (danger / infant / dose). kind=null hides all.
+    showCard(kind, cfg) {
+      document.querySelectorAll('.fx-card').forEach((el) => el.classList.remove('on'));
+      if (!kind) return;
+      const el = document.getElementById(kind + 'Card');
+      if (!el) return;
+      if (kind === 'danger' && cfg) {
+        el.querySelector('#dangerTitle').textContent = cfg.title;
+        el.querySelector('#dangerNote').textContent = cfg.note || '';
+        const ul = el.querySelector('#dangerItems');
+        ul.innerHTML = '';
+        cfg.items.forEach((it) => {
+          const li = document.createElement('li');
+          const ic = document.createElement('span');
+          ic.className = 'ic';
+          ic.textContent = it.icon;
+          li.appendChild(ic);
+          li.appendChild(document.createTextNode(it.text));
+          ul.appendChild(li);
+        });
+      } else if (kind === 'infant' && cfg) {
+        el.querySelector('#infantIcon').textContent = cfg.icon || '👶';
+        el.querySelector('#infantTitle').textContent = cfg.title;
+        el.querySelector('#infantText').textContent = cfg.text;
+      } else if (kind === 'dose' && cfg) {
+        el.querySelector('#doseText').textContent = cfg.text;
+      }
+      el.classList.add('on');
+    },
+    revealCardItem(i) {
+      const li = document.querySelectorAll('#dangerItems li')[i];
+      if (li) li.classList.add('shown');
     },
   };
 

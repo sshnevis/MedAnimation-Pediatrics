@@ -1,0 +1,213 @@
+{
+  "id": "ep02-child-fever",
+  "title": "نحوه برخورد با تب در کودکان",
+  "subtitle": "داروی ضدتب، علائم خطر و هشدار شیرخواران",
+  "language": "fa",
+  "location": "pediatric-visit-room",
+  "characters": ["doctor", "mother", "child"],
+  "props": ["fever-props"],
+  "hooks": {
+    "intro": {
+      "duration": 0.5,
+      "kicker": "این قسمت",
+      "title": "نحوه برخورد با تب در کودکان",
+      "frame": 320,
+      "frameAt": 0.42
+    },
+    "outro": {
+      "duration": 1.0,
+      "title": "ادامه دارد",
+      "frameAt": 0.42
+    }
+  },
+  "lines": [
+    {
+      "id": "L01",
+      "speaker": "doctor",
+      "display": "سلام، خوش اومدین.",
+      "tts": "سَلام، خُوش اومَدین.",
+      "camera": "wide-establishing",
+      "settleAfter": 1.6,
+      "action": "Family already seated at t=0 (guideline time-saving option). Doctor raises his head, smiles; mother nods; child sits calmly looking at the doctor. Camera A: wide establishing with slow push-in then hold."
+    },
+    {
+      "id": "L02",
+      "speaker": "mother",
+      "display": "سلام آقای دکتر، بچه‌ام تب داره.",
+      "tts": "سَلام آقای دُکتُر، بَچه‌ام تَب دارِه.",
+      "camera": "family-two-shot",
+      "action": "Mother looks at the doctor; on «بچه‌ام» her hand moves gently toward the child; mild worry, not panic; child head slightly down, glances at mother once."
+    },
+    {
+      "id": "L03",
+      "speaker": "doctor",
+      "display": "چند روزه که تب داره؟",
+      "tts": "چَند رُوزِه که تَب دارِه؟",
+      "camera": "medium-doctor",
+      "action": "Doctor tilts his head toward the mother, hands on the desk, eyebrows raised on the question."
+    },
+    {
+      "id": "L04",
+      "speaker": "mother",
+      "display": "از همین امروز.",
+      "tts": "اَز هَمین اِمروز.",
+      "camera": "medium-family",
+      "action": "Small confirming nod; slight hand raise on «امروز» then down; child glances at the doctor."
+    },
+    {
+      "id": "L05",
+      "speaker": "doctor",
+      "display": "اینکه بیشتر از چند روز تب داشته باشه، خیلی مهمه. برای پایین آوردن تب چه کارهایی انجام دادین؟",
+      "tts": "اینکه بیشتر اَز چَند رُوز تَب داشتِه باشِه، خیلی مُهِمِه. بَرای پایین آوردَنِ تَب چِه کارهایی اَنجام دادین؟",
+      "camera": "medium-doctor",
+      "action": "Slow explanatory hand gesture; pause on «خیلی مهمه»; leans forward; holds gaze awaiting the answer. No zooming."
+    },
+    {
+      "id": "L06",
+      "speaker": "mother",
+      "display": "پاشویه کردم و از مایعات به مقدار کافی استفاده کردم.",
+      "tts": "پاشویه کَردَم و اَز مایعات بِه مِقدارِ کافی اِستِفادِه کَردَم.",
+      "camera": "medium-family",
+      "action": "Small hand motion on «پاشویه»; palm raises on «مایعات»; ends looking at the doctor; child calm."
+    },
+    {
+      "id": "L07",
+      "speaker": "doctor",
+      "display": "آیا کل روز تب داره؟",
+      "tts": "آیا کُلِّ رُوز تَب دارِه؟",
+      "camera": "medium-doctor",
+      "action": "Head tilt, thoughtful expression, ~0.5 s hold after the question."
+    },
+    {
+      "id": "L08",
+      "speaker": "mother",
+      "display": "بله.",
+      "tts": "بَله.",
+      "camera": "medium-family-close",
+      "action": "Single confirming nod; mild worry retained. Shot slightly tighter than L06.",
+      "settleAfter": 0.4
+    },
+    {
+      "id": "L09",
+      "speaker": "doctor",
+      "display": "پس باید از داروی ضد تب مانند استامینوفن استفاده کنین.",
+      "tts": "پَس بایَد اَز داروی ضِدِّ تَب مانَندِ استامینوفِن اِستِفادِه کُنین.",
+      "camera": "medium-doctor",
+      "action": "Hand rises; small precise gesture on «استامینوفن»; calm confident face. Small medicine-bottle graphic appears in the frame corner (medicineInsert) — no dosage shown.",
+      "medicineInsert": true
+    },
+    {
+      "id": "L10",
+      "speaker": "mother",
+      "display": "چه مدت و به چه صورت؟",
+      "tts": "چِه مُدَت و بِه چِه صُورَت؟",
+      "camera": "medium-family",
+      "action": "Leans forward slightly, head tilts toward the doctor, hands resting."
+    },
+    {
+      "id": "L11",
+      "speaker": "doctor",
+      "display": "از قطره یا شربت استفاده کنین؛ اگر نتونست بخوره، از شیاف هم می‌تونین استفاده کنین.",
+      "tts": "اَز قَطره یا شَربَت اِستِفادِه کُنین؛ اَگَر نَتَوانست بِخُورِه، اَز شیاف هَم می‌تونین اِستِفادِه کُنین.",
+      "camera": "insert-medicine",
+      "action": "Hand gesture on قطره/شربت; cut to the medicine insert (bottle + dropper + water cup, no dosage); return to the doctor for L12's lead-in.",
+      "medicineInsert": true
+    },
+    {
+      "id": "L12",
+      "speaker": "mother",
+      "display": "آیا لازم است از آنتی بیوتیک استفاده کنم؟",
+      "tts": "آیا لازِم اَست اَز آنتی‌بیوتیک اِستِفادِه کُنَم؟",
+      "camera": "close-mother",
+      "action": "Key educational beat; questioning face; head forward on «آنتی‌بیوتیک»; camera holds static."
+    },
+    {
+      "id": "L13",
+      "speaker": "doctor",
+      "display": "فعلا لازم نیست، چون ممکن است تب به خاطر بیماری ویروسی باشه. اگر بعد از دو روز با وجود دادن داروی ضد تب، همچنان تب داشت، مجدداً به پزشک مراجعه کنین.",
+      "tts": "فَفعلاً لازِم نیسْت، چون مُمکِن اَست تَب بِه خاطِرِ بیماریِ ویروسی باشِه. اَگَر بَعَد اَز دو رُوز با وُجودِ دادنِ داروی ضِدِّ تَب، هَمچُنان تَب داشت، مُجَدَّداً بِه پِزِشک مُراجِعِه کُنین.",
+      "camera": "medium-doctor",
+      "action": "Source speaker label was «مادر/دُکتُر» (typo) — this line is the doctor. Negation gesture at start; hand rests on «ویروسی»; small emphatic gesture on the 2-day advice; serious but calm."
+    },
+    {
+      "id": "L14",
+      "speaker": "doctor",
+      "display": "همچنین حتماً به علائم خطر همراه تب دقت کنین؛ مانند استفراغ زیاد یا پر تکرار، سردرد، بی حالی، خواب آلودگی، کاهش ادرار و تنفس نامنظم.",
+      "tts": "هَمچنین حَتماً بِه عَلامت‌‌های خَطَرِ هَمراهِ تَب دِقَّت کُنین: مانَندِ اِستِفراغِ زیاد یا پُر تِکرار، سَردَرد، بی‌حالی، خواب‌آلودگی، کاهشِ ادرار، و تَنَفُّسِ نامُنَظَّم.",
+      "camera": "medium-doctor",
+      "action": "Hand raises; serious face on «علائم خطر»; then full-frame warning card with items appearing sequentially (never implying it is safe to wait 2 days when these signs are present).",
+      "dangerCard": {
+        "title": "علائم هشدار همراه تب",
+        "items": [
+          { "icon": "🤮", "text": "استفراغ مکرر" },
+          { "icon": "🤕", "text": "سردرد شدید یا غیرمعمول" },
+          { "icon": "😴", "text": "بی‌حالی یا خواب‌آلودگی غیرعادی" },
+          { "icon": "🚻", "text": "کاهش ادرار" },
+          { "icon": "🫁", "text": "تنفس غیرطبیعی" }
+        ],
+        "note": "در صورت مشاهده‌ی هرکدام، بدون تأخیر به پزشک مراجعه کنید."
+      }
+    },
+    {
+      "id": "L15",
+      "speaker": "doctor",
+      "display": "همچنین به این نکته باید توجه شود که اگر سن کودک زیر دو ماه بود، حتماً به صورت فوری به پزشک مراجعه کنین.",
+      "tts": "هَمچنین بِه این نُکته بایَد توجّه شَوَد که اَر صورتی که سِنِّ کودَک زیرِ دو ماه بود، حَتماً بِه صُورَتِ فوری بِه پِزِشک مُراجِعِه کُنید.",
+      "camera": "close-doctor",
+      "action": "Index finger rises gently; serious calm face; then red-bordered alert card conveying IMMEDIATE (فوری) medical evaluation for infants under 2 months.",
+      "infantCard": {
+        "title": "اگر سن کودک زیر دو ماه بود،",
+        "text": "حتماً به صورت فوری به پزشک مراجعه کنید.",
+        "icon": "👶"
+      }
+    },
+    {
+      "id": "L16",
+      "speaker": "doctor",
+      "display": "دوز استامینوفن در کپشن ذکر شده است.",
+      "tts": "دوزِ استامینوفِن در کَپشِن ذِکر شُده اَست.",
+      "camera": "insert-medicine",
+      "action": "Narrator line — voiced with the doctor voice (no narrator voice in config/voices.json). Very slow push toward the medicine bottle; final caption card «اطلاعات بیشتر در کپشن». No dosage amount is ever rendered.",
+      "doseCard": {
+        "text": "اطلاعات بیشتر در کپشن"
+      }
+    }
+  ],
+  "staging": {
+    "_comment": "Choreography consumed by src/js/timeline.js. Family is already seated at t=0 (guideline allows skipping the door/walk-in to save time) — no openDoor/walkIn entries. Marks refer to library/room/pediatric-visit-room.json blocking keys.",
+    "initial": [
+      { "char": "doctor", "at": "doctorSit", "sit": true, "face": "doctorFace" },
+      { "char": "mother", "at": "motherSit", "sit": true, "face": "familyFace" },
+      { "char": "child", "at": "childSit", "sit": true, "face": "familyFace" }
+    ],
+    "plan": [
+      { "id": "L02", "shot": "family-two-shot" },
+      { "id": "L03", "shot": "medium-doctor" },
+      { "id": "L04", "shot": "medium-family" },
+      { "id": "L05", "shot": "medium-doctor" },
+      { "id": "L06", "shot": "medium-family" },
+      { "id": "L07", "shot": "medium-doctor" },
+      { "id": "L08", "shot": "medium-family-close" },
+      { "id": "L09", "shot": "medium-doctor", "medicineInsert": true },
+      { "id": "L10", "shot": "medium-family" },
+      { "id": "L11", "shot": "insert-medicine", "medicineInsert": true },
+      { "id": "L12", "shot": "close-mother" },
+      { "id": "L13", "shot": "medium-doctor" },
+      { "id": "L14", "shot": "medium-doctor", "dangerCard": true },
+      { "id": "L15", "shot": "close-doctor", "infantCard": true },
+      { "id": "L16", "shot": "insert-medicine", "medicineInsert": true, "doseCard": true }
+    ],
+    "ending": { "leadIn": 6.4, "camPush": { "py": 3, "pz": 3, "dur": 5.4 }, "fadeOut": 0.85 }
+  },
+  "endCard": {
+    "title": "نکات مهم مدیریت تب در کودکان",
+    "items": [
+      "استامینوفن برای پایین آوردن تب",
+      "قطره یا شربت؛ در صورت نیاز شیاف",
+      "آنتی‌بیوتیک فقط با تجویز پزشک",
+      "علائم خطر را جدی بگیرید",
+      "کودک زیر ۲ ماه با تب: مراجعه فوری"
+    ],
+    "note": "دوز استامینوفن در کپشن ذکر شده است."
+  }
+}

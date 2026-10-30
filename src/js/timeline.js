@@ -100,10 +100,17 @@ export function buildTimeline(ctx) {
   audioCue(tl, audio, first);
 
   // --- dialogue (setShot only when the shot name changes → holds) ---
+  let medicineWasOn = false; // medicine insert props stay up across consecutive lines
   for (let i = 0; i < plan.length; i++) {
     const p = plan[i];
     if (p.id === firstLine.id) continue; // already handled by the opening
     const L = S(p.id);
+    // hide the medicine insert when the shot moves off it
+    const mg = world.props.medicineGroup;
+    if (medicineWasOn && !p.medicineInsert && mg) {
+      tl.set(mg, { visible: false }, Math.max(0, L.start - 0.3));
+      medicineWasOn = false;
+    }
     if (p.shot !== currentShot) {
       // Span consecutive lines that hold the same angle (e.g. L03–L04)
       let last = L;
@@ -158,6 +165,40 @@ export function buildTimeline(ctx) {
       const nodChar = (p.nod && p.nod.char) || L.speaker;
       tl.call(() => { rigs[nodChar].anim.nod = { start: L.end - 1.6, end: L.end - 0.2 }; }, null, L.end - 1.6);
     }
+    if (p.medicineInsert) {
+      if (mg) {
+        tl.set(mg, { visible: true }, L.start + 0.05);
+        // half size — the full-scale props read oversized on the desk (user note)
+        pop(tl, mg, L.start + 0.05, 0.5);
+        medicineWasOn = true;
+      }
+    }
+    if (p.dangerCard) {
+      // the plan flag is a boolean; the card content lives on the scenario line
+      const cfg = scenario.lines.find((x) => x.id === p.id).dangerCard;
+      // full-frame warning card; items appear sequentially (never all at once)
+      tl.call(() => ui.showCard('danger', cfg), null, L.start + L.duration * 0.28);
+      cfg.items.forEach((it, i) => {
+        tl.call(() => ui.revealCardItem(i), null, L.start + L.duration * (0.38 + i * 0.115));
+      });
+      tl.call(() => ui.showCard(null), null, L.end + 0.35);
+    }
+    if (p.infantCard) {
+      const cfg = scenario.lines.find((x) => x.id === p.id).infantCard;
+      tl.call(() => ui.showCard('infant', cfg), null, L.start + L.duration * 0.35);
+      tl.call(() => ui.showCard(null), null, L.end + 0.35);
+    }
+    if (p.doseCard) {
+      const cfg = scenario.lines.find((x) => x.id === p.id).doseCard;
+      tl.call(() => ui.showCard('dose', cfg), null, L.start + L.duration * 0.45);
+      tl.call(() => ui.showCard(null), null, L.end + 0.4);
+    }
+  }
+  // medicine insert off after the final line that used it
+  if (medicineWasOn && world.props.medicineGroup) {
+    const last = plan[plan.length - 1];
+    const LL = S(last.id);
+    tl.set(world.props.medicineGroup, { visible: false }, LL.end + 0.5);
   }
 
   // --- ending: end card + slow push + fade ---

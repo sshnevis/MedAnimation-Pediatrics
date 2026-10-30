@@ -6,7 +6,7 @@
 // Requires: puppeteer (npm install), and episodes/<ep>/render/frames/f_*.png from tools/render.js
 const path = require('path');
 const fs = require('fs');
-const { startServer } = require('./serve');
+
 const { resolveEp } = require('./ep');
 
 const { id: EP, ROOT, EP_DIR } = resolveEp();
@@ -44,11 +44,19 @@ const H = 1920;
     ? 'f_' + String(hooks.intro.frame).padStart(5, '0') + '.png'
     : 'f_' + String(Math.min(files.length - 1, Math.floor((hooks.intro.frameAt != null ? hooks.intro.frameAt : 0.42) * files.length))).padStart(5, '0') + '.png';
   const srcName = files.some((f) => f === introFrame) ? introFrame : files[files.length - 1];
-  const srcRel = '/episodes/' + EP + '/render/frames/' + srcName;
   console.log('Background frame:', srcName);
 
-  const port = 8094;
-  const server = startServer(port, ROOT);
+  // setContent() pages live at about:blank (null origin): root-relative URLs
+  // cannot resolve, and cross-origin font/image fetches from a null origin
+  // need CORS the dev server doesn't send — the card silently renders black
+  // with a fallback font. Embed frame + fonts as data: URLs → the card HTML
+  // is fully self-contained and deterministic (no server/CORS involved).
+  const dataUrl = (file, mime) =>
+    'data:' + mime + ';base64,' + fs.readFileSync(file).toString('base64');
+  const srcRel = dataUrl(path.join(framesDir, srcName), 'image/png');
+  const FONT_REG = dataUrl(path.join(ROOT, 'src', 'lib', 'fonts', 'Vazirmatn-Regular.woff2'), 'font/woff2');
+  const FONT_BOLD = dataUrl(path.join(ROOT, 'src', 'lib', 'fonts', 'Vazirmatn-Bold.woff2'), 'font/woff2');
+
   const browser = await puppeteer.launch({
     headless: 'new',
     args: ['--no-sandbox', '--disable-lcd-text', '--hide-scrollbars'],
@@ -64,12 +72,12 @@ const H = 1920;
 <style>
 @font-face {
   font-family: Vazirmatn;
-  src: url('/src/lib/fonts/Vazirmatn-Regular.woff2') format('woff2');
+  src: url('${FONT_REG}') format('woff2');
   font-weight: 400; font-style: normal;
 }
 @font-face {
   font-family: Vazirmatn;
-  src: url('/src/lib/fonts/Vazirmatn-Bold.woff2') format('woff2');
+  src: url('${FONT_BOLD}') format('woff2');
   font-weight: 700; font-style: normal;
 }
 html, body { margin: 0; width: ${W}px; height: ${H}px; overflow: hidden; background: #000; }
@@ -118,9 +126,22 @@ html, body { margin: 0; width: ${W}px; height: ${H}px; overflow: hidden; backgro
 </body>
 </html>`;
     await page.setContent(html, { waitUntil: 'networkidle0' });
-    await page.evaluate(() => document.fonts.ready);
-    // Give WOFF2 a beat to paint
-    await new Promise((r) => setTimeout(r, 200));
+    // Deterministic guarantees before shooting:
+    // 1) Vazirmatn is actually loaded (shapes correctly, no Tahoma fallback)
+    // 2) the background frame is fully decoded (no black card)
+    await page.evaluate(async (src) => {
+      await document.fonts.load('700 88px Vazirmatn');
+      await document.fonts.load('400 46px Vazirmatn');
+      await document.fonts.ready;
+      await new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => img.decode().then(resolve, resolve);
+        img.onerror = reject;
+        img.src = src;
+      });
+    }, srcRel);
+    // One paint beat so blur + text-shadow composite
+    await new Promise((r) => setTimeout(r, 300));
     const outPath = path.join(EP_DIR, 'render', outName);
     await page.screenshot({ path: outPath, type: 'png' });
     console.log('Wrote', path.relative(ROOT, outPath), '(' + kind + ')');
@@ -139,7 +160,6 @@ html, body { margin: 0; width: ${W}px; height: ${H}px; overflow: hidden; backgro
   await shootCard('outro', outroBody, 'hook-outro.png');
 
   await browser.close();
-  server.close();
   console.log('\nHook cards ready. Next: node tools/assemble.js');
 })().catch((e) => { console.error(e); process.exit(1); });
 

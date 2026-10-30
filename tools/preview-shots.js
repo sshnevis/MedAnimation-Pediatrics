@@ -45,7 +45,7 @@ const OUT = path.join(EP_DIR, 'render', 'preview');
     const L = byId[p.id];
     if (!L) return;
     // effect lines peak mid-line; plain dialogue lines just after the start
-    const hasEffect = p.foods || p.warning || p.heart;
+    const hasEffect = p.foods || p.warning || p.heart || p.medicineInsert || p.dangerCard || p.infantCard || p.doseCard;
     const t = L.start + (hasEffect ? L.duration * 0.55 : Math.min(0.8, L.duration * 0.35));
     shots.push({ name: String(i + 3).padStart(2, '0') + '_' + p.id + '_' + p.shot, t });
   });

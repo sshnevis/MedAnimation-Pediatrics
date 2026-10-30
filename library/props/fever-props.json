@@ -1,0 +1,12 @@
+{
+  "id": "fever-props",
+  "label": "اجسامی تب",
+  "description": "Medicine explainer props for the fever episode: amber acetaminophen bottle (NO dosage text anywhere — medical-safety rule), dropper, water cup, pill and suppository shapes, plus the red danger/warning palette used by the timeline cards.",
+  "medicine": {
+    "bottle": { "body": "#b5651d", "cap": "#efe6d8", "label": "#f5efe2", "labelBand": "#e8a13c" },
+    "dropper": { "bulb": "#e57373", "tube": "#cfe9f7", "tip": "#90a4ae" },
+    "cup": { "glass": "#cfe9f7", "liquid": "#7fc9ec" },
+    "pill": "#ef6c61",
+    "suppository": "#f6c1a0"
+  }
+}

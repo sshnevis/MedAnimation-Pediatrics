@@ -164,3 +164,24 @@ step from an updated terminal; `Run.bat`/`tools/node24.cmd` handle this).
   `episodes/ep01-childhood-diarrhea/audio/L01..L09.mp3`.
 - Timing ~63s includes a 1.9 s settle after L01 (`settleAfter`) so the walk-in
   finishes before the mother speaks.
+
+## Episode 2 notes
+
+- `ep02-child-fever` — «نحوه برخورد با تب در کودکان» (~97 s, 16 dialogue lines,
+  same cast: doctor / mother / child). New room
+  `library/room/pediatric-visit-room.json` rebuilt 1:1 against
+  `scenario/project 2.png` (warm walls + gray tile wainscot, left window with
+  white curtain, teal cabinets with white drawers, giraffe growth chart, wall
+  clock, teddy poster «سلامت کودکان»).
+- New prop pack `library/props/fever-props.json` (amber acetaminophen bottle +
+  dropper + water cup + pill/suppository). **Medical safety: no dosage amount is
+  rendered anywhere** — the L16 line points to the caption.
+- New episode-agnostic timeline flags: `medicineInsert` (world-space desk insert),
+  `dangerCard` / `infantCard` / `doseCard` (full-frame DOM cards; danger items
+  appear sequentially). Card *config* lives on the scenario **line**, the plan
+  entry carries a boolean flag.
+- `blocking.js buildShots()` now applies the room JSON `shots` override (the
+  dead-code merge after `return` was fixed); ep02's shots are declared entirely
+  in the room JSON.
+- L13 speaker label in the source (`مادر/دُکتُر`) was a typo — it is the doctor.
+  L16 (narrator) is voiced with the doctor voice.
