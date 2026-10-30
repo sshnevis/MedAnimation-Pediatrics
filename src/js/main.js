@@ -95,7 +95,10 @@ async function boot() {
   fitCanvas(renderer, camera);
   window.addEventListener('resize', () => fitCanvas(renderer, camera));
 
-  scene.add(new THREE.HemisphereLight('#ffffff', '#8fa6ad', 0.95));
+  // Bright, airy clinic look (matches scenario/project 1.png): near-white walls,
+  // soft shadows — strong neutral hemisphere + warm sun + shadowless fill.
+  scene.add(new THREE.HemisphereLight('#ffffff', '#e8eef0', 1.45));
+  scene.add(new THREE.AmbientLight('#ffffff', 0.25));
   const sun = new THREE.DirectionalLight('#fff6e8', 1.7);
   sun.position.set(28, 70, 40);
   sun.castShadow = true;
@@ -111,6 +114,10 @@ async function boot() {
   // — e.g. the flicker under the door and around the doctor's collar
   sun.shadow.normalBias = 0.6;
   scene.add(sun);
+  // Shadowless front fill: lifts wall-facing surfaces so they read near-white
+  const fill = new THREE.DirectionalLight('#f4f8fb', 0.85);
+  fill.position.set(-10, 45, 130);
+  scene.add(fill);
 
   // ---- blocking marks (single source of truth for positions) ----
   const marks = marksFromRoom(roomDef);

@@ -21,7 +21,7 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   }
 
   // ---- ground plane around the building (so the room doesn't float in the sky) ----
-  const ground = boxMesh(400, 1.4, 400, '#b9c6cb');
+  const ground = boxMesh(400, 1.4, 400, '#ccd5d8');
   ground.position.set(0, -1.4, 0);
   ground.castShadow = false;
   ground.receiveShadow = true;
@@ -355,42 +355,45 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
         // framed "welcome" poster with a teddy bear (back wall, pos[1] = height)
         g.position.set(item.pos[0], item.pos[1], -R.size[1] / 2 + 1.0);
         // frame sits BEHIND the board front face so the board stays visible
-        const frame = boxMesh(0.6, 13, 11, P.woodDark);
-        frame.position.set(0, 0, -0.55);
-        const board = boxMesh(0.7, 12, 10, '#e3f2fd');
-        board.position.set(0, 0, 0.35);
+        // Face spans x (wall width) × y (height); thin z (back wall poster)
+        const frame = boxMesh(11, 13, 0.6, '#6f8fa8');
+        frame.position.set(0, 0, -0.3);
+        const board = boxMesh(10, 12, 0.7, '#f2f9ff');
+        board.position.set(0, 0, 0.3);
         g.add(frame, board);
-        // teddy head + ears + muzzle (proud of the board face at z≈5.3)
+        // teddy head + ears + muzzle (proud of the board face at z≈0.9)
         const bear = '#a1704f';
         const head = boxMesh(4.2, 3.8, 0.8, bear);
-        head.position.set(0.1, 2.6, 5.1);
+        head.position.set(0.1, 2.6, 0.9);
         for (const ex of [-1.7, 1.7]) {
           const ear = boxMesh(1.4, 1.4, 0.7, shade(bear, 0.8));
-          ear.position.set(0.1 + ex, 4.6, 5.1);
+          ear.position.set(0.1 + ex, 4.6, 0.9);
           g.add(ear);
         }
         const muzzle = boxMesh(1.8, 1.2, 0.5, '#d7a97c');
-        muzzle.position.set(0.1, 2.1, 5.6);
+        muzzle.position.set(0.1, 2.1, 1.1);
         g.add(head, muzzle);
         // text bars + heart
-        const bar1 = boxMesh(0.6, 1.1, 6.4, '#37474f');
-        bar1.position.set(0.15, 0.4, 5.2);
-        const bar2 = boxMesh(0.6, 1.1, 5, '#37474f');
-        bar2.position.set(0.15, -1.2, 5.2);
+        const bar1 = boxMesh(6.4, 1.1, 0.6, '#37474f');
+        bar1.position.set(0.15, 0.4, 0.85);
+        const bar2 = boxMesh(5, 1.1, 0.6, '#37474f');
+        bar2.position.set(0.15, -1.2, 0.85);
         const heartP = boxMesh(1.6, 1.6, 0.6, '#e53935');
         heartP.rotation.z = Math.PI / 4;
-        heartP.position.set(0.3, -3, 5.3);
+        heartP.position.set(0.3, -3, 0.9);
         g.add(bar1, bar2, heartP);
+        // wall decor: no cast shadows (reference image has clean walls)
+        g.traverse((o) => { o.castShadow = false; });
         break;
       }
       case 'foodPoster': {
         // colorful food poster matching the L03 props (back wall, pos[1] = height)
         g.position.set(item.pos[0], item.pos[1], -R.size[1] / 2 + 1.0);
         const bg = item.bg || '#fdd835';
-        const frame = boxMesh(0.6, 10.5, 9.5, shade(bg, 0.7));
-        frame.position.set(0, 0, -0.55);
-        const board = boxMesh(0.7, 9.5, 8.5, bg);
-        board.position.set(0, 0, 0.35);
+        const frame = boxMesh(9.5, 10.5, 0.6, shade(bg, 0.7));
+        frame.position.set(0, 0, -0.3);
+        const board = boxMesh(8.5, 9.5, 0.7, bg);
+        board.position.set(0, 0, 0.3);
         g.add(frame, board);
         const c = item.icon === 'potato' ? { dish: '#ffffff', food: '#f3d36b' }
           : item.icon === 'yogurt' ? { dish: '#fafafa', food: '#e53935' }
@@ -398,28 +401,32 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
           : { dish: '#cfe9f7', food: '#7fc9ec' };
         if (item.icon === 'ors') {
           // little ORS bottle
-          const bottle = boxMesh(2.4, 4.6, 2, c.dish);
-          bottle.position.set(0, 1.6, 5.2);
+          const bottle = boxMesh(2.4, 4.6, 1.2, c.dish);
+          bottle.position.set(0, 1.6, 1.1);
           const neck = boxMesh(1.2, 1.2, 1.2, c.dish);
-          neck.position.set(0, 4.4, 5.2);
+          neck.position.set(0, 4.4, 1.1);
           const cap = boxMesh(1.5, 0.7, 1.5, '#e53935');
-          cap.position.set(0, 5.2, 5.2);
+          cap.position.set(0, 5.2, 1.1);
           const liquidP = boxMesh(1.7, 2.4, 1.4, c.food);
-          liquidP.position.set(0, 1, 5.9);
+          liquidP.position.set(0, 1, 1.25);
           g.add(bottle, neck, cap, liquidP);
         } else {
-          const dish = boxMesh(4.6, 1.2, 4, c.dish);
-          dish.position.set(0, 0.4, 5.2);
-          const food = boxMesh(3.4, 2, 3, c.food);
-          food.position.set(0, 1.9, 5.2);
+          const dish = boxMesh(4.6, 1.2, 3, c.dish);
+          dish.position.set(0, 0.4, 1.05);
+          const food = boxMesh(3.4, 2, 2.4, c.food);
+          food.position.set(0, 1.9, 1.05);
           g.add(dish, food);
         }
         if (item.label) {
-          const lbl = textSprite(item.label, { fontSize: 34 });
-          lbl.position.set(0.6, -2.9, 5.2);
+          // label printed on the poster itself (transparent sprite bg, dark text)
+          const lbl = textSprite(item.label, { fontSize: 40, bg: 'rgba(0,0,0,0)', fg: '#263238' });
+          lbl.position.set(0, -3.1, 1.0);
           lbl.scale.multiplyScalar(0.5);
           g.add(lbl);
         }
+
+        // wall decor: no cast shadows (reference image has clean walls)
+        g.traverse((o) => { o.castShadow = false; });
         world.foodPosters = world.foodPosters || {};
         world.foodPosters[item.icon] = g;
         break;
@@ -460,6 +467,8 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
         const marker = boxMesh(0.6, 0.6, 3, '#ef5350');
         marker.position.set(-1, -6.6, -2);
         g.add(trayW, marker);
+        // wall decor: no cast shadows (reference image has clean walls)
+        g.traverse((o) => { o.castShadow = false; });
         break;
       }
       case 'stetho': {
@@ -483,6 +492,8 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
         chest.rotation.x = Math.PI / 2;
         chest.position.set(0, -2.4, 0.3);
         g.add(hook, tubeL, tubeR, bridge, chest);
+        // wall decor: no cast shadows (reference image has clean walls)
+        g.traverse((o) => { o.castShadow = false; });
         break;
       }
       case 'examBed': {
@@ -585,6 +596,9 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
         minutePivot.add(minuteHand);
         g.add(hourPivot, minutePivot);
         g.position.set(item.pos[0], item.pos[1], -R.size[1] / 2 + 0.8);
+
+        // wall decor: no cast shadows (reference image has clean walls)
+        g.traverse((o) => { o.castShadow = false; });
         world.clockHands = { hourPivot, minutePivot };
         break;
       }

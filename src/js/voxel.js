@@ -151,7 +151,9 @@ export function buildCharacter(def) {
     // bottom plane (24), sits fully proud of the collar front, and skips
     // shadows — a thin rotated strap flickers when it casts/receives them
     const lanyard = boxMesh(0.5, 4.4, 0.3, C.lanyard || '#1565c0');
-    lanyard.position.set(1.6, 21.2, P.torso[2] / 2 + 0.3);
+    // z = +0.5 keeps the strap's back face (2.35) 0.2 clear of the coat
+    // collar's front face (2.15) — flush there, the strap z-fights at the neck
+    lanyard.position.set(1.6, 21.2, P.torso[2] / 2 + 0.5);
     lanyard.rotation.z = 0.18;
     lanyard.castShadow = false;
     lanyard.receiveShadow = false;
@@ -165,19 +167,24 @@ export function buildCharacter(def) {
   }
 
   if (F.coat) {
-    const collar = boxMesh(8.3, 3, 4.3, C.shirt);
+    // white coat collar; teal scrub V shows at the neck (matches the reference)
+    const collar = boxMesh(8.3, 3, 4.3, torsoColor);
     collar.position.set(0, 22.4, 0);
     group.add(collar);
-    const collarTrim = boxMesh(8.5, 0.7, 4.5, shade(C.shirt, 0.7));
+    const scrubV = boxMesh(2.2, 2.6, 0.4, C.shirt);
+    scrubV.position.set(0, 22.2, P.torso[2] / 2 + 0.05);
+    group.add(scrubV);
+    const collarTrim = boxMesh(8.5, 0.7, 4.5, shade(torsoColor, 0.85));
     collarTrim.position.set(0, 21.1, 0);
     group.add(collarTrim);
-    const lapelL = boxMesh(0.9, 9, 0.5, C.shirt);
-    lapelL.position.set(-1.6, 18, 2.15);
+    // white coat lapels framing the teal shirt strip
+    const lapelL = boxMesh(0.9, 9, 0.5, torsoColor);
+    lapelL.position.set(-1.9, 18, 2.2);
     const lapelR = lapelL.clone();
-    lapelR.position.x = 1.6;
+    lapelR.position.x = 1.9;
     group.add(lapelL, lapelR);
     // open coat front revealing the shirt underneath
-    const front = boxMesh(1.6, 8, 0.4, shade(C.shirt, 0.9));
+    const front = boxMesh(2.6, 8, 0.4, shade(C.shirt, 0.9));
     front.position.set(0, 17.5, 2.15);
     group.add(front);
   }
