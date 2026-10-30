@@ -10,17 +10,25 @@ export function applyPose(rig, t) {
     const ph = (t - a.walkStart) * 9;
     parts.legL.rotation.x = Math.sin(ph) * 0.55;
     parts.legR.rotation.x = -Math.sin(ph) * 0.55;
+    parts.legL.rotation.z = 0;
+    parts.legR.rotation.z = 0;
     parts.armL.rotation.x = -Math.sin(ph) * 0.45;
     parts.armR.rotation.x = Math.sin(ph) * 0.45;
     bob = Math.abs(Math.sin(ph)) * 0.35;
   } else if (a.sit) {
-    parts.legL.rotation.x = -1.5;
-    parts.legR.rotation.x = -1.5;
-    parts.armL.rotation.x = Math.sin(t * 2.6 + phase) * 0.08;
-    parts.armR.rotation.x = Math.sin(t * 2.6 + phase + 1) * 0.08;
+    // seated: thighs level with the seat, slight outward leg spread, hands
+    // resting forward on the lap instead of idle-swaying at the sides
+    parts.legL.rotation.x = -1.45;
+    parts.legR.rotation.x = -1.45;
+    parts.legL.rotation.z = -0.07;
+    parts.legR.rotation.z = 0.07;
+    parts.armL.rotation.x = -0.55 + Math.sin(t * 2.6 + phase) * 0.05;
+    parts.armR.rotation.x = -0.55 + Math.sin(t * 2.6 + phase + 1) * 0.05;
   } else {
     parts.legL.rotation.x = 0;
     parts.legR.rotation.x = 0;
+    parts.legL.rotation.z = 0;
+    parts.legR.rotation.z = 0;
     const talk = a.talking ? 1 : 0;
     parts.armL.rotation.x = Math.sin(t * 3.1 + phase) * 0.13 * talk;
     if (!a.wave) parts.armR.rotation.x = Math.sin(t * 3.1 + phase + 2) * 0.13 * talk;

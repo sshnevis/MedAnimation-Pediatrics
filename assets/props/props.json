@@ -2,7 +2,7 @@
   "id": "explainer-props",
   "label": "اجسام توضیحی",
   "description": "Floating explainer props for the nutrition scene: rimmed wooden tray, steaming mashed-potato bowl, labeled probiotic yogurt cup, kate-mast plate with butter cube, ORS glass with straw and sachet, plus heart / warning / water props.",
-  "tray": { "color": "#a1887f", "size": [22, 1.4, 10] },
+  "tray": { "color": "#a1887f", "size": [40, 1.4, 10] },
   "foods": [
     { "id": "potato",  "label": "پوره سیب‌زمینی", "colors": { "bowl": "#eceff1", "food": "#f3d36b" } },
     { "id": "yogurt",  "label": "ماست پروبیوتیک", "colors": { "cup": "#fafafa", "stripe": "#e53935", "lid": "#c62828" } },

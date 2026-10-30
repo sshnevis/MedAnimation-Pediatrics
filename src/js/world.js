@@ -218,22 +218,25 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
         break;
       }
       case 'chair': {
-        const seat = boxMesh(6, 1.3, 6, P.accent);
-        seat.position.set(0, 7.35, 0);
-        const backrest = boxMesh(6, 7.5, 1.3, P.accent);
-        backrest.position.set(0, 11.6, -2.4);
+        // Enlarged guest chair — seat top at y=9, which is the seat height the
+        // sit math in voxel.js (sitY) is tuned to. Bigger seat/back so the
+        // mother and child read as properly seated, not perched.
+        const seat = boxMesh(15, 1.6, 8, P.accent);
+        seat.position.set(0, 8.2, 0);
+        const backrest = boxMesh(15, 9, 1.5, P.accent);
+        backrest.position.set(0, 13, -3.2);
         g.add(seat, backrest);
         for (const [sx, sz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
-          const leg = boxMesh(1.1, 6.7, 1.1, P.woodDark);
-          leg.position.set(sx * 2.3, 3.35, sz * 2.3);
+          const leg = boxMesh(1.3, 8.2, 1.3, P.woodDark);
+          leg.position.set(sx * 6.4, 4.1, sz * 3.2);
           g.add(leg);
         }
-        // armrests
+        // armrests — placed outside the seated character's arms (arms span to x≈±7.2)
         for (const sx of [-1, 1]) {
-          const post = boxMesh(0.9, 3.4, 0.9, P.woodDark);
-          post.position.set(sx * 3.1, 9.4, 0.4);
-          const rest = boxMesh(1.2, 0.9, 5.4, P.accent);
-          rest.position.set(sx * 3.1, 11.2, 0.2);
+          const post = boxMesh(1, 4, 1, P.woodDark);
+          post.position.set(sx * 7.1, 11, 0.4);
+          const rest = boxMesh(1.3, 1, 6.4, P.accent);
+          rest.position.set(sx * 7.1, 13.2, 0.2);
           g.add(post, rest);
         }
         break;
@@ -243,9 +246,9 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
         const dark = '#37474f';
         const darker = '#263238';
         const seat = boxMesh(7, 1.4, 7, dark);
-        seat.position.set(0, 8, 0);
+        seat.position.set(0, 8.3, 0); // seat top = 9 — matches the sit height in voxel.js
         const backrest = boxMesh(7, 9, 1.4, dark);
-        backrest.position.set(0, 13.5, -3);
+        backrest.position.set(0, 13.8, -3);
         const post = new THREE.Mesh(
           new THREE.CylinderGeometry(0.9, 0.9, 6.2, 8),
           new THREE.MeshLambertMaterial({ color: darker })
@@ -669,8 +672,8 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   trayRim.position.y = PR.tray.size[1] * 0.6;
   tray.add(trayRim);
   const foodGroups = [];
-  // Compact X spacing so the tray fits the narrow Reels FOV
-  const offsets = [-7.2, -2.4, 2.4, 7.2];
+  // Wide X spacing (gap 10) so the bowl/plate dishes never overlap each other
+  const offsets = [-15, -5, 5, 15];
   PR.foods.forEach((food, i) => {
     const fg = new THREE.Group();
     const c = food.colors;
@@ -769,7 +772,8 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
     }
     const lbl = textSprite(food.label, { fontSize: 40 });
     lbl.position.y = 8.2;
-    lbl.scale.multiplyScalar(0.85);
+    // smaller so neighboring labels on the compact tray don't overlap
+    lbl.scale.multiplyScalar(0.6);
     fg.add(lbl);
     fg.position.set(offsets[i], 0.7, 0);
     fg.scale.setScalar(0.001);

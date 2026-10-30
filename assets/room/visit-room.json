@@ -25,24 +25,24 @@
     "greenery": true
   },
   "furniture": [
-    { "type": "desk",        "pos": [-30, -16], "rotY": 0,       "size": [24, 10, 13] },
+    { "type": "desk",        "pos": [-30, -16], "rotY": 0,       "size": [34, 10, 13] },
     { "type": "officeChair", "pos": [-30, -30], "rotY": 0 },
-    { "type": "bookshelf",   "pos": [-64, 2],   "rotY": 1.5708 },
-    { "type": "sideTable",   "pos": [-48, 18],  "rotY": 0.15 },
+    { "type": "bookshelf",   "pos": [-66, -4],  "rotY": 1.5708 },
+    { "type": "sideTable",   "pos": [-52, 32],  "rotY": 0 },
     { "type": "rug",         "pos": [12, 14],   "size": [48, 30], "colors": { "inner": "#80cbc4", "outer": "#4db6ac" } },
-    { "type": "chair",       "pos": [18, 12],   "rotY": -2.29 },
-    { "type": "chair",       "pos": [5, 15],    "rotY": -2.48 },
-    { "type": "bookshelf",   "pos": [56, 28],   "rotY": 3.1416 },
-    { "type": "examBed",     "pos": [52, -20],  "rotY": 1.5708, "size": [26, 9, 14] },
-    { "type": "stool",       "pos": [36, -8],   "rotY": 0 },
-    { "type": "plant",       "pos": [62, 6],    "colors": { "pot": "#bf6b3f", "leaf": "#43a047" } },
+    { "type": "chair",       "pos": [21, 10],   "rotY": -2.29 },
+    { "type": "chair",       "pos": [2, 16],    "rotY": -2.48 },
+    { "type": "bookshelf",   "pos": [58, 30],   "rotY": 3.1416 },
+    { "type": "examBed",     "pos": [52, -22],  "rotY": 1.5708, "size": [26, 9, 14] },
+    { "type": "stool",       "pos": [38, -22],  "rotY": 0 },
+    { "type": "plant",       "pos": [63, 4],    "colors": { "pot": "#bf6b3f", "leaf": "#43a047" } },
     { "type": "whiteboard",  "pos": [68.2, -12], "rotY": -1.5708 },
     { "type": "clock",       "pos": [-48, 27] },
     { "type": "welcomePoster", "pos": [-26, 24] },
     { "type": "foodPoster",  "pos": [24, 24], "icon": "potato",  "bg": "#fdd835", "label": "پوره سیب‌زمینی" },
-    { "type": "foodPoster",  "pos": [33, 24], "icon": "yogurt",  "bg": "#4db6ac", "label": "ماست پروبیوتیک" },
-    { "type": "foodPoster",  "pos": [42, 24], "icon": "katmast", "bg": "#64b5f6", "label": "کته‌ماست" },
-    { "type": "foodPoster",  "pos": [51, 24], "icon": "ors",     "bg": "#9575cd", "label": "مایعات (ORS)" },
+    { "type": "foodPoster",  "pos": [34, 24], "icon": "yogurt",  "bg": "#4db6ac", "label": "ماست پروبیوتیک" },
+    { "type": "foodPoster",  "pos": [44, 24], "icon": "katmast", "bg": "#64b5f6", "label": "کته‌ماست" },
+    { "type": "foodPoster",  "pos": [54, 24], "icon": "ors",     "bg": "#9575cd", "label": "مایعات (ORS)" },
     { "type": "stetho",      "pos": [60, 25] }
   ],
   "blocking": {
@@ -51,12 +51,12 @@
     "doctorFace":    [12, 13],
     "motherStart":   [6, -62],
     "childStart":    [2, -60],
-    "motherSit":     [18, 12],
-    "childSit":      [5, 15],
+    "motherSit":     [21, 10],
+    "childSit":      [2, 16],
     "familyFace":    [-30, -30],
-    "tray":          [-6, 2],
+    "tray":          [34, -36],
     "water":         [-28, -16],
     "warn":          [-16, -18],
-    "heart":         [5, 15]
+    "heart":         [2, 16]
   }
 }

@@ -95,7 +95,7 @@ export function buildTimeline(ctx) {
   // --- dialogue (setShot only when the shot name changes → L03–L04 hold) ---
   const plan = [
     { id: 'L02', shot: 'over-doctor' },
-    { id: 'L03', shot: 'medium-doctor', foods: true },
+    { id: 'L03', shot: 'food-wall', foods: true },
     { id: 'L04', shot: 'medium-doctor', warning: true },
     { id: 'L05', shot: 'medium-doctor-2' },
     { id: 'L06', shot: 'child', heart: true },
@@ -123,9 +123,12 @@ export function buildTimeline(ctx) {
     audioCue(tl, audio, L);
 
     if (p.foods) {
+      // smaller tray, floated low beneath the poster row so the food-wall
+      // shot keeps the posters (the real subject of L03) fully readable
       tl.set(world.props.tray, { visible: true }, L.start + 0.05);
+      tl.call(() => world.props.tray.scale.setScalar(0.7), null, L.start + 0.05);
       tl.fromTo(world.props.tray.position,
-        { y: -8 }, { y: 14, duration: 0.8, ease: 'power3.out', overwrite: 'auto' }, L.start + 0.05);
+        { y: -8 }, { y: 9, duration: 0.8, ease: 'power3.out', overwrite: 'auto' }, L.start + 0.05);
       const fr = [0.10, 0.30, 0.50, 0.72];
       const posterIds = ['potato', 'yogurt', 'katmast', 'ors'];
       world.props.foodGroups.forEach((fg, i) => {
@@ -139,6 +142,7 @@ export function buildTimeline(ctx) {
         }
       });
       tl.set(world.props.tray, { visible: false }, L.end + 0.55);
+      tl.call(() => world.props.tray.scale.setScalar(1), null, L.end + 0.55);
       tl.set(world.props.tray.position, { y: -8 }, L.end + 0.55);
       world.props.foodGroups.forEach((fg) => {
         tl.set(fg.scale, { x: 0.001, y: 0.001, z: 0.001 }, L.end + 0.55);

@@ -215,7 +215,9 @@ export function buildCharacter(def) {
   const wrist = F.watch || null;
   for (const [i, arm] of [armL, armR].entries()) {
     const hand = boxMesh(4.1, 2, 4.1, C.skin);
-    hand.position.set(0, -11, 0);
+    // y puts the hand 0.05 below the arm's bottom face (y=-12) — coplanar
+    // there, the hand and the arm's flat end z-fight
+    hand.position.set(0, -11.05, 0);
     arm.add(hand);
     // sleeve cuff
     const cuff = boxMesh(P.arm[0] + 0.2, 1.2, P.arm[2] + 0.2, shade(armColor, 0.78));
@@ -427,6 +429,6 @@ export function buildCharacter(def) {
     parts: { legL, legR, armL, armR, headGroup, eyeL, eyeR, mouth },
     scale: def.scale || 1,
     phase: def.phase || 0,
-    sitY: -(12 - 8) * (def.scale || 1), // hips at chair seat height 8
+    sitY: 9 - 12 * (def.scale || 1), // hips land on the seat top at y=9 (guest chairs + office chair), regardless of scale
   };
 }

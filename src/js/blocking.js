@@ -12,13 +12,13 @@ export function marksFromRoom(roomDef) {
     doctorFace: xz('doctorFace', [12, 13]),
     motherStart: xz('motherStart', [6, -62]),
     childStart: xz('childStart', [2, -60]),
-    motherSit: xz('motherSit', [18, 12]),
-    childSit: xz('childSit', [5, 15]),
+    motherSit: xz('motherSit', [21, 10]),
+    childSit: xz('childSit', [2, 16]),
     familyFace: xz('familyFace', [-30, -30]),
     tray: xz('tray', [-6, 2]),
     water: xz('water', [-28, -16]),
     warn: xz('warn', [-16, -18]),
-    heart: xz('heart', [5, 15]),
+    heart: xz('heart', [2, 16]),
   };
 }
 
@@ -54,12 +54,20 @@ export function buildShots(M) {
       target: [midX, 11, midZ],
       dolly: 0,
     },
-    // Doctor medium — held across L03 + L04 (bias a little toward the tray
-    // so L03 food pops stay in frame)
+    // Doctor medium — held across L04 (bias a little toward the tray
+    // so the water/warning pops stay in frame)
     'medium-doctor': {
       pos: [D.x - 20, 24, D.z + 48],
       target: [D.x + 6, 12, D.z + 8],
       dolly: 0,
+    },
+    // L03 — the doctor names the foods: camera turns to the BACK WALL where
+    // the four food posters hang (x≈24–51), with the rising tray in front.
+    // Framed so the full poster row + wall stethoscope are inside the 9:16 FOV.
+    'food-wall': {
+      pos: [46, 34, 40],
+      target: [38, 18, -54],
+      dolly: 0.02,
     },
     // Doctor from the right flank
     'medium-doctor-2': {
