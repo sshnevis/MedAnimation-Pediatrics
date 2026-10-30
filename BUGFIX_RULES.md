@@ -345,3 +345,38 @@ preview loop was re-run.
 17. Frames around openings are borders (4 bars), not slabs; re-render after
     any layering-order change.
 
+---
+
+# Shadow-strobe session (ep02, second pass on "پرش تصویر")
+
+Geometry separation (Rule 1 / Q12) was not enough: the user still saw flicker
+at the bookshelf's shelf/post junctions and across the window dressing. Root
+cause was the shadow map, not the depth buffer — every `boxMesh` defaults to
+`castShadow = true; receiveShadow = true`, so thin boxes self-shadow and the
+shadow texels swim across their faces on every camera move.
+
+## Rule 23 — Packed/thin parts must not cast AND receive; walls never cast
+
+- **Packed rows and thin decorative boxes (books, slats, drawer fronts,
+  poster boards): `castShadow = false; receiveShadow = false`.** A box that
+  both casts and receives strobes at every junction with its neighbors —
+  this is Rule 3 generalized from straps to any small packed geometry.
+- **Structural frames (bookshelf posts, shelves, tops) may cast** (they
+  belong in the floor shadow) but must set `receiveShadow = false` so they
+  never stripe themselves.
+- **Wall pieces never cast** — the segmented pieces around a window opening
+  were casting striped shadows into the window tunnel, flickering over the
+  scenery, sill and dressing. Apply `castShadow = false` to every wall,
+  wainscot band, rail, trim and baseboard box (extends Q2 from "no shadows
+  ON walls" to "no shadows FROM walls").
+- Keep `sun.shadow.normalBias` in the 0.5–0.6 range (Rule 3) — 0.35 was not
+  enough to stop spine-scale acne.
+
+## Checklist additions
+
+18. New furniture: packed/thin parts fully shadowless; frame parts
+    cast-only; nothing both casts and receives.
+19. New wall geometry (including segments around openings): `castShadow =
+    false`, always.
+
+

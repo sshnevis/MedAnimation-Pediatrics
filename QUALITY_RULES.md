@@ -128,3 +128,35 @@ directional wash from the window's side into the room:
 - Verify with a preview still: the wall/floor nearest the window should read
   slightly cooler and brighter than the far side, but not enough to gray the
   near-white walls (Q1).
+
+## Rule Q12 — Layered geometry needs ≥ 0.3 of face separation (z-fight flicker)
+
+ep02's opening shot flickered exactly where layers overlapped: tree-crown
+layers 0.1 apart in the window tunnel, the horizon band 0.1 off the sky panel,
+cloud side-puffs 0.1 off the main puff, blind slats 0.05 off the blind panel,
+bookshelf posts coplanar with shelf fronts, and books running into the corner
+posts. At this scene scale (near=1, camera ~90 units out) anything below
+~0.3 of separation between two visible, same-facing faces z-fights and pops
+frame to frame as the camera moves.
+
+Design rules:
+
+- **No 0.1-style "hair gaps".** When stacking layers (window scenery, decals
+  on furniture, slats on panels), separate visible same-facing fronts by
+  ≥ 0.3, or remove the overlap entirely (e.g. crown layers sized so
+  consecutive layers do not overlap vertically at all).
+- **Never build two differently-colored faces coplanar** (posts flush with
+  shelf fronts, frames flush with boards). Make one sit proud (≥ 0.3) or
+  buried (fully hidden inside the other).
+- **Hidden interpenetration is fine** — a trunk poking through the horizon
+  band doesn't flicker because the buried faces are never visible. Only
+  visible same-facing fronts matter.
+- Exact touching (gap = 0, opposite-facing, like floor tiles edge to edge) is
+  harmless — backface culling means only one of the two faces can ever render.
+- Checker: `./tools/node24.cmd tools/zfight-diag.js [--ep <id>] [--gap 0.35]`
+  loads the built scene and reports risky pairs (interpenetrations + thin
+  gaps). Interpret with the rules above — buried/opposite-facing pairs in its
+  output are false positives.
+- Renderer side: `sun.shadow.normalBias = 0.35` (main.js) — without it the
+  shadow map acne itself flickers on thin boxes (book spines) as the camera
+  moves.

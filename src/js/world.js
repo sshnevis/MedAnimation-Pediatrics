@@ -36,8 +36,9 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   back.position.set(0, wallH / 2, -D / 2 - WT / 2);
   back.castShadow = false;
   scene.add(back);
-  const trimB = boxMesh(W, 1.4, 1.5, P.wallTrim);
+    const trimB = boxMesh(W, 1.4, 1.5, P.wallTrim);
   trimB.position.set(0, 0.7, -D / 2 - 0.5);
+  trimB.castShadow = false;
   scene.add(trimB);
   // baseboard strip along the back wall for depth
   const baseB = boxMesh(W, 2.6, 0.8, P.wallTrim);
@@ -61,6 +62,8 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
     // above the head
     const segAbove = boxMesh(WT, wallH - hy1, D, P.wall);
     segAbove.position.set(lx, hy1 + (wallH - hy1) / 2, 0);
+    segBelow.castShadow = false;
+    segAbove.castShadow = false;
     scene.add(segBelow, segAbove);
     // the two flanks beside the opening
     for (const [a, b] of [[-D / 2, wz0], [wz1, D / 2]]) {
@@ -68,11 +71,16 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
       if (len <= 0.5) continue;
       const seg = boxMesh(WT, hy1 - hy0, len, P.wall);
       seg.position.set(lx, (hy0 + hy1) / 2, a + len / 2);
+      // walls never cast: a casting flank stripes the window scenery/sill
+      // with swimming shadow texels (Rule 3 / Q2 — shadows belong under
+      // furniture, not across walls or window dressing)
+      seg.castShadow = false;
       scene.add(seg);
     }
   } else {
     const left = boxMesh(WT, wallH, D, P.wall);
     left.position.set(-W / 2 - WT / 2, wallH / 2, 0);
+    left.castShadow = false;
     scene.add(left);
   }
   const baseL = boxMesh(0.8, 2.6, D, P.wallTrim);
@@ -82,6 +90,7 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   const rightDepth = D;
   const right = boxMesh(WT, wallH, rightDepth, P.wall);
   right.position.set(W / 2 + WT / 2, wallH / 2, -D / 2 + rightDepth / 2);
+  right.castShadow = false;
   scene.add(right);
 
   // ---- wainscot: gray tile band along the lower walls (project 2.png) ----
@@ -139,11 +148,15 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
           if (len <= 0.5) continue;
           const r = boxMesh(0.8, 0.9, len, R.wainscot.rail);
           r.position.set(-W / 2 + 1.0, wh + 0.45, a + len / 2);
+          r.castShadow = false;
           scene.add(r);
         }
       }
       const railR = boxMesh(0.8, 0.9, rightDepth, R.wainscot.rail);
       railR.position.set(W / 2 - 1.0, wh + 0.45, -D / 2 + rightDepth / 2);
+      railB.castShadow = false;
+      if (railL) railL.castShadow = false;
+      railR.castShadow = false;
       scene.add(railB, railL, railR);
     }
   }
@@ -164,41 +177,46 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   // tunnel, and blind/curtain/sill near the inner face.
   const TZ = -WT; // outer wall face in window-local z
   // 1) sky panel + horizon band — slightly oversized so the tunnel edges never
-  // show past it at oblique camera angles
-  const sky = boxMesh(win.width + 2, win.height + 2, 0.8, win.sky || '#aee3f5');
-  sky.position.set(win.x, win.y, TZ + 0.5);
+  // show past it at oblique camera angles. Z-fight rule (Q12): any two front
+  // faces that can both be seen keep ≥ 0.3 of separation — 0.1 gaps flicker
+  // on camera moves at this scene scale.
+  const sky = boxMesh(win.width + 2, win.height + 2, 0.5, win.sky || '#aee3f5');
+  sky.position.set(win.x, win.y, TZ + 0.35);
   sky.castShadow = false;
   winG.add(sky);
   const horizon = boxMesh(win.width + 2, win.height * 0.45, 0.6, '#8fd08a');
-  horizon.position.set(win.x, sillY + win.height * 0.14, TZ + 0.7);
+  horizon.position.set(win.x, sillY + win.height * 0.14, TZ + 0.9);
   horizon.castShadow = false;
   winG.add(horizon);
   // 2) sun disc (upper corner, away from the curtain side)
   const sunDisc = boxMesh(4.2, 4.2, 0.5, '#fff3b0');
-  sunDisc.position.set(win.x + win.width * 0.32, win.y + win.height * 0.3, TZ + 1.1);
+  sunDisc.position.set(win.x + win.width * 0.32, win.y + win.height * 0.3, TZ + 1.3);
   sunDisc.castShadow = false;
   const sunGlow = boxMesh(5.6, 5.6, 0.4, '#ffe37e');
   sunGlow.position.copy(sunDisc.position);
-  sunGlow.position.z -= 0.15;
+  sunGlow.position.z -= 0.5;
   winG.add(sunGlow, sunDisc);
-  // 3) voxel trees OUTSIDE the glass — layered blocky crowns like the reference
+  // 3) voxel trees OUTSIDE the glass — layered blocky crowns like the reference.
+  // Consecutive crown layers must NOT overlap vertically (spacing 2.3 > height
+  // 2.1) and each tree sits on its own depth slot (-ti*0.12) so no two crowns
+  // from different trees share a z plane.
   if (win.greenery) {
     const treeDefs = [
       // [x, trunkH, crownLayers, crownW, color]
       [win.x - win.width * 0.32, 7, 4, 8, '#66bb6a'],
       [win.x - win.width * 0.08, 4, 3, 7, '#81c784'],
-      [win.x + win.width * 0.2, 9, 4, 9, '#4caf50'],
-      [win.x + win.width * 0.38, 5, 3, 6, '#7cb342'],
+      [win.x + win.width * 0.2, 9, 4, 8.2, '#4caf50'],
+      [win.x + win.width * 0.38, 5, 3, 5.6, '#7cb342'],
     ];
-    for (const [tx, trunkH, layers, crownW, tc] of treeDefs) {
+    for (const [ti, [tx, trunkH, layers, crownW, tc]] of treeDefs.entries()) {
       const trunk = boxMesh(1.6, trunkH, 1.2, '#6d4c41');
-      trunk.position.set(tx, sillY + 1 + trunkH / 2, TZ + 1.2);
+      trunk.position.set(tx, sillY + 1 + trunkH / 2, TZ + 1.15 - ti * 0.12);
       winG.add(trunk);
       let ly = sillY + 1 + trunkH;
       for (let i = 0; i < layers; i++) {
         const lw = crownW - i * 1.7;
-        const crown = boxMesh(lw, 2.6, 1.2, i % 2 ? shade(tc, 1.15) : tc);
-        crown.position.set(tx, ly + 1.3, TZ + 1.3 + i * 0.1);
+        const crown = boxMesh(lw, 2.1, 1.2, i % 2 ? shade(tc, 1.15) : tc);
+        crown.position.set(tx, ly + 1.05, TZ + 1.15 + i * 0.1 - ti * 0.12);
         crown.castShadow = false;
         winG.add(crown);
         ly += 2.3;
@@ -221,10 +239,12 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   for (const [cx, cy, cs] of cloudDefs) {
     const c1 = boxMesh(cs * 3, cs, 0.5, '#ffffff');
     c1.position.set(cx, cy, TZ + 1.6);
+    // side puffs sit BEHIND the main puff (0.35+ clearance) — overlapping
+    // footprints with a 0.05 offset used to flicker
     const c2 = boxMesh(cs * 1.6, cs * 0.8, 0.6, '#ffffff');
-    c2.position.set(cx + cs * 1.2, cy + cs * 0.5, TZ + 1.65);
+    c2.position.set(cx + cs * 1.2, cy + cs * 0.5, TZ + 1.2);
     const c3 = boxMesh(cs * 1.4, cs * 0.7, 0.6, '#ffffff');
-    c3.position.set(cx - cs * 1.1, cy + cs * 0.35, TZ + 1.65);
+    c3.position.set(cx - cs * 1.1, cy + cs * 0.35, TZ + 1.2);
     winG.add(c1, c2, c3);
   }
   // 5) frame border around the opening (4 bars, NOT a solid slab — scenery is
@@ -259,10 +279,11 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
     blind.position.set(win.x, win.y + win.height / 2 - blindH / 2, 0.45);
     blind.castShadow = false;
     winG.add(blind);
-    // horizontal slat lines on the blind
+    // horizontal slat lines on the blind — proud of the blind's front face
+    // (0.7) by ≥ 0.3 so the slat fronts never flicker against the panel
     for (let sy = 1; sy <= 3; sy++) {
       const slat = boxMesh(win.width - 0.6, 0.28, 0.2, '#d9d9d4');
-      slat.position.set(win.x, win.y + win.height / 2 - (blindH / 4) * sy, 0.65);
+      slat.position.set(win.x, win.y + win.height / 2 - (blindH / 4) * sy, 0.9);
       winG.add(slat);
     }
     const roller = boxMesh(win.width + 1.4, 1.6, 1.6, '#e3e3de');
@@ -510,25 +531,38 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
         const bw = 14, bh = 22, bd = 6;
         const wood = '#a1887f';
         for (const [sx, sz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
+          // posts sit 0.15 proud of the shelf fronts — flush there, the post
+          // and shelf front faces are coplanar (different woods) and z-fight.
+          // Posts cast (floor shadow) but never receive: a post that both
+          // casts and receives strobes at every shelf/post junction (Rule 3).
           const post = boxMesh(1, bh, 1, '#8d6e63');
-          post.position.set(sx * (bw / 2 - 0.5), bh / 2, sz * (bd / 2 - 0.5));
+          post.position.set(sx * (bw / 2 - 0.5), bh / 2, sz * (bd / 2 - 0.5 + 0.15));
+          post.receiveShadow = false;
           g.add(post);
         }
         // muted, darkened book palette — readable color variety without
         // screaming saturation next to the window light
         const bookColors = ['#a35d52', '#52708a', '#5f7d63', '#b3a06e', '#7a6591'];
         for (let s = 0; s < 3; s++) {
+          // shelves cast (floor shadow) but never receive: self-shadowing at
+          // the shelf/post and shelf/book junctions strobes on camera moves
           const shelf = boxMesh(bw, 0.7, bd, wood);
           shelf.position.set(0, 2.5 + s * 7, 0);
+          shelf.receiveShadow = false;
           g.add(shelf);
-          // row of books on each shelf
+          // row of books on each shelf — stop early enough that the widest
+          // book (≤ 1.8) still clears the front corner posts (x = ±6).
+          // Books are thin packed strips: no cast, no receive (Rule 3) —
+          // shadow texels swimming over the spines read as flicker.
           let bx = -bw / 2 + 1.6;
           let bi = s;
-          while (bx < bw / 2 - 2) {
+          while (bx < bw / 2 - 3.6) {
             const bwid = 1.1 + ((s * 7 + bi) % 3) * 0.35;
             const bhei = 4 + ((bi * 3) % 2);
             const book = boxMesh(bwid, bhei, 4.4, bookColors[bi % bookColors.length]);
             book.position.set(bx + bwid / 2, 2.5 + s * 7 + 0.35 + bhei / 2, 0.4);
+            book.castShadow = false;
+            book.receiveShadow = false;
             g.add(book);
             bx += bwid + 0.35;
             bi++;
@@ -536,6 +570,7 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
         }
         const topShelf = boxMesh(bw + 0.8, 0.8, bd + 0.8, wood);
         topShelf.position.y = bh;
+        topShelf.receiveShadow = false;
         g.add(topShelf);
         break;
       }
