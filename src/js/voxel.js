@@ -65,7 +65,8 @@ export function textSprite(text, { fontSize = 46, pad = 18, bg = 'rgba(255,255,2
 /**
  * Builds a Minecraft-proportioned character from its JSON definition.
  * Total standing height = 32 voxel units (1 unit = 1 voxel), scale applied on the group.
- * Pivots: legs/arms rotate at hip/shoulder (top of limb), head at neck.
+ * Pivots: legs rotate at hip (top of thigh) with a knee joint, arms at
+ * shoulder (top of upper arm) with an elbow joint, head at neck.
  */
 export function buildCharacter(def) {
   const P = def.parts, C = def.colors, F = def.features || {};
@@ -77,40 +78,59 @@ export function buildCharacter(def) {
   group.name = 'char-' + (def.id || 'unknown'); // owner label for z-fight reports
   group.scale.setScalar(def.scale || 1);
 
-  // legs (hip at y=12)
-  const legL = limbMesh(P.leg[0], P.leg[1], P.leg[2], C.pants);
+  // legs — thigh + shin with a knee pivot between them, so seated poses can
+  // bend the knee ~83° while standing/walking keep it at 0 and the limb reads
+  // as one box. The knee pivot sits 0.2 above the thigh's bottom face, so the
+  // shin's top face is buried inside the thigh: the joint faces are never
+  // coplanar and the straight-leg silhouette is unchanged.
+  const thighLen = 6, shinLen = 6.4;
+  const legL = limbMesh(P.leg[0], thighLen, P.leg[2], C.pants);
   legL.position.set(-2, 12, 0);
-  const legR = limbMesh(P.leg[0], P.leg[1], P.leg[2], C.pants);
+  const legR = limbMesh(P.leg[0], thighLen, P.leg[2], C.pants);
   legR.position.set(2, 12, 0);
-  for (const leg of [legL, legR]) {
-    // side seam stripe for depth (nudged 0.05 out of the leg face so the two
-    // surfaces never sit exactly coplanar and z-fight)
-    const seam = boxMesh(0.4, P.leg[1] - 3, 0.4, pantsDark);
-    seam.position.set(P.leg[0] / 2 - 0.15, -P.leg[1] / 2 + 0.4, P.leg[2] / 2 - 0.35);
-    leg.add(seam);
+  let kneeL, kneeR;
+  for (const [i, leg] of [legL, legR].entries()) {
+    const knee = new THREE.Group();
+    knee.position.set(0, -(thighLen - 0.2), 0);
+    leg.add(knee);
+    if (i === 0) kneeL = knee; else kneeR = knee;
+    // side seam stripe for depth, split across thigh and shin (nudged 0.05 out
+    // of the leg face so the two surfaces never sit exactly coplanar and
+    // z-fight)
+    const seamT = boxMesh(0.4, thighLen - 1.2, 0.4, pantsDark);
+    seamT.position.set(P.leg[0] / 2 - 0.15, -thighLen / 2 + 0.4, P.leg[2] / 2 - 0.35);
+    leg.add(seamT);
+    // shin is 0.05 narrower per side than the thigh so their side faces can
+    // never be coplanar where the two overlap at the knee
+    const shin = limbMesh(P.leg[0] - 0.1, shinLen, P.leg[2] - 0.1, C.pants);
+    shin.position.set(0, 0.2, 0);
+    knee.add(shin);
+    const seamS = boxMesh(0.4, shinLen - 2.2, 0.4, pantsDark);
+    seamS.position.set((P.leg[0] - 0.1) / 2 - 0.15, -shinLen / 2 + 0.4, (P.leg[2] - 0.1) / 2 - 0.35);
+    shin.add(seamS);
     if (F.socks) {
       // 0.2 wider than the shoe below it — equal widths would put both side
       // faces in the same plane and make the ankle flicker
       const sock = boxMesh(P.leg[0] + 0.5, 2.6, P.leg[2] + 0.5, C.sock || '#f5f5f5');
-      sock.position.set(0, -P.leg[1] + 2.2, 0);
-      leg.add(sock);
+      sock.position.set(0, -shinLen + 2.2, 0);
+      shin.add(sock);
     }
     const shoeH = 2.2, shoeD = 5.2;
     // z = 0.7 keeps the shoe's back face 0.1 in front of the leg's back face —
     // at z = 0.6 the two are exactly coplanar and the ankle z-fights
     const shoe = boxMesh(4.3, shoeH, shoeD, C.shoes);
-    shoe.position.set(0, -P.leg[1] + shoeH / 2 + 0.4, 0.7);
-    leg.add(shoe);
+    shoe.position.set(0, -shinLen + shoeH / 2 + 0.4, 0.7);
+    shin.add(shoe);
     const sole = boxMesh(4.5, 0.7, shoeD + 0.4, F.sneakers ? (C.sole || '#eceff1') : shade(C.shoes, 0.55));
     // y puts the sole 0.05 below the leg's bottom face (coplanar there, and
     // coplanar with the floor when standing) so the leg/floor never z-fights
     // with the sole bottom
-    sole.position.set(0, -P.leg[1] + 0.3, 0.7);
-    leg.add(sole);
+    sole.position.set(0, -shinLen + 0.3, 0.7);
+    shin.add(sole);
     if (F.sneakers) { // lace strip on top of the shoe
       const lace = boxMesh(1.2, 0.4, 3, '#ffffff');
-      lace.position.set(0, -P.leg[1] + shoeH + 0.6, 1);
-      leg.add(lace);
+      lace.position.set(0, -shinLen + shoeH + 0.6, 1);
+      shin.add(lace);
     }
   }
 
@@ -207,29 +227,42 @@ export function buildCharacter(def) {
     group.add(pleat);
   }
 
-  // arms (shoulder at y=22)
+  // arms — upper arm + forearm with an elbow pivot between them, so seated
+  // poses can bend the forearm onto the lap while idle/walking keep it at 0.
+  // Same buried-joint rule as the knee (pivot 0.2 above the bottom face, shin
+  // width inset), and the same total length as the old single 12-unit arm, so
+  // the hand, cuff and watch keep their exact world positions.
+  const upperLen = 6, foreLen = 6.4;
   const armColor = F.coat || F.longCoat ? C.coat : C.shirt;
-  const armL = limbMesh(P.arm[0], P.arm[1], P.arm[2], armColor);
+  const armL = limbMesh(P.arm[0], upperLen, P.arm[2], armColor);
   armL.position.set(-6, 22, 0);
-  const armR = limbMesh(P.arm[0], P.arm[1], P.arm[2], armColor);
+  const armR = limbMesh(P.arm[0], upperLen, P.arm[2], armColor);
   armR.position.set(6, 22, 0);
+  let elbowL, elbowR;
   const wrist = F.watch || null;
   for (const [i, arm] of [armL, armR].entries()) {
+    const elbow = new THREE.Group();
+    elbow.position.set(0, -(upperLen - 0.2), 0);
+    arm.add(elbow);
+    if (i === 0) elbowL = elbow; else elbowR = elbow;
+    const fore = limbMesh(P.arm[0] - 0.1, foreLen, P.arm[2] - 0.1, armColor);
+    fore.position.set(0, 0.2, 0);
+    elbow.add(fore);
     const hand = boxMesh(4.1, 2, 4.1, C.skin);
     // y puts the hand 0.05 below the arm's bottom face (y=-12) — coplanar
     // there, the hand and the arm's flat end z-fight
-    hand.position.set(0, -11.05, 0);
-    arm.add(hand);
+    hand.position.set(0, -foreLen + 0.95, 0);
+    fore.add(hand);
     // sleeve cuff
     const cuff = boxMesh(P.arm[0] + 0.2, 1.2, P.arm[2] + 0.2, shade(armColor, 0.78));
-    cuff.position.set(0, -9.6, 0);
-    arm.add(cuff);
+    cuff.position.set(0, -foreLen + 2.4, 0);
+    fore.add(cuff);
     if ((i === 0 && wrist === 'left') || (i === 1 && wrist === 'right')) {
       const band = boxMesh(P.arm[0] + 0.35, 1.1, P.arm[2] + 0.35, C.watch || '#263238');
-      band.position.set(0, -8.4, 0);
+      band.position.set(0, -foreLen + 3.6, 0);
       const dial = boxMesh(1.6, 0.35, 1.6, '#eceff1');
-      dial.position.set(0, -8.4, P.arm[2] / 2 + 0.25);
-      arm.add(band, dial);
+      dial.position.set(0, -foreLen + 3.6, P.arm[2] / 2 + 0.25);
+      fore.add(band, dial);
     }
   }
 
@@ -427,7 +460,7 @@ export function buildCharacter(def) {
   return {
     def,
     group,
-    parts: { legL, legR, armL, armR, headGroup, eyeL, eyeR, mouth },
+    parts: { legL, legR, kneeL, kneeR, armL, armR, elbowL, elbowR, headGroup, eyeL, eyeR, mouth },
     scale: def.scale || 1,
     phase: def.phase || 0,
     sitY: 9 - 12 * (def.scale || 1), // hips land on the seat top at y=9 (guest chairs + office chair), regardless of scale
