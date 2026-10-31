@@ -27,7 +27,7 @@
   "furniture": [
     { "type": "desk",        "pos": [-30, -16], "rotY": 0,       "size": [34, 10, 13] },
     { "type": "officeChair", "pos": [-30, -30], "rotY": 0 },
-    { "type": "bookshelf",   "pos": [-66, -4],  "rotY": 1.5708 },
+    { "type": "bookshelf",   "pos": [-65, -4],  "rotY": 1.5708 },
     { "type": "sideTable",   "pos": [-52, 32],  "rotY": 0 },
     { "type": "rug",         "pos": [12, 14],   "size": [48, 30], "colors": { "inner": "#80cbc4", "outer": "#4db6ac" } },
     { "type": "chair",       "pos": [21, 10],   "rotY": -2.29 },
@@ -43,7 +43,7 @@
     { "type": "foodPoster",  "pos": [34, 24], "icon": "yogurt",  "bg": "#4db6ac", "label": "ماست پروبیوتیک" },
     { "type": "foodPoster",  "pos": [44, 24], "icon": "katmast", "bg": "#64b5f6", "label": "کته‌ماست" },
     { "type": "foodPoster",  "pos": [54, 24], "icon": "ors",     "bg": "#9575cd", "label": "مایعات (ORS)" },
-    { "type": "stetho",      "pos": [60, 25] }
+    { "type": "stetho",      "pos": [61, 25] }
   ],
   "blocking": {
     "_comment": "Marks are [x, z]. +X=right (exam bed), -X=left (doctor desk), -Z=back wall/door, +Z=front (wide camera). v3: larger room; doctor seated behind desk, family seated on guest chairs.",

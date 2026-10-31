@@ -25,6 +25,7 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   ground.position.set(0, -1.4, 0);
   ground.castShadow = false;
   ground.receiveShadow = true;
+  ground.name = 'ground';
   scene.add(ground);
 
   // ---- walls: back (z=-D/2), left, right ----
@@ -35,16 +36,34 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   const back = boxMesh(W, wallH, WT, P.wall);
   back.position.set(0, wallH / 2, -D / 2 - WT / 2);
   back.castShadow = false;
+  back.name = 'wall-back';
   scene.add(back);
-    const trimB = boxMesh(W, 1.4, 1.5, P.wallTrim);
-  trimB.position.set(0, 0.7, -D / 2 - 0.5);
-  trimB.castShadow = false;
-  scene.add(trimB);
-  // baseboard strip along the back wall for depth
-  const baseB = boxMesh(W, 2.6, 0.8, P.wallTrim);
-  baseB.position.set(0, 1.3, -D / 2 + 0.1);
-  baseB.castShadow = false;
-  scene.add(baseB);
+    // Back-wall trims form a depth ladder off the wall face (Rule 24: every
+    // visible same-facing pair ≥ 0.35 apart): trim 0.4, baseboard 0.8,
+    // wainscot band 1.2, cap rail 1.6 (all in wall-local units).
+    // trimB and baseB stop at the door casing sides — they would otherwise land
+    // within the flicker zone of the door panel/frame faces, and real
+    // baseboards die into the door casing anyway.
+  const doorL = R.door ? R.door.x - R.door.width / 2 - 1.2 : null;
+  const doorR = R.door ? R.door.x + R.door.width / 2 + 1.2 : null;
+  const doorSpans = (full) => {
+    if (doorL === null) return [[-full / 2, full / 2]];
+    return [[-full / 2, doorL], [doorR, full / 2]];
+  };
+  for (const [a, b] of doorSpans(W)) {
+    const trimB = boxMesh(b - a, 1.4, 1.5, P.wallTrim);
+    trimB.position.set((a + b) / 2, 0.7, -D / 2 - 0.35); // front: -D/2+0.4
+    trimB.castShadow = false;
+    trimB.name = 'trim-back';
+    scene.add(trimB);
+  }
+  for (const [a, b] of doorSpans(W)) {
+    const baseB = boxMesh(b - a, 2.6, 0.8, P.wallTrim);
+    baseB.position.set((a + b) / 2, 1.3, -D / 2 + 0.4); // front: -D/2+0.8
+    baseB.castShadow = false;
+    baseB.name = 'baseboard-back';
+    scene.add(baseB);
+  }
   const win = R.window;
   const winOnLeft = win && win.side === 'left';
   // Left wall — either one solid slab, or (window wall) four segments around
@@ -83,8 +102,8 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
     left.castShadow = false;
     scene.add(left);
   }
-  const baseL = boxMesh(0.8, 2.6, D, P.wallTrim);
-  baseL.position.set(-W / 2 + 0.1, 1.3, 0);
+  const baseL = boxMesh(0.8, 2.6, D - 0.8, P.wallTrim);
+  baseL.position.set(-W / 2 + 0.1, 1.3, 0); // ends 0.4 short of the wall ends (coplanar end faces)
   baseL.castShadow = false;
   scene.add(baseL);
   const rightDepth = D;
@@ -97,10 +116,12 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   if (R.wainscot) {
     const wh = R.wainscot.height;
     const wc = R.wainscot.color;
-    // bands sit proud of the wall faces (walls are at -D/2 and -W/2 outer edges)
+    // bands sit proud of the wall faces (walls are at -D/2 and -W/2 outer edges);
+    // back-wall ladder: band front 1.2, rail front 1.6 (≥0.35 steps, Rule 24)
     const backW = boxMesh(W, wh, 0.5, wc);
-    backW.position.set(0, wh / 2, -D / 2 + 0.85);
+    backW.position.set(0, wh / 2, -D / 2 + 0.95);
     backW.castShadow = false;
+    backW.name = 'wainscot-back';
     const leftW = winOnLeft
       ? null // segmented below — the band is cut by the window opening too
       : (() => {
@@ -134,7 +155,7 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
     // thin cap rail on top of the band — proud of the band face, not flush
     if (R.wainscot.rail) {
       const railB = boxMesh(W, 0.9, 0.8, R.wainscot.rail);
-      railB.position.set(0, wh + 0.45, -D / 2 + 1.0);
+      railB.position.set(0, wh + 0.45, -D / 2 + 1.2); // front: -D/2+1.6
       const railL = winOnLeft
         ? null // rail is cut by the window opening on the window wall
         : (() => {
@@ -169,28 +190,32 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   // trees on a grass strip — plus a white frame, roller blind, white curtain
   // and a leafy plant on the sill.
   const winG = new THREE.Group();
+  winG.name = 'window';
   const winFrameC = win.frame || P.metal; // ep01 keeps the metal frame; new rooms opt into white
   const sillY = win.y - win.height / 2;
   // The window is a TUNNEL through the thick wall: local z=0 is the inner wall
-  // face, negative z goes into the wall depth. Scenery sits deep in the tunnel
-  // (no coplanar faces with the wall → no z-fighting flicker), the glass mid-
-  // tunnel, and blind/curtain/sill near the inner face.
+  // face, negative z goes into the wall depth. Every face of every piece keeps
+  // ≥ 0.35 from the planes of its neighbours (Rule 24) — the reveal planes at
+  // the opening edges (y = sillY / win.y+height/2, x = ±width/2) especially:
+  // frame/sill faces used to land EXACTLY on them and flickered over the whole
+  // sill and jambs.
   const TZ = -WT; // outer wall face in window-local z
-  // 1) sky panel + horizon band — slightly oversized so the tunnel edges never
-  // show past it at oblique camera angles. Z-fight rule (Q12): any two front
-  // faces that can both be seen keep ≥ 0.3 of separation — 0.1 gaps flicker
-  // on camera moves at this scene scale.
-  const sky = boxMesh(win.width + 2, win.height + 2, 0.5, win.sky || '#aee3f5');
-  sky.position.set(win.x, win.y, TZ + 0.35);
+  // 1) sky panel + horizon band — oversized so the tunnel edges never show past
+  // it at oblique camera angles. The sky sits deep (front at TZ-0.15) so the
+  // tree trunks/crowns can keep their approved depth in front of it.
+  const sky = boxMesh(win.width + 6, win.height + 6, 0.5, win.sky || '#aee3f5');
+  sky.position.set(win.x, win.y, TZ - 0.4);
   sky.castShadow = false;
+  sky.name = 'win-sky';
   winG.add(sky);
   const horizon = boxMesh(win.width + 2, win.height * 0.45, 0.6, '#8fd08a');
   horizon.position.set(win.x, sillY + win.height * 0.14, TZ + 0.9);
   horizon.castShadow = false;
+  horizon.name = 'win-horizon';
   winG.add(horizon);
   // 2) sun disc (upper corner, away from the curtain side)
   const sunDisc = boxMesh(4.2, 4.2, 0.5, '#fff3b0');
-  sunDisc.position.set(win.x + win.width * 0.32, win.y + win.height * 0.3, TZ + 1.3);
+  sunDisc.position.set(win.x + win.width * 0.38, win.y + win.height * 0.36, TZ + 1.3);
   sunDisc.castShadow = false;
   const sunGlow = boxMesh(5.6, 5.6, 0.4, '#ffe37e');
   sunGlow.position.copy(sunDisc.position);
@@ -198,26 +223,30 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   winG.add(sunGlow, sunDisc);
   // 3) voxel trees OUTSIDE the glass — layered blocky crowns like the reference.
   // Consecutive crown layers must NOT overlap vertically (spacing 2.3 > height
-  // 2.1) and each tree sits on its own depth slot (-ti*0.12) so no two crowns
-  // from different trees share a z plane.
+  // 2.1). Each tree sits in its own depth slot; the slots are deep enough that
+  // every trunk/crown front clears the horizon front (TZ+1.2) by ≥ 0.35 and
+  // stays clear of the sky panel — low-crowned trees (2 and 4) get the deepest
+  // slots because their lowest crowns overlap the horizon band's height.
   if (win.greenery) {
     const treeDefs = [
-      // [x, trunkH, crownLayers, crownW, color]
-      [win.x - win.width * 0.32, 7, 4, 8, '#66bb6a'],
-      [win.x - win.width * 0.08, 4, 3, 7, '#81c784'],
-      [win.x + win.width * 0.2, 9, 4, 8.2, '#4caf50'],
-      [win.x + win.width * 0.38, 5, 3, 5.6, '#7cb342'],
+      // [x, trunkH, crownLayers, crownW, color, zOffset]
+      [win.x - win.width * 0.32, 7, 4, 8, '#66bb6a', 0],
+      [win.x - win.width * 0.08, 4, 3, 7, '#81c784', -1.15],
+      [win.x + win.width * 0.2, 9, 4, 8.2, '#4caf50', -1.0],
+      [win.x + win.width * 0.42, 5, 3, 5.6, '#7cb342', -1.0],
     ];
-    for (const [ti, [tx, trunkH, layers, crownW, tc]] of treeDefs.entries()) {
+    for (const [ti, [tx, trunkH, layers, crownW, tc, zoff]] of treeDefs.entries()) {
       const trunk = boxMesh(1.6, trunkH, 1.2, '#6d4c41');
-      trunk.position.set(tx, sillY + 1 + trunkH / 2, TZ + 1.15 - ti * 0.12);
+      trunk.position.set(tx, sillY + 1 + trunkH / 2, TZ + 1.15 + zoff);
+      trunk.name = 'win-tree';
       winG.add(trunk);
       let ly = sillY + 1 + trunkH;
       for (let i = 0; i < layers; i++) {
         const lw = crownW - i * 1.7;
         const crown = boxMesh(lw, 2.1, 1.2, i % 2 ? shade(tc, 1.15) : tc);
-        crown.position.set(tx, ly + 1.05, TZ + 1.15 + i * 0.1 - ti * 0.12);
+        crown.position.set(tx, ly + 1.05, TZ + 1.15 + zoff + i * 0.1);
         crown.castShadow = false;
+        crown.name = 'win-tree';
         winG.add(crown);
         ly += 2.3;
       }
@@ -227,85 +256,115 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
       const bush = boxMesh(bs, bs * 0.75, 1.2, '#7cb342');
       bush.position.set(bx, sillY + 1 + bs * 0.3, TZ + 1.2);
       bush.castShadow = false;
+      bush.name = 'win-bush';
       winG.add(bush);
     }
   }
-  // 4) clouds drifting in the upper sky
+  // 4) clouds drifting in the upper sky — BEHIND the tree crowns (correct depth
+  // order), 0.4+ clear of each other and of the sky panel.
   const cloudDefs = [
     [win.x - win.width * 0.22, win.y + win.height * 0.3, 3],
-    [win.x + win.width * 0.1, win.y + win.height * 0.18, 2.4],
-    [win.x + win.width * 0.34, win.y + win.height * 0.02, 2],
-  ];
+    [win.x - win.width * 0.175, win.y + win.height * 0.16, 2.4],
+    [win.x + win.width * 0.35, win.y + win.height * 0.275, 2],
+  ]; // x/y slots keep every cloud clear of the tree-crown footprints
   for (const [cx, cy, cs] of cloudDefs) {
+    const CZ = TZ + 0.15; // one shared depth plane: 0.5 off the sky front,
+    // 0.65 behind the sun-glow front, 0.4+ clear of every tree crown
     const c1 = boxMesh(cs * 3, cs, 0.5, '#ffffff');
-    c1.position.set(cx, cy, TZ + 1.6);
-    // side puffs sit BEHIND the main puff (0.35+ clearance) — overlapping
-    // footprints with a 0.05 offset used to flicker
-    const c2 = boxMesh(cs * 1.6, cs * 0.8, 0.6, '#ffffff');
-    c2.position.set(cx + cs * 1.2, cy + cs * 0.5, TZ + 1.2);
-    const c3 = boxMesh(cs * 1.4, cs * 0.7, 0.6, '#ffffff');
-    c3.position.set(cx - cs * 1.1, cy + cs * 0.35, TZ + 1.2);
+    c1.position.set(cx, cy, CZ);
+    // side puffs join the main puff in the same plane (coplanar same-color —
+    // reads as one cloud silhouette; offset planes fought the glow/crowns)
+    const c2 = boxMesh(cs * 1.6, cs * 0.8, 0.5, '#ffffff');
+    c2.position.set(cx + cs * 1.2, cy + cs * 0.5, CZ);
+    const c3 = boxMesh(cs * 1.4, cs * 0.7, 0.5, '#ffffff');
+    c3.position.set(cx - cs * 1.1, cy + cs * 0.35, CZ);
+    c1.name = c2.name = c3.name = 'win-cloud';
     winG.add(c1, c2, c3);
   }
   // 5) frame border around the opening (4 bars, NOT a solid slab — scenery is
   // deep inside the tunnel now) + mid-tunnel glass and mullions. The cut wall
   // segments provide the real jambs/reveal.
-  const fw = win.width + 2.4, fh = win.height + 2.4;
-  const frameTop = boxMesh(fw, 1.2, 1.4, winFrameC);
-  frameTop.position.set(win.x, win.y + win.height / 2 + 0.6, -0.2);
-  const frameBot = frameTop.clone();
-  frameBot.position.y = win.y - win.height / 2 - 0.6;
-  const frameL = boxMesh(1.2, fh, 1.4, winFrameC);
-  frameL.position.set(win.x - win.width / 2 - 0.6, win.y, -0.2);
+  // The header is DEEPER than the jambs (1.8 vs 1.4) so the corner fronts never
+  // share a plane, and every bar overlaps its opening edge by 0.4 so no bar
+  // face lands on the wall segments' reveal planes (they used to be EXACTLY
+  // flush there and flickered against the wall colour).
+  // The bottom bar is replaced by the raised sill below.
+  const fw = win.width + 2.4;
+  const frameTop = boxMesh(fw, 1.2, 1.8, winFrameC);
+  frameTop.position.set(win.x, win.y + win.height / 2 + 0.2, 0);
+  frameTop.name = 'win-frame';
+  const frameL = boxMesh(1.2, win.height + 0.3, 1.4, winFrameC);
+  frameL.position.set(win.x - win.width / 2 - 0.2, win.y + 0.25, -0.2);
+  frameL.name = 'win-frame';
   const frameR = frameL.clone();
-  frameR.position.x = win.x + win.width / 2 + 0.6;
-  winG.add(frameTop, frameBot, frameL, frameR);
+  frameR.position.x = win.x + win.width / 2 + 0.2;
+  winG.add(frameTop, frameL, frameR);
   // glass tint kept VERY light so the deep scenery behind stays readable
   const glass = boxMesh(win.width, win.height, 0.4, win.glassTint || '#cfeef8');
   glass.position.set(win.x, win.y, TZ / 2);
   glass.material.transparent = true;
   glass.material.opacity = 0.14;
   glass.castShadow = false;
+  glass.name = 'win-glass';
   winG.add(glass);
-  // cross mullions with the glass, mid-tunnel
-  const barV = boxMesh(0.8, win.height, 0.9, winFrameC); barV.position.set(win.x, win.y, TZ / 2);
-  const barH = boxMesh(win.width, 0.8, 0.9, winFrameC); barH.position.set(win.x, win.y, TZ / 2);
+  // cross mullions with the glass, mid-tunnel — 1.2 deep so both mullion faces
+  // clear both glass faces by 0.4 (the 0.9-deep version sat 0.25 off the glass)
+  const barV = boxMesh(0.8, win.height, 1.2, winFrameC); barV.position.set(win.x, win.y, TZ / 2);
+  const barH = boxMesh(win.width, 0.8, 1.2, winFrameC); barH.position.set(win.x, win.y, TZ / 2);
+  barV.name = barH.name = 'win-mullion';
   winG.add(barV, barH);
   // 6) roller blind (half-lowered white blind at the top, like the reference)
   // Opt-in via win.blind:true — older rooms (ep01) keep their approved look.
   if (win.blind) {
     const blindH = win.height * 0.28;
-    const blind = boxMesh(win.width, blindH, 0.5, '#f5f5f2');
-    blind.position.set(win.x, win.y + win.height / 2 - blindH / 2, 0.45);
+    // 1.2 narrower: the ends touch the jamb inner faces (culled contact) so the
+    // blind front never overlaps the jamb fronts; 0.8 lower: the top tucks
+    // 0.4 under the header bottom (the front ran 0.2 from the header front)
+    const blind = boxMesh(win.width - 1.2, blindH, 0.5, '#f5f5f2');
+    blind.position.set(win.x, win.y + win.height / 2 - blindH / 2 - 0.8, 0.45);
     blind.castShadow = false;
+    blind.name = 'win-blind';
     winG.add(blind);
     // horizontal slat lines on the blind — proud of the blind's front face
-    // (0.7) by ≥ 0.3 so the slat fronts never flicker against the panel
+    // (0.7) by 0.4 so the slat fronts never flicker against the panel
     for (let sy = 1; sy <= 3; sy++) {
       const slat = boxMesh(win.width - 0.6, 0.28, 0.2, '#d9d9d4');
-      slat.position.set(win.x, win.y + win.height / 2 - (blindH / 4) * sy, 0.9);
+      slat.position.set(win.x, win.y + win.height / 2 - (blindH / 4) * sy, 1.0);
+      slat.name = 'win-slat';
       winG.add(slat);
     }
+    // roller sits fully ABOVE the opening (bottom 0.45 over the reveal plane,
+    // buried top edge inside the header) — its old position straddled the
+    // header top and the reveal plane 0.2 away on both faces
     const roller = boxMesh(win.width + 1.4, 1.6, 1.6, '#e3e3de');
-    roller.position.set(win.x, win.y + win.height / 2 + 0.6, 0.45);
+    roller.position.set(win.x, win.y + win.height / 2 + 1.25, 0.45);
+    roller.name = 'win-roller';
     winG.add(roller);
   }
   // 7) window sill — a slab that spans the full wall depth and protrudes
-  // into the room, like a real cut-wall sill — + leafy plant in a white pot
+  // into the room, like a real cut-wall sill. Its TOP is 0.5 ABOVE the opening
+  // floor (the wall segment's reveal face at y=sillY): flush there, the sill
+  // top, the reveal floor and the wainscot under-band top all fought each other
+  // across the whole sill area. The raised sill also buries those reveal faces
+  // and replaces the old bottom frame bar. + leafy plant in a white pot.
   const sill = boxMesh(win.width + 3.2, 1.2, WT + 1.6, winFrameC);
-  sill.position.set(win.x, sillY - 0.6, 0.2);
+  sill.position.set(win.x, sillY - 0.2, 0.2); // top = sillY+0.4 (0.4 over the reveal)
+  sill.name = 'win-sill';
   winG.add(sill);
-  const silPotX = win.x + win.width * 0.28;
+  const silPotX = win.x + win.width * 0.05;
   const silPot = boxMesh(3.4, 3, 3.4, '#eceff1');
-  silPot.position.set(silPotX, sillY - 0.1, 0.9);
+  silPot.position.set(silPotX, sillY + 1.9, 0.9); // sits on the raised sill top
+  silPot.name = 'win-plant';
   const silSoil = boxMesh(2.9, 0.4, 2.9, '#4e342e');
-  silSoil.position.set(silPotX, sillY + 1.3, 0.9);
+  silSoil.position.set(silPotX, sillY + 3.6, 0.9);
+  silSoil.name = 'win-plant';
   winG.add(silPot, silSoil);
   for (let i = 0; i < 3; i++) {
     const leafS = 2.6 - i * 0.5;
     const leaf = boxMesh(leafS, 2.2, leafS, i % 2 ? '#66bb6a' : '#81c784');
-    leaf.position.set(silPotX + (i % 2 ? -0.5 : 0.5), sillY + 2.4 + i * 1.4, 1.0 + (i % 2 ? 0.3 : -0.3));
+    leaf.position.set(silPotX + (i % 2 ? -0.5 : 0.5), sillY + 4.9 + i * 1.4, 1.0 + (i % 2 ? 0.3 : -0.3));
     leaf.rotation.y = i * 0.5;
+    leaf.name = 'win-plant';
     winG.add(leaf);
   }
   // 8) curtain — folded panels on a wooden rod. Rooms that set curtainSide get
@@ -338,7 +397,7 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
         panel.add(fold);
       }
       panel.position.set(
-        win.x + side * (win.width / 2 + cw / 2 - 0.6),
+        win.x + side * (win.width / 2 + cw / 2 + 1.0),
         rodY - 0.6,
         1.7
       );
@@ -358,26 +417,33 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   // ---- door (back wall, hinged) ----
   const door = R.door;
   const doorPivot = new THREE.Group();
+  doorPivot.name = 'door';
   doorPivot.position.set(door.x - door.width / 2, 0, -D / 2 + 0.3);
   // panel lifted a hair off the floor — resting exactly on the floor plane
   // makes the threshold z-fight/shadow-flicker as the door swings
   const panel = boxMesh(door.width, door.height, 1, door.color);
   panel.position.set(door.width / 2, door.height / 2 + 0.06, 0);
+  panel.name = 'door-panel';
   doorPivot.add(panel);
   const handle = boxMesh(1.2, 1.2, 1.6, '#cfd8dc');
-  handle.position.set(door.width - 1.2, door.height / 2, 0.8);
+  // 1.05 (not 0.8): the knob front must clear the panel front by ≥ 0.35
+  handle.position.set(door.width - 1.2, door.height / 2, 1.05);
+  handle.name = 'door-handle';
   doorPivot.add(handle);
-  // nudged forward of the baseboard strip (front face would otherwise be at
-  // exactly the same z-plane, -D/2+0.5, and the two flicker against each other)
+  // Frame front 0.4 proud of the wall face and 0.4 BEHIND the panel front —
+  // the old -0.12 placement left the frame front 0.22 from the panel front and
+  // 0.08 from the baseboard front (both inside the flicker zone).
   // Frame lightened vs woodDark so it still reads against the light door panel
   const frame = boxMesh(door.width + 2.4, door.height + 1.4, 1.4, '#8d6e63');
-  frame.position.set(door.x, (door.height + 1.4) / 2, -D / 2 - 0.12);
+  frame.position.set(door.x, (door.height + 1.4) / 2, -D / 2 - 0.3);
+  frame.name = 'door-frame';
   scene.add(frame, doorPivot);
   world.doorPivot = doorPivot;
 
   // ---- furniture ----
   for (const item of R.furniture) {
     const g = new THREE.Group();
+    g.name = item.type; // owner label for the z-fight diagnostic reports
     g.position.set(item.pos[0], 0, item.pos[1]);
     g.rotation.y = item.rotY || 0;
     switch (item.type) {
@@ -395,8 +461,10 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
         // drawer unit under the desktop (cream body)
         const drawer = boxMesh(w * 0.42, h - 2.4, d - 2.5, '#eceff1');
         drawer.position.set(w * 0.26, (h - 2.4) / 2, 0);
-        const drawerLine1 = boxMesh(w * 0.42 - 0.6, 0.4, d - 2.2, '#cfd8dc');
-        drawerLine1.position.set(w * 0.26, h * 0.55, 0);
+        // drawer face lines: narrow strips 0.35 clear of the body front — the
+        // old full-depth strips poked past the body sides (0.15 gaps)
+        const drawerLine1 = boxMesh(w * 0.42 - 1.2, 0.4, 0.3, '#cfd8dc');
+        drawerLine1.position.set(w * 0.26, h * 0.55, (d - 2.5) / 2 + 0.5);
         const drawerLine2 = drawerLine1.clone();
         drawerLine2.position.y = h * 0.3;
         const knob = boxMesh(1.4, 0.7, 0.5, '#78909c');
@@ -409,10 +477,10 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
         // per the user's markup on project 2.png (2 rounds of "bigger, further out")
         const mon = boxMesh(12, 8, 1.2, '#37474f');
         mon.position.set(-3, h + 5, 5.6);
-        const monScreen = boxMesh(10.4, 6.8, 0.4, '#4fc3f7');
-        monScreen.position.set(-3, h + 5, 4.9);
-        const monStand = boxMesh(1.8, 2.2, 1.8, '#263238');
-        monStand.position.set(-3, h + 1.1, 5.6);
+        const monScreen = boxMesh(10.4, 6.8, 0.9, '#4fc3f7');
+        monScreen.position.set(-3, h + 5, 4.75); // back edge buried in the body
+        const monStand = boxMesh(1.8, 2.2, 1.2, '#263238');
+        monStand.position.set(-3, h + 1.1, 6.0); // 0.4 clear of body back and front
         const keyboard = boxMesh(6, 0.5, 2.2, '#263238');
         keyboard.position.set(-2.5, h + 0.35, 1.4);
         const papers = boxMesh(4, 0.3, 3, '#ffffff');
@@ -454,14 +522,14 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
         g.add(seat, backrest);
         for (const [sx, sz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
           const leg = boxMesh(1.3, 8.2, 1.3, P.woodDark);
-          leg.position.set(sx * 6.4, 4.1, sz * 3.2);
+          leg.position.set(sx * 6.4, 4.1, sz * 2.9);
           g.add(leg);
         }
         // armrests — placed outside the seated character's arms (arms span to x≈±7.2)
         for (const sx of [-1, 1]) {
           const post = boxMesh(1, 4, 1, P.woodDark);
           post.position.set(sx * 7.1, 11, 0.4);
-          const rest = boxMesh(1.3, 1, 6.4, P.accent);
+          const rest = boxMesh(2.0, 1, 6.4, P.accent); // 0.5 past the post sides each way
           rest.position.set(sx * 7.1, 13.2, 0.2);
           g.add(post, rest);
         }
@@ -474,7 +542,9 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
         const seat = boxMesh(7, 1.4, 7, dark);
         seat.position.set(0, 8.3, 0); // seat top = 9 — matches the sit height in voxel.js
         const backrest = boxMesh(7, 9, 1.4, dark);
-        backrest.position.set(0, 13.8, -3);
+        // 0.4 further back: the seated doctor's coat back sat 0.15 from the
+        // backrest front (flicker zone) — now 0.55
+        backrest.position.set(0, 13.8, -3.4);
         const post = new THREE.Mesh(
           new THREE.CylinderGeometry(0.9, 0.9, 6.2, 8),
           new THREE.MeshLambertMaterial({ color: darker })
@@ -531,24 +601,30 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
         const bw = 14, bh = 22, bd = 6;
         const wood = '#a1887f';
         for (const [sx, sz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
-          // posts sit 0.15 proud of the shelf fronts — flush there, the post
-          // and shelf front faces are coplanar (different woods) and z-fight.
-          // Posts cast (floor shadow) but never receive: a post that both
-          // casts and receives strobes at every shelf/post junction (Rule 3).
+          // Posts sit 0.4 proud of the shelf fronts (0.15 was still inside the
+          // flicker zone — Rule 24), so the post front/shelf front pair and the
+          // post top/topShelf pair all keep ≥ 0.4. Posts cast (floor shadow)
+          // but never receive: a post that both casts and receives strobes at
+          // every shelf/post junction (Rule 3).
           const post = boxMesh(1, bh, 1, '#8d6e63');
-          post.position.set(sx * (bw / 2 - 0.5), bh / 2, sz * (bd / 2 - 0.5 + 0.15));
+          post.position.set(sx * (bw / 2 - 0.5), bh / 2, sz * (bd / 2 - 0.5 + 0.4));
           post.receiveShadow = false;
+          post.name = 'bookshelf-post';
           g.add(post);
         }
         // muted, darkened book palette — readable color variety without
         // screaming saturation next to the window light
         const bookColors = ['#a35d52', '#52708a', '#5f7d63', '#b3a06e', '#7a6591'];
         for (let s = 0; s < 3; s++) {
-          // shelves cast (floor shadow) but never receive: self-shadowing at
+          // Shelves are 1.4 narrower than the carcass: their end faces bury
+          // INSIDE the corner posts (flush there, shelf end and post outer
+          // faces were exactly coplanar and fought at every shelf level).
+          // Shelves cast (floor shadow) but never receive: self-shadowing at
           // the shelf/post and shelf/book junctions strobes on camera moves
-          const shelf = boxMesh(bw, 0.7, bd, wood);
+          const shelf = boxMesh(bw - 1.4, 0.7, bd, wood);
           shelf.position.set(0, 2.5 + s * 7, 0);
           shelf.receiveShadow = false;
+          shelf.name = 'bookshelf-shelf';
           g.add(shelf);
           // row of books on each shelf — stop early enough that the widest
           // book (≤ 1.8) still clears the front corner posts (x = ±6).
@@ -563,14 +639,17 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
             book.position.set(bx + bwid / 2, 2.5 + s * 7 + 0.35 + bhei / 2, 0.4);
             book.castShadow = false;
             book.receiveShadow = false;
+            book.name = 'bookshelf-book';
             g.add(book);
             bx += bwid + 0.35;
             bi++;
           }
         }
-        const topShelf = boxMesh(bw + 0.8, 0.8, bd + 0.8, wood);
+        // top cap clearly proud of posts AND shelves (0.8 vs 0.4 overhangs)
+        const topShelf = boxMesh(bw + 1.6, 0.8, bd + 1.6, wood);
         topShelf.position.y = bh;
         topShelf.receiveShadow = false;
+        topShelf.name = 'bookshelf-top';
         g.add(topShelf);
         break;
       }
@@ -591,7 +670,7 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
         cpot.position.set(3, 10.3, 0.5);
         const cbody = boxMesh(1.8, 3.6, 1.8, '#66bb6a');
         cbody.position.set(3, 13, 0.5);
-        const carm = boxMesh(2.2, 1.2, 1.4, '#81c784');
+        const carm = boxMesh(2.2, 1.2, 0.9, '#81c784');
         carm.position.set(1.6, 13.5, 0.5);
         g.add(cpot, cbody, carm);
         break;
@@ -607,16 +686,18 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
         board.position.set(0, 0, 0.3);
         g.add(frame, board);
         // teddy head + ears + muzzle (proud of the board face at z≈0.9)
+        // head bottom exactly touches the top text bar; ears/muzzle fronts sit
+        // 0.4 proud of the head front (0.05 before — flicker pairs)
         const bear = '#a1704f';
         const head = boxMesh(4.2, 3.8, 0.8, bear);
-        head.position.set(0.1, 2.6, 0.9);
+        head.position.set(0.1, 2.85, 0.9);
         for (const ex of [-1.7, 1.7]) {
           const ear = boxMesh(1.4, 1.4, 0.7, shade(bear, 0.8));
-          ear.position.set(0.1 + ex, 4.6, 0.9);
+          ear.position.set(0.1 + ex, 4.85, 1.35);
           g.add(ear);
         }
         const muzzle = boxMesh(1.8, 1.2, 0.5, '#d7a97c');
-        muzzle.position.set(0.1, 2.1, 1.1);
+        muzzle.position.set(0.1, 2.35, 1.5);
         g.add(head, muzzle);
         // text bars + heart
         const bar1 = boxMesh(6.4, 1.1, 0.6, '#37474f');
@@ -652,21 +733,22 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
           : item.icon === 'katmast' ? { dish: '#ffffff', food: '#f6f1e3' }
           : { dish: '#cfe9f7', food: '#7fc9ec' };
         if (item.icon === 'ors') {
-          // little ORS bottle
+          // little ORS bottle — neck bottom touches the bottle top, cap front
+          // 0.4 proud of the neck front (was 0.15), food patch proud of the dish
           const bottle = boxMesh(2.4, 4.6, 1.2, c.dish);
           bottle.position.set(0, 1.6, 1.1);
           const neck = boxMesh(1.2, 1.2, 1.2, c.dish);
-          neck.position.set(0, 4.4, 1.1);
+          neck.position.set(0, 4.5, 1.1);
           const cap = boxMesh(1.5, 0.7, 1.5, '#e53935');
-          cap.position.set(0, 5.2, 1.1);
+          cap.position.set(0, 5.3, 1.35);
           const liquidP = boxMesh(1.7, 2.4, 1.4, c.food);
-          liquidP.position.set(0, 1, 1.25);
+          liquidP.position.set(0, 1, 1.4);
           g.add(bottle, neck, cap, liquidP);
         } else {
           const dish = boxMesh(4.6, 1.2, 3, c.dish);
           dish.position.set(0, 0.4, 1.05);
           const food = boxMesh(3.4, 2, 2.4, c.food);
-          food.position.set(0, 1.9, 1.05);
+          food.position.set(0, 1.9, 0.95);
           g.add(dish, food);
         }
         if (item.label) {
@@ -685,39 +767,42 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
       }
       case 'whiteboard': {
         // teal-framed whiteboard with heart + pulse line; rotY aims local +z
-        // Center on the wall (~eye height); board is 15 tall so y≈14 keeps it clear of the floor
+        // (the board faces) into the room. Built like the posters: frame slab
+        // behind, board 0.6 proud of it, details 0.45 proud of the board —
+        // the old build had the board buried inside the frame slab and the
+        // red details 0.05 off the frame front (flicker pairs).
         g.position.y = 14;
-        const wframe = boxMesh(1, 15, 18, P.accent);
-        wframe.position.y = 0;
-        const wboard = boxMesh(0.8, 13.6, 16.6, '#ffffff');
-        wboard.position.set(-0.2, 0, 0);
+        const wframe = boxMesh(18, 15, 1, P.accent);
+        wframe.position.z = -0.2;
+        const wboard = boxMesh(16.6, 13.6, 0.8, '#ffffff');
+        wboard.position.z = 0.5;
         g.add(wframe, wboard);
         // red heart icon
         const hw = 2.6;
         const hd = boxMesh(hw, hw, 0.5, '#e53935');
         hd.rotation.z = Math.PI / 4;
-        hd.position.set(0.3, 3.2, 0.4);
+        hd.position.set(0.3, 3.2, 1.1);
         const hl1 = boxMesh(1.7, 1.7, 0.5, '#e53935');
-        hl1.position.set(0.3 - 0.9, 3.2 + 0.9, 0.4);
+        hl1.position.set(0.3 - 0.9, 3.2 + 0.9, 1.1);
         const hl2 = hl1.clone();
         hl2.position.x = 0.3 + 0.9;
         g.add(hd, hl1, hl2);
-        // pulse line: segments in the board plane (local YZ)
+        // pulse line: segments in the board plane (local xy), 0.45 off the board
         const pulse = [[-5.4, -2.4], [-3.6, -2.4], [-2.6, -0.6], [-1.2, -4], [0.2, -1.4], [1.4, -2.4], [5.4, -2.4]];
         for (let i = 0; i < pulse.length - 1; i++) {
-          const [ay, az] = pulse[i];
-          const [by, bz] = pulse[i + 1];
-          const len = Math.hypot(by - ay, bz - az);
-          const seg = boxMesh(0.5, 0.5, len, '#e53935');
-          seg.rotation.x = Math.atan2(-(by - ay), bz - az);
-          seg.position.set(0.3, (ay + by) / 2, (az + bz) / 2);
+          const [ay, ax] = pulse[i];
+          const [by, bx] = pulse[i + 1];
+          const len = Math.hypot(by - ay, bx - ax);
+          const seg = boxMesh(len, 0.5, 0.5, '#e53935');
+          seg.rotation.z = Math.atan2(by - ay, bx - ax);
+          seg.position.set((ax + bx) / 2, (ay + by) / 2, 1.1);
           g.add(seg);
         }
-        // marker tray
-        const trayW = boxMesh(1.6, 0.7, 12, '#b2dfdb');
-        trayW.position.set(-0.8, -7.2, 0);
-        const marker = boxMesh(0.6, 0.6, 3, '#ef5350');
-        marker.position.set(-1, -6.6, -2);
+        // marker tray below the board (top 0.4 under the board bottom) + marker
+        const trayW = boxMesh(12, 0.7, 1.6, '#b2dfdb');
+        trayW.position.set(0, -7.55, 1.05);
+        const marker = boxMesh(3, 0.6, 0.6, '#ef5350');
+        marker.position.set(-1, -6.9, 1.3);
         g.add(trayW, marker);
         // wall decor: no cast shadows (reference image has clean walls)
         g.traverse((o) => { o.castShadow = false; });
@@ -727,7 +812,7 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
         // stethoscope hanging on the back wall
         g.position.set(item.pos[0], item.pos[1], -R.size[1] / 2 + 0.9);
         const hook = boxMesh(1.4, 1.2, 0.8, '#78909c');
-        hook.position.set(0, 4.6, -0.2);
+        hook.position.set(0, 4.6, -0.45);
         const tubeC = '#90a4ae';
         const tubeL = boxMesh(0.8, 5.5, 0.7, tubeC);
         tubeL.position.set(-1.5, 1.2, 0);
@@ -769,12 +854,14 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
         const drawerFront2 = drawerFront.clone();
         drawerFront2.position.x = w * 0.22;
         const dKnob = boxMesh(0.7, 0.7, 0.5, '#78909c');
-        dKnob.position.set(-w * 0.22, baseH * 0.55, baseFrontZ - 0.1 - 0.65);
+        // knob front 0.45 off the drawer front (0.2 before — flicker zone)
+        dKnob.position.set(-w * 0.22, baseH * 0.55, baseFrontZ - 0.1 - 0.9);
         const dKnob2 = dKnob.clone();
         dKnob2.position.x = w * 0.22;
-        // side safety rail
+        // side safety rail — rail stands 0.4 proud of the posts (flush there,
+        // post outer and rail outer faces were 0.05 apart and flickered)
         const railTop = boxMesh(w - 4, 0.8, 0.8, P.metal);
-        railTop.position.set(0, h + 3.4, d / 2 - 0.6);
+        railTop.position.set(0, h + 3.4, d / 2 - 0.2);
         for (let i = -1; i <= 1; i++) {
           const railPost = boxMesh(0.7, 3, 0.7, P.metal);
           railPost.position.set(i * (w / 2 - 3), h + 1.9, d / 2 - 0.6);
@@ -811,22 +898,41 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
         const rc = item.colors || {};
         const inner = rc.inner || '#80cbc4';
         const outer = rc.outer || '#4db6ac';
+        // The border is a 4-bar ring whose top face is EXACTLY the rug's top
+        // plane — coplanar but edge-to-edge with zero overlapping area (like
+        // the floor tiles), so nothing fights. The old border was a full slab
+        // under the rug whose top face ran 0.07 below the rug top over the
+        // whole rug area — a rug-wide flicker pair.
+        for (const sz of [-1, 1]) {
+          const tb = boxMesh(w + 1.6, 0.5, 0.8, outer);
+          tb.position.set(0, 0.25, sz * (d / 2 + 0.4));
+          tb.castShadow = false;
+          tb.name = 'rug-border';
+          g.add(tb);
+        }
+        for (const sx of [-1, 1]) {
+          const lr = boxMesh(0.8, 0.5, d, outer);
+          lr.position.set(sx * (w / 2 + 0.4), 0.25, 0);
+          lr.castShadow = false;
+          lr.name = 'rug-border';
+          g.add(lr);
+        }
         const rug = boxMesh(w, 0.5, d, inner);
         rug.position.set(0, 0.25, 0);
         rug.castShadow = false;
-        const border = boxMesh(w + 1.6, 0.5, d + 1.6, outer);
-        border.position.set(0, 0.18, 0);
-        border.castShadow = false;
-        // woven pattern: inner frame + center diamond
-        const frame = boxMesh(w - 4, 0.2, d - 4, shade(inner, 0.85));
-        frame.position.set(0, 0.56, 0);
+        rug.name = 'rug';
+        // woven pattern: inner frame slab + center diamond, each stacked 0.4
+        // proud of the surface below (bottom faces touch — culled contact)
+        const frame = boxMesh(w - 4, 0.4, d - 4, shade(inner, 0.85));
+        frame.position.set(0, 0.7, 0);
         frame.castShadow = false;
-        const dia = boxMesh(4.5, 0.2, 4.5, outer);
+        frame.name = 'rug-frame';
+        const dia = boxMesh(4.5, 0.4, 4.5, outer);
         dia.rotation.y = Math.PI / 4;
-        // lifted clear of the rug's top face (y=0.5) — exactly touching = z-fight
-        dia.position.set(0, 0.65, 0);
+        dia.position.set(0, 1.1, 0);
         dia.castShadow = false;
-        g.add(border, rug, frame, dia);
+        dia.name = 'rug-diamond';
+        g.add(rug, frame, dia);
         break;
       }
       case 'clock': {
@@ -843,7 +949,9 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
         const hourHand = boxMesh(0.6, 1.7, 0.4, '#263238');
         hourHand.position.set(0, 0.85, 0.5);
         const minuteHand = boxMesh(0.45, 2.2, 0.4, '#263238');
-        minuteHand.position.set(0, 1.1, 0.6);
+        // minute hand back face exactly touches the hour hand front plane —
+        // the 0.6 z put the two hands 0.1 apart (flicker as they rotate)
+        minuteHand.position.set(0, 1.1, 0.9);
         hourPivot.add(hourHand);
         minutePivot.add(minuteHand);
         g.add(hourPivot, minutePivot);
@@ -857,12 +965,18 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
       case 'plant': {
         const pc = item.colors || {};
         const potC = pc.pot || '#bf6b3f';
-        const pot = boxMesh(4, 4.5, 4, potC);
+        // pot/rim/soil ladder: each visible front ≥ 0.4 proud of the one below
+        // (the old rim was 0.3 proud of the pot and the soil top 0.15 above the
+        // rim top — both flicker pairs), and the rim clears the lowest leaf
+        const pot = boxMesh(3.6, 4.5, 3.6, potC);
         pot.position.set(0, 2.25, 0);
-        const rim = boxMesh(4.6, 0.9, 4.6, shade(potC, 0.8));
+        pot.name = 'plant-pot';
+        const rim = boxMesh(4.4, 0.9, 4.4, shade(potC, 0.8));
         rim.position.set(0, 4.3, 0);
-        const soil = boxMesh(3.6, 0.4, 3.6, '#4e342e');
-        soil.position.set(0, 4.7, 0);
+        rim.name = 'plant-rim';
+        const soil = boxMesh(3.0, 0.4, 3.0, '#4e342e');
+        soil.position.set(0, 4.95, 0);
+        soil.name = 'plant-soil';
         g.add(pot, rim, soil);
         const leafA = pc.leaf || '#43a047';
         const leafB = shade(leafA, 0.75);
@@ -889,10 +1003,11 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
           const front = boxMesh(w - 2, dh - 1, 0.6, '#eceff1');
           // proud of the body's front face (d/2), never flush (Rule 1)
           front.position.set(0, 1.2 + dh * r + dh / 2, d / 2 + 0.35);
+          // face line + knob 0.45 proud of the drawer front (0.15/0.3 before)
           const line = boxMesh(w - 3.4, 0.35, 0.2, '#b0bec5');
-          line.position.set(0, front.position.y + dh / 2 - 1.2, d / 2 + 0.7);
+          line.position.set(0, front.position.y + dh / 2 - 1.2, d / 2 + 1.0);
           const knob = boxMesh(1.6, 0.6, 0.5, '#78909c');
-          knob.position.set(0, front.position.y, d / 2 + 0.7);
+          knob.position.set(0, front.position.y, d / 2 + 1.0);
           g.add(front, line, knob);
         }
         // top slab + plant pot on top
@@ -942,20 +1057,22 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
           tick.position.set(2.6, 8 - i * 2.6, 0.85);
           g.add(tick);
         }
-        // giraffe: neck + head + muzzle + ear + spots
+        // giraffe: neck + head + muzzle + ear + spots — every detail front sits
+        // 0.4 proud of the face it mounts on (spots/muzzle/ear used to land
+        // EXACTLY coplanar with the neck/head fronts — visible shimmer)
         const gc = '#f0b429';
         const neck = boxMesh(1.8, 10, 0.7, gc);
         neck.position.set(-2, -4.5, 0.85);
         const head = boxMesh(3, 2.4, 0.8, gc);
-        head.position.set(-1.4, 1.6, 0.85);
+        head.position.set(-1.4, 1.7, 0.85);
         const muzzle = boxMesh(1.4, 1.2, 0.5, '#e3993c');
-        muzzle.position.set(-0.4, 1.2, 1.0);
+        muzzle.position.set(-0.4, 1.3, 1.45);
         const ear = boxMesh(1, 1, 0.5, '#e3993c');
-        ear.position.set(-2.6, 2.6, 0.95);
+        ear.position.set(-2.6, 2.7, 1.45);
         g.add(neck, head, muzzle, ear);
         for (const [sx, sy] of [[-2.4, -2], [-1.7, -5], [-2.2, -8], [-1.2, -10.5]]) {
           const spot = boxMesh(0.8, 0.8, 0.3, '#b07b20');
-          spot.position.set(sx, sy, 1.05);
+          spot.position.set(sx, sy, 1.45);
           g.add(spot);
         }
         g.traverse((o) => { o.castShadow = false; });
@@ -1001,11 +1118,13 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
 
   // floating tray with foods (hidden until L03)
   const tray = new THREE.Group();
+  tray.name = 'tray';
   const foodGroups = [];
   if (PR.tray && PR.foods) {
   const trayBox = boxMesh(PR.tray.size[0], PR.tray.size[1], PR.tray.size[2], PR.tray.color);
   tray.add(trayBox);
-  const trayRim = boxMesh(PR.tray.size[0] + 0.6, PR.tray.size[1] * 0.7, PR.tray.size[2] + 0.6, shade(PR.tray.color, 0.75));
+  // tray rim 0.4 proud of the tray sides (0.3 before — borderline flicker)
+  const trayRim = boxMesh(PR.tray.size[0] + 0.8, PR.tray.size[1] * 0.7, PR.tray.size[2] + 0.8, shade(PR.tray.color, 0.75));
   trayRim.position.y = PR.tray.size[1] * 0.6;
   tray.add(trayRim);
   // Wide X spacing (gap 10) so the bowl/plate dishes never overlap each other
@@ -1020,7 +1139,8 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
         bowl.position.y = 1.5;
         const foot = boxMesh(5.5, 0.6, 5.5, shade(c.bowl, 0.8));
         foot.position.y = 0.3;
-        const rim = boxMesh(8.4, 0.7, 8.4, shade(c.bowl, 0.9));
+        // rim 0.5 proud of the bowl sides (0.2 before — flicker pair)
+        const rim = boxMesh(9.0, 0.7, 9.0, shade(c.bowl, 0.9));
         rim.position.y = 3.1;
         const mash = boxMesh(6, 2.4, 6, c.food);
         mash.position.y = 4.0;
@@ -1042,13 +1162,14 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
       case 'yogurt': {
         const cup = boxMesh(5.4, 6.5, 5.4, c.cup);
         cup.position.y = 3.25;
-        const stripe = boxMesh(5.7, 1.8, 5.7, c.stripe);
+        // label stripes 0.4 proud of the cup sides (0.15 before — flicker pair)
+        const stripe = boxMesh(6.2, 1.8, 6.2, c.stripe);
         stripe.position.y = 4.8;
-        const stripe2 = boxMesh(5.6, 0.7, 5.6, c.stripe);
+        const stripe2 = boxMesh(6.2, 0.7, 6.2, c.stripe);
         stripe2.position.y = 1.4;
         const top = boxMesh(5.0, 0.7, 5.0, '#e8eaf0');
-        top.position.y = 6.8;
-        const lid = boxMesh(5.6, 0.9, 5.6, c.lid || c.stripe);
+        top.position.y = 6.1; // fully inside the cup
+        const lid = boxMesh(6.0, 0.9, 6.0, c.lid || c.stripe);
         lid.position.y = 7.15;
         // probiotic culture dots on the label
         for (let i = 0; i < 3; i++) {
@@ -1066,7 +1187,8 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
       case 'katmast': {
         const plate = boxMesh(10, 1.2, 10, c.plate);
         plate.position.y = 0.6;
-        const rim2 = boxMesh(10.4, 0.5, 10.4, shade(c.plate, 0.88));
+        // plate rim 0.5 proud of the plate sides (0.2 before — flicker pair)
+        const rim2 = boxMesh(11.0, 0.5, 11.0, shade(c.plate, 0.88));
         rim2.position.y = 1.2;
         const rice = boxMesh(7.5, 2.6, 7.5, c.rice);
         rice.position.y = 2.4;
@@ -1079,7 +1201,7 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
           fg.add(grain);
         }
         const yog = boxMesh(3.4, 1.4, 3.4, c.yogurt);
-        yog.position.set(2, 4.2, 2);
+        yog.position.set(2, 4.5, 2);
         const butter = boxMesh(1.4, 0.9, 1.4, c.butter || '#f9e79f');
         butter.position.set(-1.6, 4.2, -1.2);
         fg.add(plate, rim2, rice, yog, butter);
@@ -1092,16 +1214,18 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
         glassB.castShadow = true;
         const liquid = boxMesh(4.2, 4.2, 4.2, c.liquid);
         liquid.position.y = 2.4;
-        const surface = boxMesh(4.35, 0.5, 4.35, shade(c.liquid, 1.25));
+        const surface = boxMesh(4.9, 0.5, 4.9, shade(c.liquid, 1.25)); // 0.35 lip past the liquid
         surface.position.y = 4.5;
         const straw = boxMesh(0.7, 5.5, 0.7, c.straw || '#ef5350');
         straw.position.set(1.2, 7, 1.2);
         straw.rotation.z = 0.35;
         const sachet = boxMesh(3, 5.5, 0.9, c.sachet);
-        sachet.position.set(-3.4, 2.75, 1);
+        sachet.position.set(-4.2, 2.75, 1);
         sachet.rotation.z = -0.25;
-        const stripe = boxMesh(3.1, 1.2, 1.0, '#ffffff');
-        stripe.position.set(-3.4, 3.6, 1);
+        // wider than the sachet (wrapped label band): its end faces stay 0.45
+        // clear of the sachet end faces, front 0.6 proud of the sachet front
+        const stripe = boxMesh(3.9, 1.2, 1.0, '#ffffff');
+        stripe.position.set(-4.2, 3.05, 1.55);
         stripe.rotation.z = -0.25;
         fg.add(glassB, liquid, surface, straw, sachet, stripe);
         break;
@@ -1123,11 +1247,12 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   const warnXZ = M.warn || { x: -2, z: 2 };
   const heartXZ = M.heart || { x: 12, z: 14 };
 
-  tray.position.set(trayXZ.x, -8, trayXZ.z);
+  tray.position.set(trayXZ.x, -14, trayXZ.z);
   tray.visible = false;
   scene.add(tray);
 
   const waterGroup = new THREE.Group();
+  waterGroup.name = 'water';
   if (PR.water) {
   const wg = new THREE.MeshLambertMaterial({ color: PR.water.glass, transparent: true, opacity: 0.55 });
   const wglass = new THREE.Mesh(new THREE.BoxGeometry(4.5, 6.5, 4.5), wg);
@@ -1142,6 +1267,7 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   }
 
   const warnGroup = new THREE.Group();
+  warnGroup.name = 'warning';
   if (PR.warning) {
   const cone = new THREE.Mesh(
     new THREE.ConeGeometry(3.2, 5.5, 3),
@@ -1163,6 +1289,7 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   }
 
   const heart = new THREE.Group();
+  heart.name = 'heart';
   if (PR.heart) {
   const hc = PR.heart.color;
   const diamond = boxMesh(6, 6, 2.2, hc);
@@ -1171,11 +1298,12 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   bumpL.position.set(-2.1, 2.5, 0);
   const bumpR = bumpL.clone();
   bumpR.position.x = 2.1;
-  // highlight facet + darker underside for volume
+  // highlight facet + darker underside for volume (facet 0.4 proud of the
+  // diamond front — 0.2 before, flicker pair on the floating heart)
   const hl = boxMesh(1.4, 1.4, 0.4, shade(hc, 1.35));
-  hl.position.set(-2.2, 3.2, 1.1);
+  hl.position.set(-2.2, 3.2, 1.3);
   hl.rotation.z = Math.PI / 4;
-  const under = boxMesh(4, 3.2, 2.3, shade(hc, 0.75));
+  const under = boxMesh(4, 3.2, 1.4, shade(hc, 0.75)); // 0.4 behind the diamond front
   under.position.set(0, -1.2, 0);
   under.rotation.z = Math.PI / 4;
   heart.add(diamond, bumpL, bumpR, hl, under);
@@ -1191,23 +1319,27 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
   if (PR.medicine) {
     const mc = PR.medicine;
     medicineGroup = new THREE.Group();
+    medicineGroup.name = 'medicine';
     const bBody = boxMesh(5, 8, 5, mc.bottle.body);
     bBody.position.y = 4;
     const bCap = boxMesh(3, 1.6, 3, mc.bottle.cap);
     bCap.position.y = 8.8;
-    const bLabel = boxMesh(5.2, 4, 5.2, mc.bottle.label);
+    // label + band are progressively prouder of the body (0.45 / 0.85) —
+    // the old 5.2/5.35 depths left 0.1/0.075 gaps (flicker on the label)
+    const bLabel = boxMesh(5.9, 4, 5.9, mc.bottle.label);
     bLabel.position.y = 4;
-    const bBand = boxMesh(5.35, 1.1, 5.35, mc.bottle.labelBand);
+    const bBand = boxMesh(6.7, 1.1, 6.7, mc.bottle.labelBand);
     bBand.position.y = 5.6;
+    bBody.name = bCap.name = bLabel.name = bBand.name = 'medicine-bottle';
     medicineGroup.add(bBody, bCap, bLabel, bBand);
     // dropper leaning beside the bottle
     const dBulb = boxMesh(1.8, 1.8, 1.8, mc.dropper.bulb);
     dBulb.position.set(-5, 6.6, 0.6);
-    const dTube = boxMesh(1.1, 4.4, 1.1, mc.dropper.tube);
+    const dTube = boxMesh(1.1, 4.4, 0.9, mc.dropper.tube);
     dTube.position.set(-5, 4, 0.6);
     dTube.rotation.z = 0.12;
-    const dTip = boxMesh(0.7, 1.8, 0.7, mc.dropper.tip);
-    dTip.position.set(-4.7, 1.4, 0.6);
+    const dTip = boxMesh(0.7, 1.8, 0.5, mc.dropper.tip);
+    dTip.position.set(-4.25, 1.4, 0.6);
     medicineGroup.add(dBulb, dTube, dTip);
     // water cup
     const cupG = new THREE.MeshLambertMaterial({ color: mc.cup.glass, transparent: true, opacity: 0.55 });

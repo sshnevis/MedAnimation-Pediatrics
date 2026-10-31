@@ -74,6 +74,7 @@ export function buildCharacter(def) {
   const skinDark = C.skinShade || shade(C.skin, 0.85);
   const pantsDark = C.pantsShade || shade(C.pants, 0.85);
   const group = new THREE.Group();
+  group.name = 'char-' + (def.id || 'unknown'); // owner label for z-fight reports
   group.scale.setScalar(def.scale || 1);
 
   // legs (hip at y=12)

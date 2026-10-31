@@ -45,6 +45,10 @@ episode's lessons get folded back into this document.
 5. **Preview loop (mandatory)**: `node tools/preview-shots.js --ep <id>` → compare stills
    against the reference PNG → iterate room/props/shots until they match. QUALITY_RULES:
    always iterate against the reference image, never memory.
+5b. **Z-fight gate (mandatory)**: `./tools/node24.cmd tools/zfight-diag.js --ep <id>` must
+   print **PASS** (0 COPLANAR/NEAR pairs) before rendering — BUGFIX_RULES Rule 24. Run it
+   again after ANY change to shared builders (`src/js/world.js`), for every episode that
+   uses them.
 6. Render + assemble:
    ```
    node tools/render.js            --ep <id>

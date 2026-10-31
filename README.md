@@ -99,6 +99,10 @@ opening line whose walk-in must finish before the next line starts.
    ```
 5. Preview in browser: `node tools/serve.js` →
    `http://127.0.0.1:8090/src/index.html?ep=epNN-<slug>` (or just run `Run.bat`).
+6. **Z-fight gate (mandatory before rendering)**:
+   `./tools/node24.cmd tools/zfight-diag.js --ep epNN-<slug>` must print **PASS**
+   (BUGFIX_RULES Rule 24). Fix every COPLANAR/NEAR pair it lists, or the video
+   will show the crawling/jumping "پرش تصویر" artifacts again.
 
 ## Pipeline (4 steps)
 

@@ -379,4 +379,116 @@ shadow texels swim across their faces on every camera move.
 19. New wall geometry (including segments around openings): `castShadow =
     false`, always.
 
+---
+
+# THE Z-FIGHTING LAW (Rule 24) — ep02 "پرش تصویر" final session, 2026-10-31
+
+The ep02 bookshelf frame/shelves and the whole window assembly still jumped
+after Rules 21–23. Root cause this time was never shadows: **every assembly
+had faces sitting 0–0.35 world units from a neighbour's parallel face** — the
+sill top EXACTLY coplanar with the wall reveal and the wainscot under-band,
+window frame bars EXACTLY coplanar with the opening's reveal planes, bookshelf
+shelf ends EXACTLY coplanar with the post outer faces, post fronts 0.15 off
+the shelf fronts, clouds 0.05–0.2 off the tree crowns, the door panel 0.22
+from its frame, the rug's border top 0.07 under the rug top, details 0.05 off
+their host faces. Two previous sessions had fixed the shadow half of the
+problem (Rule 3/23) and written a threshold (Q12) but nothing ENFORCED the
+separation — so every new assembly reintroduced violations.
+
+## The law
+
+For every pair of faces in the scene:
+
+1. They may be **buried** — one face fully inside the other box. Hidden
+   interpenetration never fights (the trunk through the sky panel).
+2. They may **touch exactly** — same plane, OPPOSITE normals (a book on a
+   shelf, a leg on the floor, floor tiles edge to edge). Backface culling
+   leaves one face per pixel; safe at any camera.
+3. They may be **edge-adjacent** — coplanar, same normal, but with zero
+   overlapping area (tile patterns). Safe.
+4. They must be **≥ 0.35 world units apart in depth** if they are same-facing
+   and can both be seen from any shot camera.
+5. **Everything else is a bug.** Same-facing, overlapping footprint, both
+   visible, 0 ≤ gap < 0.35:
+   - gap = 0 (exact coplanar, different colors): a stable crawling crease
+     pattern — the winner changes per pixel and the pattern crawls as the
+     camera moves. This is the "پرش تصویر" the user sees at junctions.
+   - 0 < gap < 0.35: true temporal flicker — depth order flips frame to frame
+     under camera motion.
+
+0.35 is the empirical safe separation for THIS pipeline (near=1, far=300,
+cameras 30–150 units out, headless Chrome render). It matches Q12's
+observation that 0.1 gaps flicker. Do not "optimize" it down. Same-color
+coplanar pairs are invisible (identical Lambert shading) but still forbidden —
+they are one refactored material away from a bug.
+
+## The audit procedure (do this for every new piece, before rendering)
+
+When you add any box to an assembly, write down its 6 planes and compare them
+against the planes of everything it touches:
+
+1. **Host surface** it mounts on: its back must be buried (≥ 0.05 inside) or
+   in exact contact; its front ≥ 0.35 proud of the host's front.
+2. **Neighbours at the same level** (frames beside panels, slats on blinds,
+   rows of items): fronts ≥ 0.35 apart, or footprints disjoint.
+3. **Openings cut through walls** (door, window): the wall segments create
+   *reveal planes* at the opening edges (e.g. y = sill, y = head, x = jambs).
+   These are planes like any other. A frame bar or sill may OVERLAP the
+   opening by 0.4 (covering the edge) or stop 0.4 short of it — it must never
+   land flush on a reveal plane. The old window put its header bottom, sill
+   top and jamb inner faces EXACTLY on the reveal planes.
+4. **Wall trim ladder** (baseboard → wainscot band → cap rail on the same
+   wall): each visible front ≥ 0.35 proud of the previous one (0.4 / 0.8 /
+   1.2 / 1.6 was built for the back wall). A trim must not cross a door's
+   plane band — the back-wall trim and baseboard stop at the door casing
+   sides (and the door panel/frame/roller/clouds all keep ≥ 0.4 from each
+   other's planes).
+5. **Floating props** (clouds, sun, trees in the window tunnel): give every
+   piece its own depth slot and check the slot against everything whose
+   footprint it overlaps — sky, horizon, sun glow, other trees, clouds.
+6. **Scaled characters shrink gaps**: separations are WORLD-space. A character
+   at scale 0.62 turns a 0.05 design gap into 0.031 world units. Character
+   details follow Rule 12 but need proportionally larger design offsets.
+
+## The enforcement tool
+
+`./tools/node24.cmd tools/zfight-diag.js --ep <episode-id>` builds the scene
+and reports every visible same-facing face pair inside the flicker zone
+(COPLANAR / NEAR), with owner names and face normals. It is the gate:
+
+- **PASS (0 errors) is required before shipping any episode render.**
+- INFO lines (coplanar-same-color, transparent glass) are benign and expected.
+- CHAR-* lines are character-internal pairs — animated, governed by Rule 12;
+  they do not fail the gate but large ones should be fixed like any other.
+- After touching a shared builder, run it for EVERY episode that uses the
+  builder (the ep01 run caught its own set: rug stack, whiteboard internals,
+  stethoscope, tray foods, bookshelf vs baseboard/sill).
+
+## Session fixes worth remembering (all now Rule-24-clean)
+
+- Window: header depth 1.8 vs jamb 1.4 (corner fronts never share a plane),
+  bars overlap the opening by 0.4, sill top raised to reveal+0.4 and REPLACED
+  the bottom frame bar, sky panel deep in the tunnel, trees in per-tree depth
+  slots, clouds on one shared plane behind the crowns, mullions 0.4 clear of
+  both glass faces, roller fully above the opening, blind narrower than the
+  jamb span and tucked under the header.
+- Bookshelf: posts 0.4 proud of shelf fronts, shelves 1.4 narrower (ends
+  buried inside the posts), top cap overhanging 0.8/0.4.
+- Door: frame 0.4 behind the panel front, knob 1.35 proud, back-wall trim
+  ladder rebuilt, trim/baseboard segmented at the door casing.
+- Rug: border is a 4-bar ring whose top IS the rug top plane (edge-to-edge,
+  zero overlap), frame slab +0.4, diamond +0.4.
+- Details on faces (posters' ears/muzzles/spots, cabinet lines, plant rim/soil,
+  monitor screen/stand, drawer knobs, clock hands, medicine label): every
+  detail front ≥ 0.4 proud of its host face or fully buried.
+
+## Checklist additions
+
+20. Run `tools/zfight-diag.js` for every affected episode; ship only PASS.
+21. Every new piece: 6-plane audit against its host, neighbours and reveal
+    planes (buried / contact / edge-adjacent / ≥ 0.35 — nothing between).
+22. Wall trim ladders step ≥ 0.35; trims stop at door casings.
+23. Opening frames either overlap the opening by ~0.4 or stop 0.4 short —
+    never flush with a reveal plane.
+
 

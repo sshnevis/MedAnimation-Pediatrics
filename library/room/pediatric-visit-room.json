@@ -47,7 +47,7 @@
     { "type": "heartPoster",   "pos": [-6, 27] },
     { "type": "heartPoster",   "pos": [8, 27] },
     { "type": "clock",         "pos": [-48, 28] },
-    { "type": "growthChart",   "pos": [52, 24] }
+    { "type": "growthChart",   "pos": [55, 24] }
   ],
   "blocking": {
     "_comment": "Marks are [x, z]. +X=right (exam bed, cabinets), -X=left (window, bookshelves, desk), -Z=back wall/door, +Z=front (wide camera). Doctor seated behind the desk facing the family; mother+child already seated on the teal visitor chairs at t=0.",

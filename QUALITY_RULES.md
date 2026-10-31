@@ -153,10 +153,10 @@ Design rules:
   visible same-facing fronts matter.
 - Exact touching (gap = 0, opposite-facing, like floor tiles edge to edge) is
   harmless — backface culling means only one of the two faces can ever render.
-- Checker: `./tools/node24.cmd tools/zfight-diag.js [--ep <id>] [--gap 0.35]`
-  loads the built scene and reports risky pairs (interpenetrations + thin
-  gaps). Interpret with the rules above — buried/opposite-facing pairs in its
-  output are false positives.
-- Renderer side: `sun.shadow.normalBias = 0.35` (main.js) — without it the
+- Checker: `./tools/node24.cmd tools/zfight-diag.js [--ep <id>]` now works at
+  the FACE level (visible same-facing pairs inside the flicker zone) and is a
+  hard gate — see BUGFIX_RULES Rule 24: ship only PASS; CHAR-* lines are
+  character-internal pairs (Rule 12 governs them).
+- Renderer side: `sun.shadow.normalBias = 0.55–0.6` (main.js) — without it the
   shadow map acne itself flickers on thin boxes (book spines) as the camera
   moves.

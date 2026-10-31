@@ -167,11 +167,9 @@ async function boot() {
   sun.shadow.camera.near = 5;
   sun.shadow.camera.far = 250;
   sun.shadow.bias = -0.0002;
-  // pushes the shadow sample off thin surfaces (book spines, furniture edges)
-  // so self-shadow acne doesn't flicker frame to frame as the camera moves
-  sun.shadow.normalBias = 0.55;
-  // normalBias kills the crawling stripe artifacts (shadow acne) on box faces
-  // — e.g. the flicker under the door and around the doctor's collar
+  // normalBias pushes the shadow sample off thin surfaces (book spines, furniture
+  // edges) so self-shadow acne doesn't flicker/crawl as the camera moves
+  // (Rule 3: 0.5–0.6 — plain bias alone leaves crawling stripe acne on box faces)
   sun.shadow.normalBias = 0.6;
   scene.add(sun);
   // Shadowless front fill: lifts wall-facing surfaces so they read near-white
@@ -365,6 +363,7 @@ async function boot() {
     window.__fps = FPS;
     window.__seek = (t) => { seekTo(t); tickOnce(); };
     window.__scene = scene; // debug handle for offline diagnostics (z-fight checker)
+    window.__roomDef = roomDef; // shot-camera list for the z-fight visibility test
     tl.pause(0);
     tickOnce();
     window.__ready = true;

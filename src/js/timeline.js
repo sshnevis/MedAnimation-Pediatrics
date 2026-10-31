@@ -132,7 +132,7 @@ export function buildTimeline(ctx) {
       tl.set(world.props.tray, { visible: true }, L.start + 0.05);
       tl.call(() => world.props.tray.scale.setScalar(0.7), null, L.start + 0.05);
       tl.fromTo(world.props.tray.position,
-        { y: -8 }, { y: 9, duration: 0.8, ease: 'power3.out', overwrite: 'auto' }, L.start + 0.05);
+        { y: -14 }, { y: 9, duration: 0.8, ease: 'power3.out', overwrite: 'auto' }, L.start + 0.05);
       const fr = [0.10, 0.30, 0.50, 0.72];
       world.props.foodGroups.forEach((fg, i) => {
         pop(tl, fg, L.start + L.duration * fr[i % fr.length]);
@@ -146,7 +146,7 @@ export function buildTimeline(ctx) {
       });
       tl.set(world.props.tray, { visible: false }, L.end + 0.55);
       tl.call(() => world.props.tray.scale.setScalar(1), null, L.end + 0.55);
-      tl.set(world.props.tray.position, { y: -8 }, L.end + 0.55);
+      tl.set(world.props.tray.position, { y: -14 }, L.end + 0.55);
       world.props.foodGroups.forEach((fg) => {
         tl.set(fg.scale, { x: 0.001, y: 0.001, z: 0.001 }, L.end + 0.55);
       });
