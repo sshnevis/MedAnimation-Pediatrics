@@ -88,6 +88,7 @@ html, body { margin: 0; width: ${W}px; height: ${H}px; overflow: hidden; backgro
   filter: blur(16px);
 }
 .veil { position: absolute; inset: 0; background: rgba(0,0,0,0.35); }
+.outro { background: #000; }
 .card {
   position: absolute; left: 50%; top: 38%; transform: translate(-50%, -50%);
   width: 88%; box-sizing: border-box;
@@ -120,8 +121,7 @@ html, body { margin: 0; width: ${W}px; height: ${H}px; overflow: hidden; backgro
 </style>
 </head>
 <body>
-  <div class="bg"></div>
-  ${kind === 'intro' ? '' : '<div class="veil"></div>'}
+  ${kind === 'intro' ? '<div class="bg"></div>' : ''}
   ${htmlBody}
 </body>
 </html>`;
