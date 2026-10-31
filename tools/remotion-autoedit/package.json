@@ -1,0 +1,16 @@
+{
+  "name": "remotion-autoedit",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Remotion-based automatic re-edit pass on the assembled episode final.mp4: animated hook card, fade transitions, subtle ken-burns, and pop-in outro card. English docs per workspace rule; on-screen text stays Persian (episode content).",
+  "scripts": {
+    "render": "remotion render AutoEdit out/final-remotion.mp4"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.539",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "remotion": "^4.0.539",
+    "zod": "4.5.4"
+  }
+}
