@@ -23,3 +23,9 @@ api.txt
 # OS / editor noise
 Thumbs.db
 .DS_Store
+
+# Local-only assets: licensed SFX packs (406MB, not redistributable) and Remotion build output
+tools/Sound pack SFX/*
+!tools/Sound pack SFX/SOUND-CATALOG.md
+tools/remotion-autoedit/out/
+tools/remotion-autoedit/public/
