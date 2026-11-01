@@ -36,7 +36,8 @@ async function showEpisodePicker() {
     '<h1>انتخاب قسمت</h1>' +
     (items
       ? '<ul class="ep-list">' + items + '</ul>'
-      : '<p>' + (error || 'هیچ قسمتی یافت نشد — یک پوشه در episodes/ بسازید.') + '</p>');
+      : '<p>' + (error || 'هیچ قسمتی یافت نشد — یک پوشه در episodes/ بسازید.') + '</p>') +
+    '<a class="ep-mv-link" href="model-view.html">🧊 3D Model View — مشاهده و دیباگ مدل‌ها</a>';
   overlay.style.display = 'flex';
 }
 

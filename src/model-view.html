@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>3D Model View — انیمیشن وکسل</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="mv-body">
+<div id="mvApp">
+  <aside id="mvSidebar">
+    <div class="mv-head">
+      <h1>3D Model View</h1>
+      <a class="mv-back" href="index.html">→ بازگشت به انیمیشن</a>
+    </div>
+    <div id="mvList" class="mv-list"><p class="mv-loading">در حال بارگذاری مدل‌ها…</p></div>
+  </aside>
+
+  <main id="mvStage">
+    <canvas id="mvScene"></canvas>
+    <div id="mvToolbar">
+      <button data-view="front"  title="1">رو به رو</button>
+      <button data-view="back"   title="2">پشت</button>
+      <button data-view="left"   title="3">چپ</button>
+      <button data-view="right"  title="4">راست</button>
+      <button data-view="top"    title="5">بالا</button>
+      <button data-view="orbit"  title="6">پرسپکتیو (چرخشی)</button>
+    </div>
+    <div id="mvLabel"></div>
+  </main>
+</div>
+
+<script src="lib/gsap.min.js"></script>
+<script type="importmap">
+{ "imports": { "three": "./lib/three.module.js", "three/addons/": "./lib/addons/" } }
+</script>
+<script type="module" src="js/model-view.js"></script>
+</body>
+</html>

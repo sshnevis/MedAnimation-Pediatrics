@@ -28,6 +28,22 @@ function startServer(port, root) {
       res.writeHead(301, { Location: '/src/index.html' });
       return res.end();
     }
+    if (urlPath === '/api/library') {
+      // List library asset ids per category (room / characters / props JSONs)
+      // for the 3D Model View page.
+      const out = { rooms: [], characters: [], props: [] };
+      const dirs = { rooms: 'room', characters: 'characters', props: 'props' };
+      for (const [key, sub] of Object.entries(dirs)) {
+        try {
+          const dir = path.join(root, 'library', sub);
+          for (const f of fs.readdirSync(dir).sort()) {
+            if (f.endsWith('.json')) out[key].push(f.replace(/\.json$/, ''));
+          }
+        } catch (e) { /* missing library subfolder */ }
+      }
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+      return res.end(JSON.stringify(out));
+    }
     if (urlPath === '/api/episodes') {
       // List available episodes (episodes/*/scenario.json) for the picker UI.
       const list = [];
