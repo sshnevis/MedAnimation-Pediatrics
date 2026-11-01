@@ -270,10 +270,15 @@ function select(model, btn) {
   currentGroup = model.build();
   modelRoot.position.set(0, 0, 0); // drop the previous model's centering offset first
   modelRoot.add(currentGroup);
-  currentGroup.updateWorldMatrix(true, true);
 
-  // center the model at the origin so all 6 views frame it identically
-  const box = new THREE.Box3().setFromObject(modelRoot, true);
+  // center the model at the origin so all 6 views frame it identically.
+  // Only MESHES are measured: the textSprite labels (food names, poster text)
+  // are UI, not model — including their big quads in the box pushed the visible
+  // geometry off-center and made some items frame differently from others.
+  currentGroup.updateWorldMatrix(true, true);
+  const box = new THREE.Box3();
+  modelRoot.traverse((o) => { if (o.isMesh) box.expandByObject(o); });
+  if (box.isEmpty()) box.setFromObject(modelRoot, true);
   const center = box.getCenter(new THREE.Vector3());
   modelRoot.position.set(-center.x, -center.y, -center.z);
   const sphere = box.getBoundingSphere(new THREE.Sphere());
@@ -305,6 +310,7 @@ function select(model, btn) {
     groupPos: currentGroup.position, rootPos: modelRoot.position,
     camPos: camera.position, nChildren: currentGroup.children.length,
   });
+  window.__mvScene = scene; // debug handle for offline inspection (like main.js)
 }
 
 // ---- render loop ----
