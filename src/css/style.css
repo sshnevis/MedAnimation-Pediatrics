@@ -411,3 +411,25 @@ body.mv-body {
   font-weight: 700;
 }
 .ep-mv-link:hover { background: rgba(53, 176, 168, 0.25); color: #fff; }
+
+/* character pose bar (3D Model View) */
+#mvPoseBar {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  display: flex;
+  gap: 6px;
+}
+#mvPoseBar button {
+  font-family: inherit;
+  font-size: 13.5px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(16, 38, 43, 0.75);
+  color: #eaf6f4;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+#mvPoseBar button:hover { background: rgba(53, 176, 168, 0.45); }
+#mvPoseBar button.on { background: #35b0a8; border-color: #7fe0d6; font-weight: 700; }

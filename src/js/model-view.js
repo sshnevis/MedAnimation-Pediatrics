@@ -5,6 +5,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { buildCharacter } from './voxel.js';
+import { applyPose } from './characters.js';
 import { buildWorld } from './world.js';
 
 const PERSIAN_TYPE = {
@@ -134,10 +135,18 @@ async function loadModels() {
       models.push({ cat: 'اتاق‌ها', name: rd.label || rd.id, build: () => buildRoomGroup(rd) });
     }
 
-    // Characters.
+    // Characters — built with a pose rig so the pose bar (sit / stand / …)
+    // can drive the same applyPose used by the animation timeline.
     for (const id of lib.characters) {
       const def = await fetchJSON('/library/characters/' + id + '.json');
-      models.push({ cat: 'کاراکترها', name: def.label || def.id, build: () => buildCharacter(def).group });
+      models.push({
+        cat: 'کاراکترها', name: def.label || def.id, kind: 'character',
+        build: function () {
+          const char = buildCharacter(def);
+          this.rig = { char, anim: { talking: false, walking: false, walkStart: 0, sit: false, wave: null, nod: null } };
+          return char.group;
+        },
+      });
     }
 
     // Furniture + wall decor, per room.
@@ -249,6 +258,35 @@ window.addEventListener('keydown', (e) => {
   if (map[e.code]) applyView(map[e.code]);
 });
 
+// ---- character poses ----
+// Drive the same applyPose used by the timeline with a fixed sample time per
+// pose, so the viewer shows a static freeze-frame of each state.
+const POSE_T = { stand: 0, sit: 0, walk: 0.17, talk: 0.7, wave: 1.2 };
+let currentPose = 'stand';
+
+function applyCharacterPose(rig, pose) {
+  const a = rig.anim;
+  a.talking = pose === 'talk';
+  a.walking = pose === 'walk';
+  a.walkStart = 0;
+  a.sit = pose === 'sit';
+  a.wave = pose === 'wave' ? { start: 0.6, dur: 1.2 } : null;
+  a.nod = null;
+  applyPose(rig, POSE_T[pose] || 0);
+}
+
+function markPoseButtons() {
+  document.querySelectorAll('#mvPoseBar button').forEach((b) =>
+    b.classList.toggle('on', b.dataset.pose === currentPose));
+}
+
+document.querySelectorAll('#mvPoseBar button').forEach((b) =>
+  b.addEventListener('click', () => {
+    currentPose = b.dataset.pose;
+    markPoseButtons();
+    if (current && current.kind === 'character') applyCharacterPose(current.rig, currentPose);
+  }));
+
 // ---- selection ----
 function disposeGroup(g) {
   g.traverse((o) => {
@@ -302,6 +340,13 @@ function select(model, btn) {
   sun.shadow.camera.updateProjectionMatrix();
 
   document.getElementById('mvLabel').textContent = model.name;
+  // pose bar only makes sense for characters
+  const poseBar = document.getElementById('mvPoseBar');
+  poseBar.hidden = model.kind !== 'character';
+  if (model.kind === 'character') {
+    applyCharacterPose(model.rig, currentPose);
+    markPoseButtons();
+  }
   applyView('orbit');
   // debug handle: inspect framing from the console / automation
   window.__mvDebug = () => ({
