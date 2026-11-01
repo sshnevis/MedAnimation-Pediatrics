@@ -25,6 +25,28 @@
       <button data-view="right"  title="4">راست</button>
       <button data-view="top"    title="5">بالا</button>
       <button data-view="orbit"  title="6">پرسپکتیو (چرخشی)</button>
+      <button id="btnDebug" title="D">📐 Debug</button>
+    </div>
+    <div id="mvDebugBar" hidden>
+      <div class="mv-dbg-row"><span class="mv-dbg-k">موس روی زمین:</span><b id="dbgCursor" dir="ltr">–</b></div>
+      <div class="mv-dbg-row"><span class="mv-dbg-k">موقعیت آیتم:</span><b id="dbgItemPos" dir="ltr">–</b></div>
+      <div class="mv-dbg-row">
+        <span class="mv-dbg-k">جابه‌جایی:</span>
+        <button data-nudge="x-" title="X منفی">x−</button>
+        <button data-nudge="x+">x+</button>
+        <button data-nudge="z-">z−</button>
+        <button data-nudge="z+">z+</button>
+        <select id="dbgStep">
+          <option value="1">گام 1</option>
+          <option value="5" selected>گام 5</option>
+          <option value="10">گام 10</option>
+        </select>
+      </div>
+      <div class="mv-dbg-row">
+        <button id="dbgReset">بازگردانی</button>
+        <button id="dbgCopy">کپی مختصات جدید</button>
+      </div>
+      <textarea id="dbgOut" rows="2" readonly dir="ltr"></textarea>
     </div>
     <div id="mvPoseBar" hidden>
       <button data-pose="stand">ایستاده</button>

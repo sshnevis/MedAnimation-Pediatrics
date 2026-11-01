@@ -4,7 +4,7 @@
 // (front / back / left / right / top / rotatable perspective) to debug it.
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { buildCharacter } from './voxel.js';
+import { buildCharacter, boxMesh, textSprite } from './voxel.js';
 import { applyPose } from './characters.js';
 import { buildWorld } from './world.js';
 
@@ -164,6 +164,8 @@ async function loadModels() {
           cat: 'اشیای اتاق — ' + roomLabel,
           name: label + suffix,
           build: () => buildFurnitureGroup(rd, item, occ),
+          // debug-mode metadata: lets the copy button emit a room-JSON-ready instruction
+          meta: { room: roomLabel, type: item.type, pos: item.pos },
         });
       }
     }
@@ -340,6 +342,10 @@ function select(model, btn) {
   sun.shadow.camera.updateProjectionMatrix();
 
   document.getElementById('mvLabel').textContent = model.name;
+  // remember the as-loaded position so Debug's "بازگردانی" can undo nudges
+  originalPos = currentGroup.position.clone();
+  updateDbgItem();
+  rebuildRuler();
   // pose bar only makes sense for characters
   const poseBar = document.getElementById('mvPoseBar');
   poseBar.hidden = model.kind !== 'character';
@@ -364,6 +370,133 @@ renderer.setAnimationLoop(() => {
   // fixed-view mode or it overrides the snapped camera position every frame
   if (controls.enabled) controls.update();
   renderer.render(scene, camera);
+});
+
+// ---- debug mode: ruler + cursor coordinates + item nudge ----
+// Goal: the user can zoom on an item, read exact coordinates in the SAME space
+// as the room JSON (item.pos), nudge the item live, and copy a ready-made
+// instruction like  pos: [52, -22]  to hand back for applying to the library.
+const dbgBar = document.getElementById('mvDebugBar');
+const dbgCursor = document.getElementById('dbgCursor');
+const dbgItemPos = document.getElementById('dbgItemPos');
+const dbgOut = document.getElementById('dbgOut');
+const btnDebug = document.getElementById('btnDebug');
+let debugOn = false;
+let rulerGroup = null;
+let originalPos = null;
+const raycaster = new THREE.Raycaster();
+const groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+
+// viewer-space point → source coordinates (room JSON space)
+function sourceVec(v) {
+  return v.clone().sub(modelRoot.position);
+}
+
+function fmtItemPos() {
+  if (!currentGroup) return '–';
+  const p = currentGroup.position;
+  const y = Math.abs(p.y) > 0.01 ? ` , y: ${p.y.toFixed(1)}` : '';
+  return `x: ${p.x.toFixed(1)} , z: ${p.z.toFixed(1)}${y}`;
+}
+
+function updateDbgItem() {
+  dbgItemPos.textContent = fmtItemPos();
+}
+
+// Numeric ruler: tick labels along two ground axes in SOURCE coordinates,
+// parented to modelRoot so the centering shift maps them correctly.
+function rebuildRuler() {
+  if (rulerGroup) {
+    modelRoot.remove(rulerGroup);
+    disposeGroup(rulerGroup);
+    rulerGroup = null;
+  }
+  if (!debugOn || !currentGroup) return;
+  rulerGroup = new THREE.Group();
+  rulerGroup.name = 'mv-ruler';
+  // adaptive ruler: label density matches the model size so the numbers are
+  // actually visible inside the framed view (grid is orbitDist-ish wide)
+  const r = orbitDist;
+  const step = r > 90 ? 40 : r > 45 ? 20 : r > 20 ? 10 : 5;
+  const range = r * 2.1;
+  const edge = range * 0.82;
+  const start = Math.ceil(-range / step) * step;
+  for (let v = start; v <= range; v += step) {
+    const vv = Math.round(v);
+    if (vv === 0) continue; // origin has its own marker
+    const lx = textSprite(String(vv), { fontSize: 26, pad: 6, bg: 'rgba(255,255,255,0.55)', fg: '#0d5c56' });
+    lx.position.set(vv, 0.6, edge);
+    const lz = textSprite(String(vv), { fontSize: 26, pad: 6, bg: 'rgba(255,255,255,0.55)', fg: '#0d5c56' });
+    lz.position.set(edge, 0.6, vv);
+    rulerGroup.add(lx, lz);
+  }
+  // origin marker so (x:0, z:0) is visible
+  const origin = boxMesh(2.2, 0.5, 2.2, '#e53935');
+  origin.position.set(0, 0.25, 0);
+  origin.castShadow = false;
+  rulerGroup.add(origin);
+  modelRoot.add(rulerGroup);
+}
+
+btnDebug.addEventListener('click', () => {
+  debugOn = !debugOn;
+  btnDebug.classList.toggle('on', debugOn);
+  dbgBar.hidden = !debugOn;
+  rebuildRuler();
+  if (debugOn) updateDbgItem();
+});
+
+// live cursor readout: ray from the mouse onto the source ground plane (y=0)
+canvas.addEventListener('pointermove', (e) => {
+  if (!debugOn || !currentGroup) return;
+  const rect = canvas.getBoundingClientRect();
+  const ndc = new THREE.Vector2(
+    ((e.clientX - rect.left) / rect.width) * 2 - 1,
+    -((e.clientY - rect.top) / rect.height) * 2 + 1,
+  );
+  raycaster.setFromCamera(ndc, camera);
+  groundPlane.constant = -modelRoot.position.y; // source y=0 plane in viewer space
+  const hit = new THREE.Vector3();
+  if (raycaster.ray.intersectPlane(groundPlane, hit)) {
+    const s = sourceVec(hit);
+    dbgCursor.textContent = `x: ${s.x.toFixed(1)} , z: ${s.z.toFixed(1)}`;
+  }
+});
+
+// nudge the selected item in the room's own x/z axes
+document.querySelectorAll('#mvDebugBar button[data-nudge]').forEach((b) =>
+  b.addEventListener('click', () => {
+    if (!currentGroup) return;
+    const step = Number(document.getElementById('dbgStep').value) || 1;
+    const [axis, dir] = [b.dataset.nudge[0], b.dataset.nudge[1] === '+' ? 1 : -1];
+    currentGroup.position[axis] += dir * step;
+    updateDbgItem();
+  }));
+
+document.getElementById('dbgReset').addEventListener('click', () => {
+  if (currentGroup && originalPos) {
+    currentGroup.position.copy(originalPos);
+    updateDbgItem();
+  }
+});
+
+// copy a room-JSON-ready instruction the user can paste back to the agent
+document.getElementById('dbgCopy').addEventListener('click', async () => {
+  if (!currentGroup) return;
+  const p = currentGroup.position;
+  let text;
+  if (current && current.meta) {
+    text = `item: ${current.meta.type} | room: ${current.meta.room} | pos: [${Math.round(p.x)}, ${Math.round(p.z)}]`;
+  } else {
+    text = `${current ? current.name : '?'} → x: ${p.x.toFixed(1)} , z: ${p.z.toFixed(1)}`;
+  }
+  dbgOut.value = text;
+  dbgOut.select();
+  try { await navigator.clipboard.writeText(text); } catch (e) { /* selection is enough */ }
+});
+
+window.addEventListener('keydown', (e) => {
+  if (e.code === 'KeyD' && !e.ctrlKey && !e.altKey) btnDebug.click();
 });
 
 loadModels();

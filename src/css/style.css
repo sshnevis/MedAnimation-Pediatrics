@@ -433,3 +433,46 @@ body.mv-body {
 }
 #mvPoseBar button:hover { background: rgba(53, 176, 168, 0.45); }
 #mvPoseBar button.on { background: #35b0a8; border-color: #7fe0d6; font-weight: 700; }
+
+/* debug panel (3D Model View) */
+#mvDebugBar {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(16, 38, 43, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #eaf6f4;
+  font-size: 13px;
+  backdrop-filter: blur(4px);
+  min-width: 230px;
+}
+#mvDebugBar .mv-dbg-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+#mvDebugBar .mv-dbg-k { color: #9fc3be; }
+#mvDebugBar b { color: #7fe0d6; font-weight: 700; }
+#mvDebugBar button, #mvDebugBar select {
+  font-family: inherit;
+  font-size: 12.5px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  color: #eaf6f4;
+  cursor: pointer;
+}
+#mvDebugBar button:hover { background: rgba(53, 176, 168, 0.45); }
+#mvDebugBar textarea {
+  font-family: Vazirmatn, Tahoma, sans-serif;
+  font-size: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(0, 0, 0, 0.35);
+  color: #aef3ea;
+  padding: 6px;
+  resize: none;
+}
+#btnDebug.on { background: #e5a13c !important; border-color: #ffd28a !important; color: #1c1206 !important; }
