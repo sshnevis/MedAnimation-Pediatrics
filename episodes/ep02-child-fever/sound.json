@@ -1,0 +1,25 @@
+{
+  "_comment": "Sound design for ep02-child-fever. Times are on the main timeline (after the 0.5s intro card). Files are relative to tools/Sound pack SFX/. Gains: bed 0.12, soft UI 0.3-0.4, impacts 0.5-0.6.",
+  "intro": { "file": "tools/Sound pack SFX/GoBird Masterclass SFX Pack/GoBird Masterclass SFX Pack/10 WHOSH.mp3", "gain": 0.5 },
+  "outro": { "file": "tools/Sound pack SFX/GoBird Masterclass SFX Pack/GoBird Masterclass SFX Pack/rigning.wav", "gain": 0.4 },
+  "beds": [
+    {
+      "file": "tools/Sound pack SFX/Background noise sounds/freesound_community-conversation-25675.mp3",
+      "gain": 1.4,
+      "loop": true,
+      "start": 0,
+      "end": 96.85,
+      "fadeIn": 1.5,
+      "fadeOut": 2.5
+    }
+  ],
+  "hits": [
+    { "at": 0.2, "file": "tools/Sound pack SFX/GoBird Masterclass SFX Pack/GoBird Masterclass SFX Pack/whoosh 1.wav", "gain": 0.3 },
+    { "at": 29.13, "file": "tools/Sound pack SFX/Ui Sound Effects/Ui Click Digital 03.wav", "gain": 0.35 },
+    { "at": 36.19, "file": "tools/Sound pack SFX/Ui Sound Effects/Ui Click Digital 03.wav", "gain": 0.35 },
+    { "at": 65.51, "file": "tools/Sound pack SFX/GoBird Masterclass SFX Pack/GoBird Masterclass SFX Pack/Dauzkobza - Total Transitions - Impact Deep Cinematic Thud.wav", "gain": 0.55 },
+    { "at": 79.89, "file": "tools/Sound pack SFX/GoBird Masterclass SFX Pack/GoBird Masterclass SFX Pack/bell.mp3", "gain": 0.4 },
+    { "at": 87.85, "file": "tools/Sound pack SFX/GoBird Masterclass SFX Pack/GoBird Masterclass SFX Pack/Soundholder - Retro Games - Positive Ding Level Unlocked .wav", "gain": 0.35 },
+    { "at": 89.45, "file": "tools/Sound pack SFX/Ui Sound Effects/Ui Open.wav", "gain": 0.3 }
+  ]
+}

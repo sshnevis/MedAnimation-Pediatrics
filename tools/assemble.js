@@ -40,6 +40,14 @@ if (withAudio.length === 0) {
   process.exit(1);
 }
 
+// ---- 1b) optional sound design (tools/Sound pack SFX) ----
+// Spec file: episodes/<id>/sound.json
+//   beds:  [{ file, gain, start?, end?, fadeIn?, fadeOut? }]  — ambience/music loops
+//   hits:  [{ at, file, gain? }]                              — one-shot SFX on the main timeline
+//   intro: { file, gain? } / outro: { file, gain? }           — hook-card sounds
+const sfxFile = path.join(EP_DIR, 'sound.json');
+const sfxSpec = fs.existsSync(sfxFile) ? JSON.parse(fs.readFileSync(sfxFile, 'utf8')) : null;
+
 const inputs = [];
 const filterParts = [];
 const mixLabels = [];
@@ -49,13 +57,39 @@ withAudio.forEach((L, i) => {
   filterParts.push('[' + i + ':a]adelay=' + delay + ':all=1[d' + i + ']');
   mixLabels.push('[d' + i + ']');
 });
-filterParts.push(mixLabels.join('') + 'amix=inputs=' + withAudio.length + ':normalize=0,apad[out]');
+if (sfxSpec) {
+  let n = inputs.length / 2;
+  const chain = (idx, ev) => {
+    const g = ev.gain == null ? 1 : ev.gain;
+    const start = ev.start || 0;
+    let f = '[' + idx + ':a]volume=' + g + ',adelay=' + Math.round(start * 1000) + ':all=1';
+    if (ev.fadeIn) f += ',afade=t=in:st=' + start + ':d=' + ev.fadeIn;
+    if (ev.end && ev.fadeOut) f += ',afade=t=out:st=' + (ev.end - ev.fadeOut) + ':d=' + ev.fadeOut;
+    if (ev.end) f += ',atrim=0:' + ev.end;
+    return f + '[s' + idx + ']';
+  };
+  (sfxSpec.beds || []).forEach((ev) => {
+    if (!fs.existsSync(ev.file)) { console.error('sound.json: missing bed file ' + ev.file); process.exit(1); }
+    if (ev.loop) inputs.push('-stream_loop', '-1');
+    inputs.push('-i', ev.file);
+    filterParts.push(chain(n, ev)); mixLabels.push('[s' + n + ']'); n++;
+  });
+  (sfxSpec.hits || []).forEach((ev) => {
+    if (!fs.existsSync(ev.file)) { console.error('sound.json: missing hit file ' + ev.file); process.exit(1); }
+    inputs.push('-i', ev.file);
+    filterParts.push(chain(n, { file: ev.file, gain: ev.gain, start: ev.at }));
+    mixLabels.push('[s' + n + ']'); n++;
+  });
+  console.log('sound design: ' + ((sfxSpec.beds || []).length + (sfxSpec.hits || []).length) + ' SFX layers');
+}
+filterParts.push(mixLabels.join('') + 'amix=inputs=' + mixLabels.length + ':normalize=0,apad[out]');
 ffmpeg(inputs.concat([
   '-filter_complex', filterParts.join(';'),
   '-map', '[out]',
+  '-ac', '2',
   '-t', String(timing.total),
   mixFile,
-]), 'mixing ' + withAudio.length + ' voice files');
+]), 'mixing ' + withAudio.length + ' voice files' + (sfxSpec ? ' + SFX' : ''));
 
 // ---- 2) mux frames + audio → main.mp4 ----
 ffmpeg([
@@ -88,28 +122,34 @@ if (!hasHooks) {
   process.exit(0);
 }
 
-function encodeCard(png, dur, outMp4, label) {
-  ffmpeg([
-    '-loop', '1', '-t', String(dur), '-i', png,
-    '-f', 'lavfi', '-t', String(dur), '-i', 'anullsrc=r=44100:cl=mono',
-    '-c:v', 'libx264',
+function encodeCard(png, dur, outMp4, label, sound) {
+  const args = ['-loop', '1', '-t', String(dur), '-i', png];
+  if (sound && fs.existsSync(sound.file)) {
+    args.push('-i', sound.file);
+    const g = sound.gain == null ? 1 : sound.gain;
+    args.push('-af', 'atrim=0:' + dur + ',volume=' + g + ',afade=t=out:st=' + Math.max(0, dur - 0.15) + ':d=0.15');
+  } else {
+    args.push('-f', 'lavfi', '-t', String(dur), '-i', 'anullsrc=r=44100:cl=stereo');
+  }
+  args.push('-c:v', 'libx264',
     '-preset', 'medium',
     '-crf', '18',
     '-pix_fmt', 'yuv420p',
     '-r', String(FPS),
     '-c:a', 'aac',
     '-b:a', '192k',
+    '-ac', '2',
     '-shortest',
-    outMp4,
-  ], label);
+    outMp4);
+  ffmpeg(args, label);
 }
 
 const introMp4 = path.join(EP_DIR, 'render', 'hook-intro.mp4');
 const outroMp4 = path.join(EP_DIR, 'render', 'hook-outro.mp4');
 const concatList = path.join(EP_DIR, 'render', 'hooks-concat.txt');
 
-encodeCard(introPng, introDur, introMp4, 'encoding hook-intro.mp4 (' + introDur + 's)');
-encodeCard(outroPng, outroDur, outroMp4, 'encoding hook-outro.mp4 (' + outroDur + 's)');
+encodeCard(introPng, introDur, introMp4, 'encoding hook-intro.mp4 (' + introDur + 's)', sfxSpec && sfxSpec.intro);
+encodeCard(outroPng, outroDur, outroMp4, 'encoding hook-outro.mp4 (' + outroDur + 's)', sfxSpec && sfxSpec.outro);
 
 const listBody = [
   "file '" + introMp4.replace(/\\/g, '/') + "'",

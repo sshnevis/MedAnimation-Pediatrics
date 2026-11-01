@@ -49,13 +49,20 @@ episode's lessons get folded back into this document.
    print **PASS** (0 COPLANAR/NEAR pairs) before rendering — BUGFIX_RULES Rule 24. Run it
    again after ANY change to shared builders (`src/js/world.js`), for every episode that
    uses them.
-6. Render + assemble:
+6. **Sound design (mandatory)**: use the SFX library at `tools/Sound pack SFX/`
+   (catalog + usage guide: `tools/Sound pack SFX/SOUND-CATALOG.md`). During scene
+   construction map timeline moments to sounds (ambience bed per scene, whoosh on shot
+   cuts / card pops, UI tones on hook & danger cards, foley synced to on-screen actions);
+   anything not baked in is applied in the final edit over `final.mp4`. Follow the
+   catalog's mixing levels (ambience −30…−24 dB, whoosh −18…−12 dB, UI −14…−10 dB,
+   impacts −10…−6 dB) and never let music/SFX compete with TTS dialogue.
+7. Render + assemble:
    ```
    node tools/render.js            --ep <id>
    node tools/make-hook-cards.js   --ep <id>
    node tools/assemble.js          --ep <id>   # → episodes/<id>/render/final.mp4
    ```
-7. Report the acceptance checklist as done/not-done with evidence.
+8. Report the acceptance checklist as done/not-done with evidence.
 
 ### Phase 3 — Retrospective (self-improvement)
 After each episode, append lessons learned to this file (below) and, where general, to
@@ -84,6 +91,11 @@ After each episode, append lessons learned to this file (below) and, where gener
   never cut across the axis without an intermediate framing.
 
 ### From ep02 (child fever)
+- **Audio concat layout mismatch**: hook cards (re-encoded separately) and `main.mp4` MUST
+  have identical audio params (channels/layout/sample rate) — `-c copy` concat silently
+  produces a stream many players fail to decode (voices "cut"). assemble.js now forces
+  stereo (`-ac 2`) on the mix, the cards, and `anullsrc=cl=stereo` everywhere. Keep this
+  invariant if the pipeline changes.
 - **buildShots dead-code fix**: `return {…}` followed by unreachable merge code was replaced
   with `const shots = {…}` + merge + return. Room JSON `shots{}` now works — declare ALL
   episode shots there instead of editing blocking.js per episode.
