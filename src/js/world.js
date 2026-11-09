@@ -2,6 +2,8 @@ import * as THREE from 'three';
 import { boxMesh, limbMesh, textSprite, shade } from './voxel.js';
 
 export function buildWorld(scene, roomDef, propsDef, marks = null) {
+  // Explicit opt-in: approved episode 1/2 geometry stays on the legacy path.
+  if (roomDef.builder === 'nursery') return buildNurseryWorld(scene, roomDef, propsDef);
   const R = roomDef;
   const P = R.palette;
   const world = { apply(t) {} };
@@ -1382,5 +1384,258 @@ export function buildWorld(scene, roomDef, propsDef, marks = null) {
     }
   };
 
+  return world;
+}
+
+// Nursery coordinates stay local to root. The coordinator owns scene/camera offsets,
+// character posing and effect timing; this builder never attaches a baby or animates it.
+function buildNurseryWorld(scene, R, PR) {
+  const P = R.palette;
+  const root = new THREE.Group();
+  root.name = R.id;
+  scene.add(root);
+  const world = { root, props: {}, sleepProps: {}, apply(t) {} };
+  const [W, D] = R.size;
+  const H = R.wallHeight;
+  const T = R.wallThickness;
+  // New structural parts cast only; thin/dense parts are fully shadowless.
+  const box = (parent, name, size, pos, color, cast = false) => {
+    const mesh = boxMesh(...size, color);
+    mesh.name = name;
+    mesh.position.set(...pos);
+    mesh.castShadow = cast;
+    mesh.receiveShadow = false;
+    parent.add(mesh);
+    return mesh;
+  };
+  const cylinder = (parent, name, rt, rb, h, pos, color, cast = false) => {
+    const mesh = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, 16), new THREE.MeshLambertMaterial({ color }));
+    mesh.name = name;
+    mesh.position.set(...pos);
+    mesh.castShadow = cast;
+    mesh.receiveShadow = false;
+    parent.add(mesh);
+    return mesh;
+  };
+  const group = (parent, name, pos = [0, 0, 0]) => {
+    const g = new THREE.Group();
+    g.name = name;
+    g.position.set(...pos);
+    parent.add(g);
+    return g;
+  };
+  const plush = (parent, pos) => {
+    const g = group(parent, 'plush-toy', pos);
+    box(g, 'plush-body', [4, 3.6, 3], [0, 1.8, 0], P.plush);
+    box(g, 'plush-head', [3.6, 3, 3.6], [0, 5.1, 0], P.plush);
+    for (const s of [-1, 1]) {
+      box(g, 'plush-ear', [1.2, 1.2, 1.6], [s * 1.5, 6.9, 0], P.plush);
+      box(g, 'plush-eye', [0.5, 0.5, 0.8], [s * 0.8, 5.5, 1.8], P.woodDark);
+    }
+    box(g, 'plush-muzzle', [1.3, 0.8, 0.8], [0, 4.5, 1.9], P.white);
+    return g;
+  };
+
+  // Full-depth planks meet edge-to-edge, with staggered end joints, not decals.
+  const pw = R.floor.width;
+  const pl = R.floor.length;
+  for (let x = -W / 2, col = 0; x < W / 2; x += pw, col++) {
+    for (let z = -D / 2 - (col % 2) * pl / 2, row = 0; z < D / 2; z += pl, row++) {
+      const a = Math.max(z, -D / 2), b = Math.min(z + pl, D / 2);
+      const plank = box(root, 'oak-plank', [Math.min(pw, W / 2 - x), 0.8, b - a],
+        [x + Math.min(pw, W / 2 - x) / 2, -0.4, (a + b) / 2], [P.floorA, P.floorB, P.floorC][(col + row) % 3]);
+      plank.receiveShadow = true;
+    }
+  }
+  box(root, 'wall-back', [W + 2 * T, H, T], [0, H / 2, -D / 2 - T / 2], P.wall);
+  box(root, 'wall-left', [T, H, D], [-W / 2 - T / 2, H / 2, 0], P.wall);
+  const win = R.window;
+  const z0 = win.x - win.width / 2, z1 = win.x + win.width / 2;
+  const y0 = win.y - win.height / 2, y1 = win.y + win.height / 2;
+  box(root, 'wall-right-below', [T, y0, D], [W / 2 + T / 2, y0 / 2, 0], P.wall);
+  box(root, 'wall-right-above', [T, H - y1, D], [W / 2 + T / 2, (H + y1) / 2, 0], P.wall);
+  for (const [a, b] of [[-D / 2, z0], [z1, D / 2]]) {
+    box(root, 'wall-right-flank', [T, y1 - y0, b - a], [W / 2 + T / 2, win.y, (a + b) / 2], P.wall);
+  }
+  for (const y of [1.5, ...R.molding.bands]) {
+    const h = y === 1.5 ? 3 : R.molding.height;
+    box(root, 'molding-back', [W, h, 0.8], [0, y, -D / 2 + 0.4], P.wallTrim);
+    box(root, 'molding-left', [0.8, h, D - 1.6], [-W / 2 + 0.4, y, 0], P.wallTrim);
+    const spans = y < y0 ? [[-D / 2 + 0.8, D / 2 - 0.8]] : [[-D / 2 + 0.8, z0], [z1, D / 2 - 0.8]];
+    for (const [a, b] of spans) box(root, 'molding-right', [0.8, h, b - a], [W / 2 - 0.4, y, (a + b) / 2], P.wallTrim);
+  }
+
+  // Real right-wall opening with scenery behind it; depth slots step >= 0.4.
+  const windowGroup = group(root, 'right-window', [W / 2, win.y, win.x]);
+  windowGroup.rotation.y = -Math.PI / 2;
+  box(windowGroup, 'window-sky', [win.width, win.height, 0.8], [0, 0, -8], P.sky);
+  box(windowGroup, 'window-horizon', [win.width, 7, 0.8], [0, -win.height / 2 + 3.5, -7.2], P.horizon);
+  for (const [x, y] of [[-9, 7], [7, 10]]) {
+    box(windowGroup, 'cloud-center', [6, 2.4, 0.8], [x, y, -6.4], P.cloud);
+    box(windowGroup, 'cloud-side', [3, 1.6, 0.8], [x + 4.5, y, -6.4], P.cloud);
+  }
+  for (const x of [-10, 2, 11]) {
+    box(windowGroup, 'tree-trunk', [1.2, 9, 1.2], [x, -9, -5.2], P.woodDark);
+    box(windowGroup, 'tree-crown', [7, 6, 2], [x, -4, -4], P.leaf);
+    box(windowGroup, 'tree-crown-top', [4, 3, 2], [x, 0.5, -4], P.leafDark);
+  }
+  for (const s of [-1, 1]) {
+    box(windowGroup, 'window-jamb', [1.6, win.height + 3.2, 1.6], [s * (win.width / 2 + 0.4), 0, 0.8], win.frame);
+    box(windowGroup, 'window-header-sill', [win.width, 1.6, 2.4], [0, s * (win.height / 2 + 0.4), 1.2], win.frame);
+  }
+  box(windowGroup, 'window-mullion', [0.8, win.height - 0.8, 0.8], [0, 0, 2.8], win.frame);
+  cylinder(windowGroup, 'curtain-rod', 0.5, 0.5, win.width + 10, [0, win.height / 2 + 3, 3.5], P.woodDark).rotation.z = Math.PI / 2;
+  // Separate pleats have disjoint footprints instead of layered coplanar panels.
+  for (let i = 0; i < 5; i++) {
+    box(windowGroup, 'curtain-pleat', [1.8, H - 3, 2], [win.width / 2 - 3 + i * 1.8, -win.y + (H - 3) / 2 + 0.5, 4 + (i % 2) * 0.8],
+      i % 2 ? shade(win.curtain, 0.94) : win.curtain);
+  }
+  const windowLight = new THREE.DirectionalLight(win.light.color, win.light.intensity);
+  windowLight.position.set(W / 2 + 20, 40, win.x);
+  windowLight.target.position.set(0, 10, -10);
+  windowLight.castShadow = false;
+  root.add(windowLight, windowLight.target);
+  world.windowLight = windowLight;
+
+  for (const item of R.furniture) {
+    const g = group(root, item.type, [item.pos[0], 0, item.pos[1]]);
+    g.rotation.y = item.rotY || 0;
+    const [w, h, d] = item.size;
+    if (item.type === 'crib') {
+      for (const x of [-w / 2, w / 2]) for (const z of [-d / 2, d / 2]) {
+        box(g, 'crib-post', [1.8, h, 1.8], [x, h / 2, z], P.white, true);
+      }
+      for (const s of [-1, 1]) {
+        for (const y of [5, h - 0.8]) {
+          box(g, 'crib-end-rail', [w - 1.8, 1.6, 2.6], [0, y, s * d / 2], P.white, true);
+          box(g, 'crib-side-rail', [2.6, 1.6, d - 1.8], [s * w / 2, y, 0], P.white, true);
+        }
+        for (let x = -w / 2 + 3.4; x < w / 2 - 2; x += item.slatSpacing) {
+          box(g, 'crib-end-slat', [0.8, h - 7.4, 0.8], [x, (h + 5) / 2, s * d / 2], P.wood);
+        }
+        for (let z = -d / 2 + 3.4; z < d / 2 - 2; z += item.slatSpacing) {
+          box(g, 'crib-side-slat', [0.8, h - 7.4, 0.8], [s * w / 2, (h + 5) / 2, z], P.wood);
+        }
+      }
+      const sheetH = PR.fittedSheet.thickness;
+      const [mw, mh, md] = PR.mattress.size;
+      const mattress = box(g, 'firm-mattress', [mw, mh, md], [0, item.mattressTop - sheetH - mh / 2, 0], PR.mattress.color);
+      const fittedSheet = box(g, 'fitted-sheet', [mw, sheetH, md], [0, item.mattressTop - sheetH / 2, 0], PR.fittedSheet.color);
+      const babyAnchor = group(g, 'crib-baby-contact', [0, item.mattressTop, 0]);
+      babyAnchor.userData = { pose: 'lying', faceNormal: [0, 1, 0], headDirection: [0, 0, -1], contactSurface: true };
+      world.crib = { group: g, mattress, fittedSheet, babyAnchor, mattressTop: item.mattressTop, interiorSize: [mw, md] };
+    } else if (item.type === 'parentsBed') {
+      box(g, 'parents-base', [w, 3, d], [0, h - 4.5, 0], P.wood, true);
+      box(g, 'parents-mattress', [w - 2, 3, d - 2], [0, h - 1.5, 0], P.white);
+      box(g, 'parents-headboard', [w + 2, 20, 2], [0, 10, -d / 2 - 1], P.wood, true);
+      for (const x of [-w / 2 + 2, w / 2 - 2]) for (const z of [-d / 2 + 2, d / 2 - 2]) {
+        box(g, 'parents-leg', [2, h - 6, 2], [x, (h - 6) / 2, z], P.wood, true);
+      }
+      // Adult bedding is confined to the parents' bed, never shared with the crib.
+      box(g, 'parents-cover', [w - 2, 0.8, d * 0.55], [0, h + 0.4, d * 0.2], P.blanket);
+      for (const x of [-w / 4, w / 4]) box(g, 'adult-pillow', [w / 2 - 3, 2, 8], [x, h + 1, -d / 2 + 7], P.white);
+      const edgeAnchor = group(g, 'parents-bed-edge', [w / 2 + 1, h, 9]);
+      world.parentsBed = { group: g, edgeAnchor, mattressTop: h };
+    } else if (item.type === 'nurseryDresser') {
+      box(g, 'dresser-body', [w, h - 3, d], [0, (h + 3) / 2, 0], P.wood, true);
+      for (const x of [-w / 2 + 2, w / 2 - 2]) for (const z of [-d / 2 + 2, d / 2 - 2]) {
+        box(g, 'dresser-leg', [1.6, 3, 1.6], [x, 1.5, z], P.wood, true);
+      }
+      for (const y of [7, 14]) {
+        box(g, 'dresser-drawer', [w - 2, 6, 0.8], [0, y, d / 2 + 0.4], P.white);
+        box(g, 'drawer-cutout', [4, 1, 0.8], [0, y + 2.2, d / 2 + 1.2], P.woodDark);
+        cylinder(g, 'drawer-knob', 0.7, 0.7, 1.2, [0, y - 0.3, d / 2 + 1.4], P.wood).rotation.x = Math.PI / 2;
+      }
+      box(g, 'dresser-top', [w + 1.6, 1.2, d + 1.6], [0, h + 0.6, 0], P.white, true);
+      box(g, 'folded-blanket-lower', [7, 1.2, 6], [-5, h + 1.8, 1], P.blanket);
+      box(g, 'folded-blanket-upper', [6, 1.2, 5], [-5, h + 3, 1], shade(P.blanket, 1.08));
+      plush(g, [-5, h + 3.6, 1]);
+      const pot = group(g, 'dresser-plant', [4.5, h + 1.2, -0.5]);
+      cylinder(pot, 'ribbed-pot', 3.3, 2.8, 6, [0, 3, 0], P.white);
+      cylinder(pot, 'pot-soil', 2.6, 2.6, 0.4, [0, 6, 0], P.soil);
+      for (let i = 0; i < 12; i++) {
+        const a = i * Math.PI / 6;
+        cylinder(pot, 'pot-rib', 0.2, 0.2, 5.4, [3.2 * Math.cos(a), 3, 3.2 * Math.sin(a)], P.wallTrim);
+      }
+      for (let i = 0; i < 7; i++) {
+        const a = i * 2.4;
+        const leaf = box(pot, 'plant-leaf', [3.4, 1.4, 2], [Math.cos(a) * 3, 7.5 + i * 1.6, Math.sin(a) * 2.5], i % 2 ? P.leaf : P.leafDark);
+        leaf.rotation.z = Math.cos(a) * 0.4;
+        box(pot, 'plant-stem', [0.5, 2, 0.5], [0, 6.6 + i * 1.6, 0], P.leafDark);
+      }
+    } else if (item.type === 'nightstandLamp') {
+      const top = cylinder(g, 'round-nightstand', w / 2, w / 2, 1.6, [0, h - 0.8, 0], P.white, true);
+      cylinder(g, 'table-apron', w / 2 - 0.8, w / 2 - 0.8, 2, [0, h - 2.6, 0], P.white, true);
+      for (let i = 0; i < 3; i++) {
+        const a = i * Math.PI * 2 / 3;
+        cylinder(g, 'nightstand-leg', 0.9, 1.1, h - 3.6, [Math.cos(a) * 5.5, (h - 3.6) / 2, Math.sin(a) * 5.5], P.wood, true);
+      }
+      const lamp = group(g, 'birdcage-night-light', [0, h, 0]);
+      const C = PR.nightLight;
+      cylinder(lamp, 'lamp-base', 5, 4.8, 1.2, [0, 0.6, 0], C.base);
+      for (const y of [2, 7, 13]) {
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(4.4, 0.3, 6, 24), new THREE.MeshLambertMaterial({ color: C.cage }));
+        ring.name = 'cage-ring';
+        ring.rotation.x = Math.PI / 2;
+        ring.position.y = y;
+        lamp.add(ring);
+      }
+      for (let i = 0; i < 20; i++) {
+        const a = i * Math.PI / 10;
+        cylinder(lamp, 'cage-bar', 0.16, 0.16, 11.8, [4.4 * Math.cos(a), 7.1, 4.4 * Math.sin(a)], C.cage);
+        const curve = new THREE.CatmullRomCurve3([
+          new THREE.Vector3(4.4 * Math.cos(a), 13, 4.4 * Math.sin(a)),
+          new THREE.Vector3(3 * Math.cos(a), 15.6, 3 * Math.sin(a)),
+          new THREE.Vector3(0, 17, 0)
+        ]);
+        const rib = new THREE.Mesh(new THREE.TubeGeometry(curve, 8, 0.16, 4, false), new THREE.MeshLambertMaterial({ color: C.cage }));
+        rib.name = 'cage-dome-rib';
+        lamp.add(rib);
+      }
+      const bulb = cylinder(lamp, 'lamp-bulb', 1.3, 1.6, 5, [0, 5, 0], C.bulb);
+      bulb.material.emissive.set(C.emissive);
+      bulb.material.emissiveIntensity = C.emissiveIntensity;
+      const light = new THREE.PointLight(item.light.color, item.light.intensity, item.light.distance, item.light.decay);
+      light.position.set(0, 7, 0);
+      light.castShadow = false;
+      lamp.add(light);
+      world.nightLight = { group: lamp, bulb, light, table: top };
+    } else if (item.type === 'nurseryRug') {
+      const depth = item.size[1];
+      const rug = box(g, 'cream-rug', [w, 0.6, depth], [0, 0.3, 0], P.rug);
+      rug.receiveShadow = true;
+      for (const s of [-1, 1]) {
+        box(g, 'rug-end-border', [w + 2, 0.6, 1], [0, 0.3, s * (depth / 2 + 0.5)], P.rugBorder);
+        box(g, 'rug-side-border', [1, 0.6, depth], [s * (w / 2 + 0.5), 0.3, 0], P.rugBorder);
+      }
+    } else if (item.type === 'gaugePoster') {
+      g.position.set(item.pos[0], item.pos[1], -D / 2 + 1.6);
+      box(g, 'poster-frame', [w, h, 0.8], [0, 0, 0], P.wood);
+      box(g, 'poster-board', [w - 1.2, h - 1.2, 0.4], [0, 0, 0.6], P.poster);
+      box(g, 'gauge-stem', [0.5, h - 5, 0.4], [0, 1, 1], P.gauge);
+      for (let i = 0; i < 9; i++) box(g, 'gauge-tick', [i % 2 ? 1 : 1.7, 0.4, 0.4], [-1.4, -3 + i, 1], P.gauge);
+      cylinder(g, 'gauge-bulb', 0.9, 0.9, 0.8, [0, -h / 2 + 2, 1.2], P.woodDark).rotation.x = Math.PI / 2;
+    }
+  }
+
+  // Each teaching prop and its cross share a hidden parent: toggling it cannot
+  // accidentally show an uncrossed loose object. Coordinator may billboard cross.
+  const forbiddenItems = {};
+  for (const [key, def] of Object.entries(PR.forbiddenItems)) {
+    const g = group(world.crib.group, 'forbidden-' + key, [def.offset[0], world.crib.mattressTop + def.offset[1], def.offset[2]]);
+    const object = key === 'plush' ? plush(g, [0, 0, 0]) : box(g, key, def.size, [0, def.size[1] / 2, 0], def.color);
+    const cross = group(g, 'prohibition-cross', [0, 7, 3]);
+    for (const s of [-1, 1]) {
+      const stroke = box(cross, 'cross-stroke', [PR.cross.size, PR.cross.thickness, 0.8], [0, 0, s * 0.4], PR.cross.color);
+      stroke.rotation.z = s * Math.PI / 4;
+    }
+    g.visible = false;
+    forbiddenItems[key] = { group: g, object, cross, homePosition: g.position.clone() };
+  }
+  world.sleepProps = { mattress: world.crib.mattress, fittedSheet: world.crib.fittedSheet, forbiddenItems };
+  world.props.sleepProps = world.sleepProps;
+  // A snapshot in room-local coordinates; use babyAnchor.getWorldPosition() after
+  // root translation. Anchor denotes contact, so account for the lying rig's bounds.
+  world.cribBabyPosition = world.crib.babyAnchor.position.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), world.crib.group.rotation.y).add(world.crib.group.position);
   return world;
 }

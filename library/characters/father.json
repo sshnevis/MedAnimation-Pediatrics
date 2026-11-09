@@ -1,0 +1,50 @@
+{
+  "id": "father",
+  "subtitleColor": "rgba(181, 85, 24, 0.90)",
+  "label": "پدر",
+  "description": "Young father with short dark hair, a dark teal shirt, navy trousers and brown shoes; a distinct orange subtitle color.",
+  "scale": 1.0,
+  "phase": 0.7,
+  "parts": {
+    "head": [8, 8, 8],
+    "torso": [8, 12, 4],
+    "arm": [4, 12, 4],
+    "leg": [4, 12, 4]
+  },
+  "colors": {
+    "skin": "#f0c8a0",
+    "skinShade": "#d1a97f",
+    "hair": "#252a30",
+    "hairShade": "#15191e",
+    "shirt": "#28575b",
+    "pants": "#26364e",
+    "pantsShade": "#19263b",
+    "shoes": "#59483e",
+    "eye": "#241e1b",
+    "brow": "#252a30",
+    "mouth": "#a9714b",
+    "buttons": "#afbab7"
+  },
+  "features": {
+    "hairStyle": "short",
+    "glasses": false,
+    "stethoscope": false,
+    "coat": false,
+    "longCoat": false,
+    "hijab": false,
+    "cheeks": false,
+    "beard": false,
+    "mustache": false,
+    "eyebrows": true,
+    "nose": true,
+    "ears": true,
+    "belt": false,
+    "buttons": 2,
+    "collar": true,
+    "pocket": false,
+    "badge": false,
+    "socks": false,
+    "watch": null,
+    "sneakers": false
+  }
+}

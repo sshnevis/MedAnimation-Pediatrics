@@ -1,0 +1,51 @@
+{
+  "model": "eleven_v3",
+  "voiceChecks": [
+    {
+      "speaker": "doctor",
+      "voiceId": "JBFqnCBsd6RMkjVDRZzb",
+      "httpStatus": 200,
+      "available": true
+    },
+    {
+      "speaker": "mother",
+      "voiceId": "EXAVITQu4vr4xnSDxMaL",
+      "httpStatus": 200,
+      "available": true
+    },
+    {
+      "speaker": "father",
+      "voiceId": "pNInz6obpgDQGcFmaJgB",
+      "httpStatus": 200,
+      "available": true
+    }
+  ],
+  "steps": [
+    {
+      "script": "F:\\Animation\\episodes\\ep03-baby-sleep\\validate.cjs",
+      "status": 0,
+      "error": null
+    },
+    {
+      "script": "tools/generate-voice-elevenlabs.js",
+      "status": 0,
+      "error": null
+    },
+    {
+      "script": "tools/compute-timing.js",
+      "status": 0,
+      "error": null
+    },
+    {
+      "script": "tools/build-subtitles.js",
+      "status": 0,
+      "error": null
+    },
+    {
+      "script": "F:\\Animation\\episodes\\ep03-baby-sleep\\validate.cjs",
+      "status": 0,
+      "error": null
+    }
+  ],
+  "status": "passed"
+}

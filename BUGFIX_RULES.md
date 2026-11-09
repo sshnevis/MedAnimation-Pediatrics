@@ -491,4 +491,87 @@ and reports every visible same-facing face pair inside the flicker zone
 23. Opening frames either overlap the opening by ~0.4 or stop 0.4 short —
     never flush with a reveal plane.
 
+---
+
+# Episode 3 — deterministic scenes, loading and delivery
+
+## Rule 25 — Reconstruct frame state; do not rely only on transition callbacks
+
+A seekable renderer must produce the same frame at time `t` regardless of the
+previous seek or playback history. New scene inserts must explicitly derive:
+
+- Active room, camera, lights and character visibility.
+- Held/lying attachment state, carrier reference and dependent transform.
+- Talking state, pose-only scales/rotations, forbidden-object visibility.
+- Graphic/card visibility, bullet count and subtitle state, including silent gaps.
+
+Evaluate the carrier's current pose and world matrix before attaching a dependent.
+Use the actual mattress/bed anchor for contact; do not duplicate guessed offsets.
+Do not change the approved legacy path for episodes without the optional feature.
+
+**Regression test:** capture `tA → tB → tA`, where one time is in another room or
+pose; compare both state and screenshot hashes in the same browser/environment.
+Include cold seeks, post-effect frames, narration without a rig, silent final hold
+and the ordinary pose after detachment. A state assertion alone misses visual
+occlusion; a single forward seek misses stale state.
+
+## Rule 26 — Async assets must respect render readiness and error reporting
+
+Never let a required secondary room arrive after `__ready`, or turn a failed load
+into a silently missing teaching scene. Ep03 preloads its optional room before
+synchronous timeline construction to preserve the existing boot contract.
+
+- If a module-level preload rejects, catch the result and rethrow within the
+  existing caught boot/construction path. An uncaught top-level rejection can
+  prevent the normal error overlay from ever being installed.
+- Test a failed required asset response: show an actionable error and never set
+  successful render readiness for the incomplete scene.
+- Keep this a loading/error contract, not a requirement that every later feature
+  must copy the same top-level-await architecture.
+- Separate room sets and transform their cameras/anchors consistently. Audit
+  actual shot visibility and depth; do not move sets or weaken diagnostic checks
+  merely to obtain PASS. Multi-room visibility false positives require evidence
+  and a faithful audit, not arbitrary geometry changes.
+
+## Rule 27 — Cue timing must share one clock with sound and tests
+
+Real line durations do not provide word-level timing. Ep03 uses a text-position
+fraction for its mid-line cuts; this is an approximation that needs listening.
+
+- Strip Persian diacritics from both text and cue before searching; reject a
+  missing cue instead of using `indexOf() === -1` as a valid fraction.
+- Explicitly document the numerator and denominator normalization. Ep03's existing
+  contract uses the stripped TTS cue index divided by `display.length`; do not
+  silently change one consumer to another denominator.
+- Cuts, whooshes, ambience transitions and QA samples must use the same timing
+  definition. A later measured/manual override must update every consumer.
+- Clamp a short insert AND its return within the parent line; verify entry,
+  mid-insert, pre-exit and the return frame. No landing/impact may leak through
+  the infant-fall insert's first or last frames.
+- Store cues on the main timeline; account for hook offset exactly once when
+  reviewing or extracting from the assembled file. Ep03 intro offset is 0.5s.
+- New episodes may adopt a better shared normalization or measured cue schema;
+  validate it independently and preserve the approved timing of existing episodes.
+
+## Rule 28 — Classify console messages and validate the encoded artifact
+
+A successful render process is not proof that all assets loaded or the MP4 plays.
+
+- Capture console output, response failures and uncaught page errors. Record the
+  failed URL/stack, compare the affected baseline episode and classify separately.
+- A known `console.error` remains an error message, not a warning just because it
+  is nonfatal. Never suppress all console errors or flip a raw report to PASS.
+- Ep03 reproduced ep02's missing favicon and nullable wainscot/rail additions;
+  these are scoped baseline findings, not blanket allowances for future errors.
+- Probe the final file for dimensions, nominal/average frame rates, channels,
+  duration and frame count; then decode the complete audio AND video streams.
+  Inspect hook PNGs and verify the assembled intro/outro durations.
+- Record the artifact hash with its evidence. Replacing `final.mp4` invalidates
+  its old hash/decode result; preserve historical evidence and create a new result.
+- A small nominal-vs-average-rate difference or audio tail is not, by itself,
+  proof of playback failure or of a particular codec cause. Inspect timestamps
+  and actual behavior before prescribing a re-encode.
+- Re-render the affected legacy previews and rerun their z-fight gates after
+  shared-builder/rig changes. Geometry PASS does not establish visual parity.
+
 

@@ -11,6 +11,14 @@ props) reused by every **episode** under `episodes/`. Complete episodes:
 - **Episode 2** — `ep02-child-fever` «نحوه برخورد با تب در کودکان» (~97 s, 16 dialogue
   lines, same cast) → `episodes/ep02-child-fever/render/final.mp4`.
 
+- **Episode 3** — `ep03-baby-sleep` «خواب ایمن نوزاد» (19 voiced lines,
+  **155.16 s** with hooks) → `episodes/ep03-baby-sleep/render/final.mp4`.
+  Full-resolution render, assembly, decode and automated visual checks passed.
+  See `episodes/ep03-baby-sleep/PRODUCTION.md` for the acceptance checklist,
+  known baseline console messages, and remaining human visual/listening review.
+  **Next-session prompt:** `scenario/ep03-final-review-prompt.md` — continue final
+  review without rebuilding the episode or regenerating paid voice files.
+
 > **Starting a new episode?** Follow `docs/EPISODE-PLAYBOOK.md` — the repeatable
 > per-episode process (planning artifacts → implementation prompt → pipeline → QA loop
 > → retrospective).
@@ -32,6 +40,10 @@ episodes/<ep-id>/                 ← one folder per episode
   timing.json                     (generated) per-line start/end
   subtitles.srt                   (generated)
   audio/L*.mp3                    (generated) one file per dialogue line
+  sound.json                      optional assembler beds/hits on the main timeline
+  build-sound.cjs                  episode-local reproducible sound builder (ep03)
+  sound-report.json                source provenance, measured levels, cue/validation evidence (ep03)
+  audio/sfx/                      catalog-derived WAVs + audio-only QA previews (ep03)
   render/                         (generated) frames, preview stills, main.mp4, final.mp4, hook cards
 
 src/                              ← engine (episode-agnostic)
@@ -210,3 +222,57 @@ step from an updated terminal; `Run.bat`/`tools/node24.cmd` handle this).
   desk's outer edge (user markup) — size desk props against a seated character.
 - L13 speaker label in the source (`مادر/دُکتُر`) was a typo — it is the doctor.
   L16 (narrator) is voiced with the doctor voice.
+
+## Episode 3 notes and sound handoff
+
+- `episodes/ep03-baby-sleep/SCENARIO-CONTRACT.md` documents source-verbatim
+  L01–L19, clinic/nursery inserts, father/baby staging, narrator metadata, and
+  medical guardrails. The contract is a data handoff, not rendered-QA evidence.
+- The **153.64 s** measured main timeline includes lead-in, dialogue gaps and
+  final hold; it is not 153.64 s of continuous speech. The configured 0.5 s intro
+  and 1.0 s outro would make the assembled duration approximately **155.14 s**.
+  Do not trim the source dialogue to match the plan's advisory duration.
+- Sound implementation: `episodes/ep03-baby-sleep/build-sound.cjs` reads the
+  current scenario/timing and catalog sources, then writes `sound.json`,
+  `sound-report.json`, six derived 48 kHz stereo PCM WAVs and two audio-only
+  previews under `audio/sfx/`. It uses child-process argument arrays with
+  `shell: false`, makes no network/TTS calls and leaves shared `tools/assemble.js`
+  unchanged. Run from the repository root with the existing Node 24 resolver:
+
+  ```text
+  tools\node24.cmd episodes/ep03-baby-sleep/build-sound.cjs
+  ```
+
+- **29 sound layers:** 10 crossfaded room-bed segments + 19 hits (10 short air
+  whooshes, one L04 wiggle/hug texture, five L11/L12 forbidden-item pops, three
+  L19 bullet clicks at measured fractions `0.2`, `0.4`, `0.68`). Whooshes cover
+  both L03 cuts, the L10 cue, L11's crib-close switch, and L13/14/15/16/17/19.
+  No impact, injury sound, tension music or baby-cry recording is added.
+- Clinic reuses the ep02 catalog conversation murmur with assembler gain **1.4**.
+  Its raw mean is **−44.0 dBFS**, so a level-conditioned derivative is necessary
+  to achieve the requested ambience level without misrepresenting the raw source.
+  Nursery tone is a double-low-pass-filtered derivative of that same murmur, not
+  a fabricated nursery field recording or a music bed. The fabric-like wiggle
+  is honestly sourced from a softened **Paper Foley Paper Rattle** excerpt.
+- Measured post-gain targets: clinic/nursery **−27/−29 dBFS mean**, whoosh
+  **−16 dBFS peak**, forbidden pops **−14 dBFS peak**, bullet UI **−12 dBFS peak**,
+  foley **−25 dBFS peak**. These distinguish sustained ambience mean levels from
+  short transient peaks; linear gain is not a loudness measurement. TTS remains
+  at unity gain. Source/output mean and peak values are in `sound-report.json`.
+- Cue approximation matches the coordinator: strip Persian diacritics from TTS
+  and cue, divide the cue's text index by `display.length`, and apply that fraction
+  to the measured line duration. L03 is clamped to `end - 2.8`, with return exactly
+  2.5 s later. Current entries: L03 **14.392308 s**, return **16.892308 s**;
+  L10 **69.403333 s**. Times exclude the intro card and are not word alignment.
+- Audio-only validation passed: preview duration **153.640000 s**, full-mix peak
+  **−2.5 dBFS**; sampled dialogue gaps **−27.2 dBFS** clinic / **−28.5 dBFS** nursery
+  mean. Listen to `audio/sfx/mix-preview.wav` and `audio/sfx/sfx-preview.wav`.
+  Subsequent production completed the full render, inspected hooks, checked
+  medical/visual states and decoded the final MP4; see `PRODUCTION.md` in the
+  episode folder. Perceptual speech dominance, exact cue alignment and loop seams
+  still need human listening; the measured levels do not substitute for that.
+  After frame/hook QA, the existing assembly command consumes `sound.json`:
+
+  ```text
+  tools\node24.cmd tools/assemble.js --ep ep03-baby-sleep
+  ```

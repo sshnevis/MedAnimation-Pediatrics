@@ -1,0 +1,14 @@
+{
+  "id": "sleep-props",
+  "label": "وسایل خواب ایمن نوزاد",
+  "description": "Only a firm flat mattress and fitted sheet belong in the resting crib. Loose items are hidden, crossed-out teaching props. Dresser textiles/toy remain outside both beds.",
+  "mattress": { "size": [32, 2, 46], "color": "#dfd9ca" },
+  "fittedSheet": { "thickness": 0.4, "color": "#faf7ee" },
+  "forbiddenItems": {
+    "pillow": { "size": [8, 2.4, 6], "color": "#e1cfb4", "offset": [-9, 3, 3] },
+    "blanket": { "size": [8, 1.2, 11], "color": "#a6b3a0", "offset": [0, 3, 4] },
+    "plush": { "size": [5, 6, 4], "color": "#b59e81", "offset": [9, 3, 3] }
+  },
+  "cross": { "color": "#c94c43", "size": 7, "thickness": 0.9 },
+  "nightLight": { "cage": "#b39465", "base": "#ddd0b3", "bulb": "#fff0c6", "emissive": "#ffc46b", "emissiveIntensity": 0.9 }
+}

@@ -1,0 +1,437 @@
+{
+  "source": "scenario/project 3.txt",
+  "sourceSha256": "09ecc9c6ffccb0399e5ddfa0d40a758627822372d9cceca6f5d6d761e3fc1316",
+  "scenarioSha256": "67678d924a2659a657e86d45ade6e2b8a116ca5a6e22938823ad8aa669b3ef9d",
+  "comparisonMethod": "UTF-8 byte equality; punctuation, diacritics, Arabic/Persian letters and ZWNJ are preserved",
+  "passed": true,
+  "comparedLines": 19,
+  "planDialogueDifferences": [
+    "L06",
+    "L07",
+    "L08",
+    "L09",
+    "L10",
+    "L11",
+    "L12",
+    "L13",
+    "L14",
+    "L15",
+    "L16",
+    "L17",
+    "L18"
+  ],
+  "comparisons": [
+    {
+      "id": "L01",
+      "speaker": "mother",
+      "sourceLines": [
+        15
+      ],
+      "comparison": "Exact dialogue payload after source speaker label; no normalization",
+      "sourceText": "سَلام آقای دُکتر! یه اتفاق خیلی بد افتاده!",
+      "scenarioTts": "سَلام آقای دُکتر! یه اتفاق خیلی بد افتاده!",
+      "equal": true,
+      "utf8Bytes": 75,
+      "sourceSha256": "2ba056c02303df603e7c798adc8e82635aad5351c318db443b332a8b7331f3e7",
+      "ttsSha256": "2ba056c02303df603e7c798adc8e82635aad5351c318db443b332a8b7331f3e7",
+      "planTableDiffers": false
+    },
+    {
+      "id": "L02",
+      "speaker": "doctor",
+      "sourceLines": [
+        17
+      ],
+      "comparison": "Exact dialogue payload after source speaker label; no normalization",
+      "sourceText": "سَلام. آروم باشید، چی شده؟",
+      "scenarioTts": "سَلام. آروم باشید، چی شده؟",
+      "equal": true,
+      "utf8Bytes": 47,
+      "sourceSha256": "6c4b10cc2f0b4872561d6d0ea8343b41b8adcabdc43aea20d2dc081d85c8e017",
+      "ttsSha256": "6c4b10cc2f0b4872561d6d0ea8343b41b8adcabdc43aea20d2dc081d85c8e017",
+      "planTableDiffers": false
+    },
+    {
+      "id": "L03",
+      "speaker": "father",
+      "sourceLines": [
+        19
+      ],
+      "comparison": "Exact dialogue payload after source speaker label; no normalization",
+      "sourceText": "دیشب پِسَرمون کنار خودمون روی تخت خوابیده بود. ما هم خسته بودیم و خوابمون بُرد. یِهو با صدای افتادنش از خواب پَریدیم! نوزاد از تخت افتاده بود پایین!",
+      "scenarioTts": "دیشب پِسَرمون کنار خودمون روی تخت خوابیده بود. ما هم خسته بودیم و خوابمون بُرد. یِهو با صدای افتادنش از خواب پَریدیم! نوزاد از تخت افتاده بود پایین!",
+      "equal": true,
+      "utf8Bytes": 265,
+      "sourceSha256": "fe19b014321ff20ec7d1c0a7e783e1c0230e41934dc10bd28d983b4cc91b865c",
+      "ttsSha256": "fe19b014321ff20ec7d1c0a7e783e1c0230e41934dc10bd28d983b4cc91b865c",
+      "planTableDiffers": false
+    },
+    {
+      "id": "L04",
+      "speaker": "mother",
+      "sourceLines": [
+        21
+      ],
+      "comparison": "Exact dialogue payload after source speaker label; no normalization",
+      "sourceText": "خیلی تَرسیدیم دُکتر! وقتی بَغلش کردیم گریه می‌کرد و هوشیار بود.",
+      "scenarioTts": "خیلی تَرسیدیم دُکتر! وقتی بَغلش کردیم گریه می‌کرد و هوشیار بود.",
+      "equal": true,
+      "utf8Bytes": 115,
+      "sourceSha256": "75f8675010313f0f9d4d8180fcba77dc4181bdcbc97715ddc3a48bdf8640c3fc",
+      "ttsSha256": "75f8675010313f0f9d4d8180fcba77dc4181bdcbc97715ddc3a48bdf8640c3fc",
+      "planTableDiffers": false
+    },
+    {
+      "id": "L05",
+      "speaker": "doctor",
+      "sourceLines": [
+        23
+      ],
+      "comparison": "Exact dialogue payload after source speaker label; no normalization",
+      "sourceText": "می‌فهمم چقدر نگران شدید. امّا هوشیار بودن به‌تنهایی آسیب رو رَد نمی‌کنه. باید همین الان از نظر آسیب احتمالی، به‌خصوص ضربه به سر، بررسی بشه.",
+      "scenarioTts": "می‌فهمم چقدر نگران شدید. امّا هوشیار بودن به‌تنهایی آسیب رو رَد نمی‌کنه. باید همین الان از نظر آسیب احتمالی، به‌خصوص ضربه به سر، بررسی بشه.",
+      "equal": true,
+      "utf8Bytes": 255,
+      "sourceSha256": "7d8ce2c753a8e79aac8df501c65892178efaa9eb8ceaccbf5f3c13dc40f6b842",
+      "ttsSha256": "7d8ce2c753a8e79aac8df501c65892178efaa9eb8ceaccbf5f3c13dc40f6b842",
+      "planTableDiffers": false
+    },
+    {
+      "id": "L06",
+      "speaker": "doctor",
+      "sourceLines": [
+        29
+      ],
+      "comparison": "Exact dialogue payload after source speaker label; no normalization",
+      "sourceText": "یه سؤال مهم؛ کوچولوتون همیشه کنار خودتون می‌خوابه؟",
+      "scenarioTts": "یه سؤال مهم؛ کوچولوتون همیشه کنار خودتون می‌خوابه؟",
+      "equal": true,
+      "utf8Bytes": 94,
+      "sourceSha256": "b564ca70440d6581113ce046ea7d7b14d361209c6d971a3cc805dce52894ad7c",
+      "ttsSha256": "b564ca70440d6581113ce046ea7d7b14d361209c6d971a3cc805dce52894ad7c",
+      "planTableDiffers": true
+    },
+    {
+      "id": "L07",
+      "speaker": "mother",
+      "sourceLines": [
+        31
+      ],
+      "comparison": "Exact dialogue payload after source speaker label; no normalization",
+      "sourceText": "بله دُکتر، از وقتی به دنیا اومده، توی تخت خودمون می‌خوابه.",
+      "scenarioTts": "بله دُکتر، از وقتی به دنیا اومده، توی تخت خودمون می‌خوابه.",
+      "equal": true,
+      "utf8Bytes": 106,
+      "sourceSha256": "07e0fad0566ffc1ad503a0529139035a3901c69de78a1e1a12903afa3b215d36",
+      "ttsSha256": "07e0fad0566ffc1ad503a0529139035a3901c69de78a1e1a12903afa3b215d36",
+      "planTableDiffers": true
+    },
+    {
+      "id": "L08",
+      "speaker": "doctor",
+      "sourceLines": [
+        33
+      ],
+      "comparison": "Exact dialogue payload after source speaker label; no normalization",
+      "sourceText": "ببینید، خوابیدن نوزاد در تخت والدین خطر خفگی و حوادث مرتبط با خواب رو افزایش می‌ده. حتی وقتی خیلی مراقب باشید، ممکنه یک لحظه غفلت خطرناک باشه!",
+      "scenarioTts": "ببینید، خوابیدن نوزاد در تخت والدین خطر خفگی و حوادث مرتبط با خواب رو افزایش می‌ده. حتی وقتی خیلی مراقب باشید، ممکنه یک لحظه غفلت خطرناک باشه!",
+      "equal": true,
+      "utf8Bytes": 257,
+      "sourceSha256": "449066547ddf7a9d69436af008c2e11c4d5c4c974fb0d0cba2253349c968f459",
+      "ttsSha256": "449066547ddf7a9d69436af008c2e11c4d5c4c974fb0d0cba2253349c968f459",
+      "planTableDiffers": true
+    },
+    {
+      "id": "L09",
+      "speaker": "father",
+      "sourceLines": [
+        35
+      ],
+      "comparison": "Exact dialogue payload after source speaker label; no normalization",
+      "sourceText": "پس جای خواب ایمنش کجاست؟",
+      "scenarioTts": "پس جای خواب ایمنش کجاست؟",
+      "equal": true,
+      "utf8Bytes": 44,
+      "sourceSha256": "79704c4627e40b494f7d9bbbc55d80f4af26036c77cae5a39eaf93b0152cf69f",
+      "ttsSha256": "79704c4627e40b494f7d9bbbc55d80f4af26036c77cae5a39eaf93b0152cf69f",
+      "planTableDiffers": true
+    },
+    {
+      "id": "L10",
+      "speaker": "doctor",
+      "sourceLines": [
+        41
+      ],
+      "comparison": "Exact dialogue payload after source speaker label; no normalization",
+      "sourceText": "بهترین کار اینه که تا حداقل شش ماهگی، نوزاد توی اتاق شما، امّا در تخت مستقل خودش بخوابه. بهتره این کار تا یک‌سالگی هم ادامه پیدا کنه.",
+      "scenarioTts": "بهترین کار اینه که تا حداقل شش ماهگی، نوزاد توی اتاق شما، امّا در تخت مستقل خودش بخوابه. بهتره این کار تا یک‌سالگی هم ادامه پیدا کنه.",
+      "equal": true,
+      "utf8Bytes": 239,
+      "sourceSha256": "6dab22368db3b79535ee1688c50c26dd1777013aae27397b6ade731f33b6d946",
+      "ttsSha256": "6dab22368db3b79535ee1688c50c26dd1777013aae27397b6ade731f33b6d946",
+      "planTableDiffers": true
+    },
+    {
+      "id": "L11",
+      "speaker": "mother",
+      "sourceLines": [
+        43
+      ],
+      "comparison": "Exact dialogue payload after source speaker label; no normalization",
+      "sourceText": "داخل تختش چی بذاریم؟ بالش و پتوی کوچیک چطور؟",
+      "scenarioTts": "داخل تختش چی بذاریم؟ بالش و پتوی کوچیک چطور؟",
+      "equal": true,
+      "utf8Bytes": 80,
+      "sourceSha256": "28d42360652b10d456fb4de511ae47255640060922df8bd789f556655b0bc8c9",
+      "ttsSha256": "28d42360652b10d456fb4de511ae47255640060922df8bd789f556655b0bc8c9",
+      "planTableDiffers": true
+    },
+    {
+      "id": "L12",
+      "speaker": "doctor",
+      "sourceLines": [
+        45
+      ],
+      "comparison": "Exact dialogue payload after source speaker label; no normalization",
+      "sourceText": "هیچ‌کدوم! تشک باید صاف و سفت باشه و فقط یک مَلافه‌ی کش‌دار داشته باشه. بالش، پتو، عروسک و هر وسیله‌ی نرم و اضافی هم کاملاً ممنوعه.",
+      "scenarioTts": "هیچ‌کدوم! تشک باید صاف و سفت باشه و فقط یک مَلافه‌ی کش‌دار داشته باشه. بالش، پتو، عروسک و هر وسیله‌ی نرم و اضافی هم کاملاً ممنوعه.",
+      "equal": true,
+      "utf8Bytes": 236,
+      "sourceSha256": "b6d05f2c78f568961e6f854240f80590ee3b1c5f806e910316ea3656e1d7de5c",
+      "ttsSha256": "b6d05f2c78f568961e6f854240f80590ee3b1c5f806e910316ea3656e1d7de5c",
+      "planTableDiffers": true
+    },
+    {
+      "id": "L13",
+      "speaker": "father",
+      "sourceLines": [
+        47
+      ],
+      "comparison": "Exact dialogue payload after source speaker label; no normalization",
+      "sourceText": "حتی موقع خواب به پهلو یا روی شکم هم نذاریم؟",
+      "scenarioTts": "حتی موقع خواب به پهلو یا روی شکم هم نذاریم؟",
+      "equal": true,
+      "utf8Bytes": 77,
+      "sourceSha256": "4173580f968287651f28f23638f52159ebd350212ab2d8c953eb3e56e1de7ae3",
+      "ttsSha256": "4173580f968287651f28f23638f52159ebd350212ab2d8c953eb3e56e1de7ae3",
+      "planTableDiffers": true
+    },
+    {
+      "id": "L14",
+      "speaker": "doctor",
+      "sourceLines": [
+        49
+      ],
+      "comparison": "Exact dialogue payload after source speaker label; no normalization",
+      "sourceText": "دقیقاً! همیشه نوزاد رو به پشت بخوابونید؛ نه به پهلو و نه روی شکم.",
+      "scenarioTts": "دقیقاً! همیشه نوزاد رو به پشت بخوابونید؛ نه به پهلو و نه روی شکم.",
+      "equal": true,
+      "utf8Bytes": 115,
+      "sourceSha256": "85b1e4c9754798c28901400692b3c1739f99f1fae26eedb8f93f65bbdad1556f",
+      "ttsSha256": "85b1e4c9754798c28901400692b3c1739f99f1fae26eedb8f93f65bbdad1556f",
+      "planTableDiffers": true
+    },
+    {
+      "id": "L15",
+      "speaker": "mother",
+      "sourceLines": [
+        53
+      ],
+      "comparison": "Exact dialogue payload after source speaker label; no normalization",
+      "sourceText": "پس تخت جدا، تشک سفت و خوابیدن به پشت! درست متوجه شدم؟",
+      "scenarioTts": "پس تخت جدا، تشک سفت و خوابیدن به پشت! درست متوجه شدم؟",
+      "equal": true,
+      "utf8Bytes": 94,
+      "sourceSha256": "c837f050259e7ec1f4d2675fbc92fdc943673f667416cb070d9a1390e9a149da",
+      "ttsSha256": "c837f050259e7ec1f4d2675fbc92fdc943673f667416cb070d9a1390e9a149da",
+      "planTableDiffers": true
+    },
+    {
+      "id": "L16",
+      "speaker": "doctor",
+      "sourceLines": [
+        55
+      ],
+      "comparison": "Exact dialogue payload after source speaker label; no normalization",
+      "sourceText": "آفرین! و یادتون باشه، تخت نوزاد باید نزدیک تخت شما باشه، نه داخل تخت شما!",
+      "scenarioTts": "آفرین! و یادتون باشه، تخت نوزاد باید نزدیک تخت شما باشه، نه داخل تخت شما!",
+      "equal": true,
+      "utf8Bytes": 130,
+      "sourceSha256": "4b843569cf1d0a0cb4ef3ff7dae64996bec4951bc1db389cfec29884bfb48325",
+      "ttsSha256": "4b843569cf1d0a0cb4ef3ff7dae64996bec4951bc1db389cfec29884bfb48325",
+      "planTableDiffers": true
+    },
+    {
+      "id": "L17",
+      "speaker": "father",
+      "sourceLines": [
+        57
+      ],
+      "comparison": "Exact dialogue payload after source speaker label; no normalization",
+      "sourceText": "حتماً از امشب رعایت می‌کنیم. واقعاً نمی‌دونستیم این موضوع این‌قدر مهمه.",
+      "scenarioTts": "حتماً از امشب رعایت می‌کنیم. واقعاً نمی‌دونستیم این موضوع این‌قدر مهمه.",
+      "equal": true,
+      "utf8Bytes": 133,
+      "sourceSha256": "c7d4640a7ca9075ed312d2ba06d27c63392bd3bc672180fac077e115027e1627",
+      "ttsSha256": "c7d4640a7ca9075ed312d2ba06d27c63392bd3bc672180fac077e115027e1627",
+      "planTableDiffers": true
+    },
+    {
+      "id": "L18",
+      "speaker": "doctor",
+      "sourceLines": [
+        59
+      ],
+      "comparison": "Exact dialogue payload after source speaker label; no normalization",
+      "sourceText": "خواب ایمن فقط برای راحتی نوزاد نیست؛ برای حفظ جونشه. پس این چند نکته‌ی ساده رو جدّی بگیرید!",
+      "scenarioTts": "خواب ایمن فقط برای راحتی نوزاد نیست؛ برای حفظ جونشه. پس این چند نکته‌ی ساده رو جدّی بگیرید!",
+      "equal": true,
+      "utf8Bytes": 164,
+      "sourceSha256": "0b4f3e95789de3f676a97680f6195ffd04003e8eb75c61b541f86ed12fa11186",
+      "ttsSha256": "0b4f3e95789de3f676a97680f6195ffd04003e8eb75c61b541f86ed12fa11186",
+      "planTableDiffers": true
+    },
+    {
+      "id": "L19",
+      "speaker": "narrator",
+      "sourceLines": [
+        64,
+        65,
+        66,
+        67
+      ],
+      "comparison": "Exact heading + three bullet payloads joined with single spaces; structural bullet markers excluded",
+      "sourceText": "خواب ایمن نوزاد را جدّی بگیریم: همیشه به پشت بخوابانید. در تخت مستقل و در اتاق والدین بخوابانید. از بالش، پتو و وسایل نرم استفاده نکنید.",
+      "scenarioTts": "خواب ایمن نوزاد را جدّی بگیریم: همیشه به پشت بخوابانید. در تخت مستقل و در اتاق والدین بخوابانید. از بالش، پتو و وسایل نرم استفاده نکنید.",
+      "equal": true,
+      "utf8Bytes": 243,
+      "sourceSha256": "09b91547a2da03dd824e0202188fb979cceadfaf0a100399444b36a25f7077f4",
+      "ttsSha256": "09b91547a2da03dd824e0202188fb979cceadfaf0a100399444b36a25f7077f4",
+      "planTableDiffers": null
+    }
+  ],
+  "artifacts": {
+    "passed": true,
+    "audioFiles": 19,
+    "timingSources": "19/19 measured with ffprobe",
+    "subtitleCues": 41,
+    "decodeChecks": "19/19 decoded by ffmpeg without errors",
+    "totalSeconds": 153.64,
+    "durations": [
+      {
+        "id": "L01",
+        "duration": 3.44,
+        "source": "measured",
+        "cues": 1
+      },
+      {
+        "id": "L02",
+        "duration": 2.32,
+        "source": "measured",
+        "cues": 1
+      },
+      {
+        "id": "L03",
+        "duration": 11.76,
+        "source": "measured",
+        "cues": 3
+      },
+      {
+        "id": "L04",
+        "duration": 5.28,
+        "source": "measured",
+        "cues": 2
+      },
+      {
+        "id": "L05",
+        "duration": 12.32,
+        "source": "measured",
+        "cues": 3
+      },
+      {
+        "id": "L06",
+        "duration": 4.56,
+        "source": "measured",
+        "cues": 2
+      },
+      {
+        "id": "L07",
+        "duration": 3.84,
+        "source": "measured",
+        "cues": 2
+      },
+      {
+        "id": "L08",
+        "duration": 12.64,
+        "source": "measured",
+        "cues": 4
+      },
+      {
+        "id": "L09",
+        "duration": 2.16,
+        "source": "measured",
+        "cues": 1
+      },
+      {
+        "id": "L10",
+        "duration": 11.44,
+        "source": "measured",
+        "cues": 3
+      },
+      {
+        "id": "L11",
+        "duration": 4,
+        "source": "measured",
+        "cues": 1
+      },
+      {
+        "id": "L12",
+        "duration": 12.56,
+        "source": "measured",
+        "cues": 3
+      },
+      {
+        "id": "L13",
+        "duration": 3.76,
+        "source": "measured",
+        "cues": 1
+      },
+      {
+        "id": "L14",
+        "duration": 5.92,
+        "source": "measured",
+        "cues": 2
+      },
+      {
+        "id": "L15",
+        "duration": 5.44,
+        "source": "measured",
+        "cues": 2
+      },
+      {
+        "id": "L16",
+        "duration": 7.2,
+        "source": "measured",
+        "cues": 2
+      },
+      {
+        "id": "L17",
+        "duration": 5.76,
+        "source": "measured",
+        "cues": 2
+      },
+      {
+        "id": "L18",
+        "duration": 8.8,
+        "source": "measured",
+        "cues": 2
+      },
+      {
+        "id": "L19",
+        "duration": 13.44,
+        "source": "measured",
+        "cues": 4
+      }
+    ]
+  }
+}

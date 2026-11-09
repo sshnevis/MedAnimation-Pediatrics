@@ -1,0 +1,45 @@
+{
+  "id": "nursery-bedroom",
+  "label": "اتاق خواب ایمن نوزاد",
+  "description": "Reference project 3.png: sage-grey walls, white molding, oak planks, cream rug, white/oak dresser, empty safe crib, birdcage lamp and right curtain; full parents bed at far left. No reference bumper or loose bedding in the crib.",
+  "builder": "nursery",
+  "size": [144, 104],
+  "wallHeight": 48,
+  "wallThickness": 5,
+  "palette": {
+    "floorA": "#ba956e", "floorB": "#c9a781", "floorC": "#b18a64",
+    "wall": "#999b8e", "wallTrim": "#eeeade", "accent": "#a4ad96",
+    "wood": "#c2a079", "woodDark": "#80664b", "metal": "#8f785c", "white": "#f5f2e9",
+    "rug": "#d8ceba", "rugBorder": "#c5b99f", "leaf": "#57714a", "leafDark": "#344b32", "soil": "#51412e",
+    "blanket": "#b9b5a5", "plush": "#b59e81", "poster": "#f3eee4", "gauge": "#686c62",
+    "sky": "#dbe6df", "horizon": "#a3b59a", "cloud": "#f5f4eb"
+  },
+  "floor": { "type": "planks", "width": 6, "length": 26 },
+  "molding": { "bands": [32, 37], "height": 1.2 },
+  "window": { "side": "right", "x": -6, "y": 27, "width": 32, "height": 34, "frame": "#f5f2e9", "curtain": "#f2eee4", "curtainSide": "front", "light": { "color": "#edf4ef", "intensity": 0.75 } },
+  "furniture": [
+    { "type": "parentsBed", "pos": [-48, 7], "size": [44, 11, 64] },
+    { "type": "nurseryDresser", "pos": [-24, -36], "size": [20, 18, 13] },
+    { "type": "crib", "pos": [9, -13], "size": [34, 24, 48], "mattressTop": 10, "slatSpacing": 3.4 },
+    { "type": "nightstandLamp", "pos": [47, -30], "size": [16, 18, 16], "light": { "color": "#ffd18b", "intensity": 1.6, "distance": 75, "decay": 1 } },
+    { "type": "nurseryRug", "pos": [-20, 32], "size": [72, 25] },
+    { "type": "gaugePoster", "pos": [9, 37], "size": [8, 15] }
+  ],
+  "blocking": {
+    "_comment": "All marks/shots are nursery-local, +Y up, +Z front. Coordinator translates root AND cameras by the same scene offset. cribBaby is the mattress contact anchor, not the standing rig's feet; use the lying-pose bounds to lift its root. Baby head toward -Z; face normal +Y. Never put loose bedding in the resting crib.",
+    "cribBaby": [9, -13],
+    "cribBabyY": 10,
+    "cribBabyPosition": [9, 10, -13],
+    "parentsBed": [-48, 7],
+    "parentsBedY": 11,
+    "parentsBedEdge": [-25, 11, 16],
+    "dresserFace": [-24, -24],
+    "nightstandFace": [47, -18]
+  },
+  "shots": {
+    "nursery-wide": { "pos": [17, 48, 210], "target": [17, 7, -13], "dolly": 0 },
+    "crib-close": { "pos": [20, 52, 48], "target": [9, 10, -13], "dolly": 0 },
+    "nursery-top": { "pos": [-18, 210, 2], "target": [-18, 0, -3], "dolly": 0 },
+    "flashback-fall": { "pos": [-2, 29, 68], "target": [-28, 11, 16], "dolly": 0 }
+  }
+}

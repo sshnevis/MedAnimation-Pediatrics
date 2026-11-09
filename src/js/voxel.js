@@ -69,6 +69,7 @@ export function textSprite(text, { fontSize = 46, pad = 18, bg = 'rgba(255,255,2
  * shoulder (top of upper arm) with an elbow joint, head at neck.
  */
 export function buildCharacter(def) {
+  if (def.rig === 'infant') return buildInfant(def);
   const P = def.parts, C = def.colors, F = def.features || {};
   // Shading tones: explicit color wins, otherwise derive from the base color.
   const hairDark = C.hairShade || shade(C.hair, 0.72);
@@ -238,7 +239,7 @@ export function buildCharacter(def) {
   armL.position.set(-6, 22, 0);
   const armR = limbMesh(P.arm[0], upperLen, P.arm[2], armColor);
   armR.position.set(6, 22, 0);
-  let elbowL, elbowR;
+  let elbowL, elbowR, handL, handR;
   const wrist = F.watch || null;
   for (const [i, arm] of [armL, armR].entries()) {
     const elbow = new THREE.Group();
@@ -249,6 +250,7 @@ export function buildCharacter(def) {
     fore.position.set(0, 0.2, 0);
     elbow.add(fore);
     const hand = boxMesh(4.1, 2, 4.1, C.skin);
+    if (i === 0) handL = hand; else handR = hand;
     // y puts the hand 0.05 below the arm's bottom face (y=-12) — coplanar
     // there, the hand and the arm's flat end z-fight
     hand.position.set(0, -foreLen + 0.95, 0);
@@ -457,12 +459,90 @@ export function buildCharacter(def) {
 
   group.add(legL, legR, armL, armR, headGroup);
 
+  // Pose presets are opt-in; approved adult rigs retain their original hierarchy.
+  let poseRoot;
+  if (def.poses) {
+    poseRoot = new THREE.Group();
+    poseRoot.add(...group.children.slice());
+    group.add(poseRoot);
+  }
+
   return {
     def,
     group,
-    parts: { legL, legR, kneeL, kneeR, armL, armR, elbowL, elbowR, headGroup, eyeL, eyeR, mouth },
+    parts: { legL, legR, kneeL, kneeR, armL, armR, elbowL, elbowR, handL, handR, headGroup, eyeL, eyeR, mouth, torso, poseRoot },
     scale: def.scale || 1,
     phase: def.phase || 0,
     sitY: 9 - 12 * (def.scale || 1), // hips land on the seat top at y=9 (guest chairs + office chair), regardless of scale
+  };
+}
+
+// Infant coordinates are centered on the chest, not on standing adult feet.
+// +Y points toward the head and +Z out of the face; lying rotates +Z upward.
+function buildInfant(def) {
+  const P = def.parts, C = def.colors;
+  const group = new THREE.Group();
+  group.name = 'char-' + def.id;
+  group.scale.setScalar(def.scale || 1);
+  const poseRoot = new THREE.Group();
+  group.add(poseRoot);
+  const torso = boxMesh(...P.torso, C.shirt);
+  poseRoot.add(torso);
+
+  const headGroup = new THREE.Group();
+  headGroup.position.y = P.torso[1] / 2 + P.head[1] / 2 - 0.3;
+  poseRoot.add(headGroup);
+  headGroup.add(boxMesh(...P.head, C.skin));
+  // Facial details project 0.4 world units beyond the face, even at infant scale.
+  const detailDepth = 0.8 / (def.scale || 1);
+  const faceZ = P.head[2] / 2 + detailDepth / 2 - 0.08;
+  const eyeL = boxMesh(0.85, 1.2, detailDepth, C.eye);
+  eyeL.position.set(-1.45, 0.6, faceZ);
+  const eyeR = eyeL.clone();
+  eyeR.position.x = 1.45;
+  const mouth = boxMesh(1.2, 0.65, detailDepth, C.mouth);
+  mouth.position.set(0, -1.55, faceZ);
+  headGroup.add(eyeL, eyeR, mouth);
+  for (const eye of [eyeL, eyeR]) {
+    const highlight = boxMesh(0.25, 0.25, detailDepth, '#ffffff');
+    // Bury the back in the eye, keeping its front >0.35 world units proud.
+    highlight.position.set(-0.15, 0.25, detailDepth / 2 - 0.04);
+    eye.add(highlight);
+  }
+  if (def.features?.cheeks) {
+    for (const side of [-1, 1]) {
+      const cheek = boxMesh(0.9, 0.65, detailDepth, C.cheek);
+      cheek.position.set(side * 2.45, -0.8, faceZ);
+      headGroup.add(cheek);
+    }
+  }
+  const nose = boxMesh(0.7, 0.65, detailDepth + 0.4, C.skinShade);
+  nose.position.set(0, -0.45, faceZ);
+  headGroup.add(nose);
+
+  function limb(size, x, y, color, foot) {
+    const pivot = limbMesh(...size, color);
+    pivot.position.set(x, y, 0);
+    const tip = boxMesh(size[0] + 0.4, 1.4, size[2] + (foot ? 0.9 : 0.4), C.skin);
+    // Opposite-facing caps touch exactly; their side faces do not overlap.
+    tip.position.set(0, -size[1] - 0.7, foot ? 0.3 : 0);
+    pivot.add(tip);
+    poseRoot.add(pivot);
+    return pivot;
+  }
+  const armL = limb(P.arm, -P.torso[0] / 2 - 0.65, 2.2, C.shirt, false);
+  const armR = limb(P.arm, P.torso[0] / 2 + 0.65, 2.2, C.shirt, false);
+  const legL = limb(P.leg, -1.45, -P.torso[1] / 2 + 0.3, C.pants, true);
+  const legR = limb(P.leg, 1.45, -P.torso[1] / 2 + 0.3, C.pants, true);
+  // Compact details must not both cast and receive shadow-map acne.
+  headGroup.traverse((o) => {
+    if (o !== headGroup.children[0]) o.castShadow = false;
+  });
+  return {
+    def, group,
+    parts: { poseRoot, torso, headGroup, eyeL, eyeR, mouth, armL, armR, legL, legR },
+    scale: def.scale || 1,
+    phase: def.phase || 0,
+    sitY: 0,
   };
 }

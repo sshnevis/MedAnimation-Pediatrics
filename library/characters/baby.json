@@ -1,0 +1,46 @@
+{
+  "id": "baby",
+  "label": "نوزاد",
+  "description": "Two-month-old infant with a proportionally large head, tiny bare hands and feet, and a pale sage sleepsuit. No walking or voice; sleeps face-up on a firm flat surface.",
+  "rig": "infant",
+  "scale": 0.62,
+  "phase": 2.4,
+  "defaultPose": "lying",
+  "parts": {
+    "head": [6.8, 6.4, 5.6],
+    "torso": [5.2, 6.4, 3.4],
+    "arm": [1.7, 3.6, 1.8],
+    "leg": [2, 4.2, 2.2]
+  },
+  "colors": {
+    "skin": "#f2c8a5",
+    "skinShade": "#dba985",
+    "hair": "#49382f",
+    "shirt": "#b4cdc2",
+    "pants": "#b4cdc2",
+    "eye": "#2b201c",
+    "mouth": "#aa6659",
+    "cheek": "#e9a598"
+  },
+  "features": {
+    "walking": false,
+    "hairStyle": "bald",
+    "cheeks": true
+  },
+  "poses": {
+    "held": {
+      "offset": [0, 20, 6.8],
+      "rotation": [-0.35, 0, 1.05],
+      "wiggleAmplitude": 0.055,
+      "wiggleFrequency": 7,
+      "cry": true
+    },
+    "lying": {
+      "rotation": [-1.5707963267948966, 0, 0],
+      "supportHeight": 2.8,
+      "breathAmplitude": 0.025,
+      "breathFrequency": 2.1,
+      "sleeping": true
+    }
+  }
+}

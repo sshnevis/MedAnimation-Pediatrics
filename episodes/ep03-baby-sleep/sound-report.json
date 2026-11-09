@@ -1,0 +1,1922 @@
+{
+  "episode": "ep03-baby-sleep",
+  "status": "sound artifacts built and audio-only validation passed",
+  "mainTimelineDurationSeconds": 153.64,
+  "finalRenderQA": "PENDING: coordinator must listen against rendered cuts, verify cue approximations, hooks and final encode",
+  "toolchain": {
+    "node": "v24.22.1",
+    "executable": "C:\\Users\\DrSinaShiri\\AppData\\Local\\cursor-agent\\versions\\2026.10.22-27dcf5f\\node.exe",
+    "ffmpeg": "ffmpeg version 9.0.2-full_build-www.gyan.dev Copyright (c) 2000-2026 the FFmpeg developers"
+  },
+  "inputs": {
+    "scenarioSha256": "75e83e8e85e863c3d45ee5625d8f01f4747ad1e13c6a262b3675baae4b236182",
+    "timingSha256": "bf36e04dc22b747f4f1b491a4bcd932dc882ecd7052c5d315e6bef94d6a83f9d"
+  },
+  "counts": {
+    "catalogSources": 4,
+    "derivedAssets": 6,
+    "beds": 10,
+    "hits": 19,
+    "whooshes": 10,
+    "foley": 1,
+    "forbiddenPops": 5,
+    "bulletUI": 3,
+    "audioOnlyPreviews": 2,
+    "wavFiles": 8,
+    "hookSounds": 0
+  },
+  "levelPolicy": {
+    "ambience": "mean/RMS dBFS -30..-24, excluding fades; clinic -27 with gain 1.4, nursery -29",
+    "whoosh": "peak dBFS -18..-12 (target -16)",
+    "UI": "peak dBFS -14..-10 (pops -14, bullets -12)",
+    "foley": "peak dBFS -25, lower than UI",
+    "clinicConditioning": "Raw ep02 murmur mean -44 dBFS would be -41.1 at gain 1.4. Catalog-derived level-conditioned WAV preserves source identity and mixer gain 1.4 while meeting the ambience mean target.",
+    "speechPriority": "Voices unchanged at unity. Transient accents are brief, ambience is quiet. Audio-only peak check passed; perceptual TTS dominance and audiovisual sync require coordinator listening.",
+    "fades": "Room-switch crossfades 0.3s; outer fades 1s. Catalog source >60s loops without synthetic content; verify wrap audibility during coordinator listening."
+  },
+  "sources": {
+    "murmur": {
+      "file": "tools/Sound pack SFX/Background noise sounds/freesound_community-conversation-25675.mp3",
+      "sha256": "ab05d586d47104a6c0f8c7c35c521e078e6f0518a53270cd7a88f8a3d21d8bb5",
+      "meanDbfs": -44,
+      "peakDbfs": -21.7,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "sample_rate": "24000",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "duration": "60.816000"
+        }
+      }
+    },
+    "whoosh": {
+      "file": "tools/Sound pack SFX/GoBird Masterclass SFX Pack/GoBird Masterclass SFX Pack/DSGNWhsh_Short Whip, Short Whoosh 3_Ocular Sounds_Quick Whips_The Complete Whooshes Collection.wav",
+      "sha256": "2eae1456139136c14e7b1bf3802396cb6791cf80aaddeab463fe69101ce51eab",
+      "meanDbfs": -27.3,
+      "peakDbfs": -8.6,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "sample_rate": "96000",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "duration": "0.313656"
+        }
+      }
+    },
+    "fabric": {
+      "file": "tools/Sound pack SFX/GoBird Masterclass SFX Pack/GoBird Masterclass SFX Pack/Paper Foley Paper Rattle.wav",
+      "sha256": "2ea52a7a6a6020ab21f1641b7f21bec9f9434fd3eb5b3d1444b48b3afb5a991b",
+      "meanDbfs": -41.6,
+      "peakDbfs": -16.9,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "sample_rate": "44100",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "duration": "0.960000"
+        }
+      }
+    },
+    "ui": {
+      "file": "tools/Sound pack SFX/Ui Sound Effects/Ui Click Digital 03.wav",
+      "sha256": "f44e1372c1cf9aa5a89e2aac48ef060647749d5984386a2b2bc8a3b213cf0257",
+      "meanDbfs": -32.2,
+      "peakDbfs": -9.7,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "duration": "0.215979"
+        }
+      }
+    }
+  },
+  "assets": {
+    "clinic": {
+      "file": "episodes/ep03-baby-sleep/audio/sfx/clinic-murmur.wav",
+      "source": "murmur",
+      "filter": "highpass=f=90,volume=32dB,alimiter=limit=0.0625:attack=5:release=100:level=false,volume=2.1774392864352414dB",
+      "mixGain": 1.4,
+      "target": {
+        "metric": "mean dBFS",
+        "value": -27
+      },
+      "beforeNormalization": {
+        "meanDbfs": -32.1,
+        "peakDbfs": -22.9
+      },
+      "fileLevels": {
+        "meanDbfs": -29.9,
+        "peakDbfs": -20.7
+      },
+      "actualMixLevels": {
+        "meanDbfs": -27,
+        "peakDbfs": -17.8
+      },
+      "sha256": "6eb55138efa7033934e909db4696eeb07940b86d3685e7e15d7f28280243eaeb",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "duration": "60.816000"
+        }
+      }
+    },
+    "nursery": {
+      "file": "episodes/ep03-baby-sleep/audio/sfx/nursery-room-tone.wav",
+      "source": "murmur",
+      "filter": "highpass=f=70,lowpass=f=180:p=2,lowpass=f=180:p=2,volume=48dB,alimiter=limit=0.0625:attack=10:release=150:level=false,volume=1.5dB",
+      "mixGain": 1,
+      "target": {
+        "metric": "mean dBFS",
+        "value": -29
+      },
+      "beforeNormalization": {
+        "meanDbfs": -30.5,
+        "peakDbfs": -24.1
+      },
+      "fileLevels": {
+        "meanDbfs": -29,
+        "peakDbfs": -22.6
+      },
+      "actualMixLevels": {
+        "meanDbfs": -29,
+        "peakDbfs": -22.6
+      },
+      "sha256": "57757c31bea7e6e1bc045e0dc64dc9da216c43737df39b30e72b3caf2164fc66",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "duration": "60.816000"
+        }
+      }
+    },
+    "whoosh": {
+      "file": "episodes/ep03-baby-sleep/audio/sfx/transition-whoosh.wav",
+      "source": "whoosh",
+      "filter": "atrim=0:0.34,asetpts=PTS-STARTPTS,highpass=f=180,lowpass=f=6500,afade=t=in:d=0.008,afade=t=out:st=0.25:d=0.09,volume=-7.5dB",
+      "mixGain": 1,
+      "target": {
+        "metric": "peak dBFS",
+        "value": -16
+      },
+      "beforeNormalization": {
+        "meanDbfs": -27.3,
+        "peakDbfs": -8.5
+      },
+      "fileLevels": {
+        "meanDbfs": -34.8,
+        "peakDbfs": -16
+      },
+      "actualMixLevels": {
+        "meanDbfs": -34.8,
+        "peakDbfs": -16
+      },
+      "sha256": "189f067317b0d8aa94753dd331c2404bde7cd07326e2e9c54a721fbb20bee1b0",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "duration": "0.313667"
+        }
+      }
+    },
+    "fabric": {
+      "file": "episodes/ep03-baby-sleep/audio/sfx/wiggle-fabric.wav",
+      "source": "fabric",
+      "filter": "atrim=start=0.1:end=0.7,asetpts=PTS-STARTPTS,highpass=f=150,lowpass=f=2200,afade=t=in:d=0.025,afade=t=out:st=0.45:d=0.15,volume=-7.300000000000001dB",
+      "mixGain": 1,
+      "target": {
+        "metric": "peak dBFS",
+        "value": -25
+      },
+      "beforeNormalization": {
+        "meanDbfs": -41.7,
+        "peakDbfs": -17.7
+      },
+      "fileLevels": {
+        "meanDbfs": -49,
+        "peakDbfs": -25
+      },
+      "actualMixLevels": {
+        "meanDbfs": -49,
+        "peakDbfs": -25
+      },
+      "sha256": "68b8453575eced9704bd7dbb869b6a107292fd80629a2fa9a7be3b76e3b2e5b0",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "duration": "0.600000"
+        }
+      }
+    },
+    "pop": {
+      "file": "episodes/ep03-baby-sleep/audio/sfx/forbidden-pop.wav",
+      "source": "ui",
+      "filter": "atrim=0:0.16,asetpts=PTS-STARTPTS,lowpass=f=4500,afade=t=in:d=0.004,afade=t=out:st=0.10:d=0.06,volume=-2.5dB",
+      "mixGain": 1,
+      "target": {
+        "metric": "peak dBFS",
+        "value": -14
+      },
+      "beforeNormalization": {
+        "meanDbfs": -34.2,
+        "peakDbfs": -11.5
+      },
+      "fileLevels": {
+        "meanDbfs": -36.7,
+        "peakDbfs": -14
+      },
+      "actualMixLevels": {
+        "meanDbfs": -36.7,
+        "peakDbfs": -14
+      },
+      "sha256": "59212caa66bfe8b3622999934e29a8dcfb5e2d3a7a1a002c364112dc2d5f46b0",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "duration": "0.160000"
+        }
+      }
+    },
+    "bullet": {
+      "file": "episodes/ep03-baby-sleep/audio/sfx/bullet-ui.wav",
+      "source": "ui",
+      "filter": "atrim=0:0.2,asetpts=PTS-STARTPTS,afade=t=in:d=0.004,afade=t=out:st=0.13:d=0.07,volume=-2.3000000000000007dB",
+      "mixGain": 1,
+      "target": {
+        "metric": "peak dBFS",
+        "value": -12
+      },
+      "beforeNormalization": {
+        "meanDbfs": -31.8,
+        "peakDbfs": -9.7
+      },
+      "fileLevels": {
+        "meanDbfs": -34.1,
+        "peakDbfs": -12
+      },
+      "actualMixLevels": {
+        "meanDbfs": -34.1,
+        "peakDbfs": -12
+      },
+      "sha256": "2765ddf412ce208787c59897f7fcc9dd9ad365bcc087d97560a19753ba8d9d67",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "duration": "0.200000"
+        }
+      }
+    }
+  },
+  "cueEvidence": [
+    {
+      "id": "L03",
+      "cue": "یِهو با صدای افتادنش از خواب پَریدیم!",
+      "strippedCue": "یهو با صدای افتادنش از خواب پریدیم!",
+      "textIndex": 77,
+      "displayLength": 143,
+      "fraction": 0.5384615384615384,
+      "unclampedAt": 14.392308
+    },
+    {
+      "id": "L10",
+      "cue": "تخت مستقل",
+      "strippedCue": "تخت مستقل",
+      "textIndex": 65,
+      "displayLength": 132,
+      "fraction": 0.49242424242424243,
+      "unclampedAt": 69.403333
+    },
+    {
+      "id": "L04",
+      "cue": "بغلش",
+      "strippedCue": "بغلش",
+      "textIndex": 24,
+      "displayLength": 60,
+      "fraction": 0.4,
+      "unclampedAt": 22.382
+    }
+  ],
+  "cuts": [
+    {
+      "at": 14.392308,
+      "line": "L03",
+      "room": "nursery",
+      "shot": "flashback-fall",
+      "reason": "flashback entry at text cue, clamped to end - 2.8"
+    },
+    {
+      "at": 16.892308,
+      "line": "L03",
+      "room": "clinic",
+      "shot": "medium-family",
+      "reason": "flashback return after 2.5 seconds"
+    },
+    {
+      "at": 69.403333,
+      "line": "L10",
+      "room": "nursery",
+      "shot": "nursery-wide",
+      "reason": "تخت مستقل cue"
+    },
+    {
+      "at": 75.66,
+      "line": "L11",
+      "room": "nursery",
+      "shot": "crib-close",
+      "reason": "nursery-wide to crib-close"
+    },
+    {
+      "at": 93.12,
+      "line": "L13",
+      "room": "clinic",
+      "shot": "medium-family",
+      "reason": "nursery insert entry/return"
+    },
+    {
+      "at": 97.33,
+      "line": "L14",
+      "room": "nursery",
+      "shot": "crib-close",
+      "reason": "nursery insert entry/return"
+    },
+    {
+      "at": 103.7,
+      "line": "L15",
+      "room": "clinic",
+      "shot": "medium-family",
+      "reason": "nursery insert entry/return"
+    },
+    {
+      "at": 109.59,
+      "line": "L16",
+      "room": "nursery",
+      "shot": "nursery-top",
+      "reason": "nursery insert entry/return"
+    },
+    {
+      "at": 117.24,
+      "line": "L17",
+      "room": "clinic",
+      "shot": "medium-family",
+      "reason": "nursery insert entry/return"
+    },
+    {
+      "at": 132.7,
+      "line": "L19",
+      "room": "nursery",
+      "shot": "nursery-top",
+      "reason": "nursery insert entry/return"
+    }
+  ],
+  "timingFormula": "start + (indexOf(stripDiacritics(cue)) in stripDiacritics(tts) / display.length) * duration; L03 min(result, end - 2.8), return +2.5; fractional beats start + duration * fraction",
+  "voices": [
+    {
+      "id": "L01",
+      "meanDbfs": -15.4,
+      "peakDbfs": -1.6
+    },
+    {
+      "id": "L02",
+      "meanDbfs": -18.4,
+      "peakDbfs": -1
+    },
+    {
+      "id": "L03",
+      "meanDbfs": -16.6,
+      "peakDbfs": -1.2
+    },
+    {
+      "id": "L04",
+      "meanDbfs": -15.3,
+      "peakDbfs": -1
+    },
+    {
+      "id": "L05",
+      "meanDbfs": -19.4,
+      "peakDbfs": -2.3
+    },
+    {
+      "id": "L06",
+      "meanDbfs": -19.7,
+      "peakDbfs": -2.7
+    },
+    {
+      "id": "L07",
+      "meanDbfs": -14.8,
+      "peakDbfs": -0.5
+    },
+    {
+      "id": "L08",
+      "meanDbfs": -19.4,
+      "peakDbfs": -3.4
+    },
+    {
+      "id": "L09",
+      "meanDbfs": -15.8,
+      "peakDbfs": -1
+    },
+    {
+      "id": "L10",
+      "meanDbfs": -19.2,
+      "peakDbfs": -1.1
+    },
+    {
+      "id": "L11",
+      "meanDbfs": -16,
+      "peakDbfs": -0.6
+    },
+    {
+      "id": "L12",
+      "meanDbfs": -19.5,
+      "peakDbfs": -1.4
+    },
+    {
+      "id": "L13",
+      "meanDbfs": -16.3,
+      "peakDbfs": -1.7
+    },
+    {
+      "id": "L14",
+      "meanDbfs": -19.3,
+      "peakDbfs": -2.6
+    },
+    {
+      "id": "L15",
+      "meanDbfs": -15,
+      "peakDbfs": -0.6
+    },
+    {
+      "id": "L16",
+      "meanDbfs": -19.3,
+      "peakDbfs": -1.9
+    },
+    {
+      "id": "L17",
+      "meanDbfs": -16.6,
+      "peakDbfs": -1
+    },
+    {
+      "id": "L18",
+      "meanDbfs": -20.2,
+      "peakDbfs": -1.6
+    },
+    {
+      "id": "L19",
+      "meanDbfs": -20.3,
+      "peakDbfs": -1.4
+    }
+  ],
+  "previews": {
+    "mix": {
+      "file": "episodes/ep03-baby-sleep/audio/sfx/mix-preview.wav",
+      "sha256": "3cdf4eeaf4fcf9e9afe916701c94caf7dcab7fdc3bf007d229d51eb3476e2446",
+      "meanDbfs": -20.7,
+      "peakDbfs": -2.5,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "duration": "153.640000"
+        }
+      }
+    },
+    "sfxOnly": {
+      "file": "episodes/ep03-baby-sleep/audio/sfx/sfx-preview.wav",
+      "sha256": "2ee212cbb19f62372d97febb0c3ddf8f08e022d5b47d77d52ccfe06feb670038",
+      "meanDbfs": -27.7,
+      "peakDbfs": -12.4,
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "sample_rate": "48000",
+            "channels": 2
+          }
+        ],
+        "format": {
+          "duration": "153.640000"
+        }
+      }
+    }
+  },
+  "measuredAmbienceGaps": [
+    {
+      "room": "clinic",
+      "start": 25.65,
+      "end": 25.95,
+      "meanDbfs": -27.2,
+      "peakDbfs": -18.8
+    },
+    {
+      "room": "nursery",
+      "start": 79.76,
+      "end": 80.06,
+      "meanDbfs": -28.5,
+      "peakDbfs": -22.6
+    }
+  ],
+  "safety": {
+    "music": false,
+    "impactSounds": false,
+    "fallAccents": "entry/return short air whooshes only",
+    "fabricatedFieldRecordings": false,
+    "nurseryProvenance": "double-lowpass-filtered catalog murmur",
+    "fabricProvenance": "softened Paper Foley Paper Rattle excerpt used as fabric-like wiggle texture"
+  },
+  "validation": {
+    "targetLevels": "passed",
+    "timelineBounds": "passed",
+    "mainDuration": "passed",
+    "audioGraphCompatibility": "same bed/hit filter order and normalize=0 as shared assemble.js",
+    "decodeAndPeak": "passed for generated previews",
+    "finalRenderQA": "not performed"
+  },
+  "reproduce": [
+    "tools\\node24.cmd episodes/ep03-baby-sleep/build-sound.cjs",
+    "tools\\node24.cmd tools/assemble.js --ep ep03-baby-sleep (coordinator, after frames/hooks QA)"
+  ],
+  "commands": [
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "tools/Sound pack SFX/Background noise sounds/freesound_community-conversation-25675.mp3",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_entries",
+        "format=duration:stream=sample_rate,channels",
+        "-of",
+        "json",
+        "tools/Sound pack SFX/Background noise sounds/freesound_community-conversation-25675.mp3"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "tools/Sound pack SFX/GoBird Masterclass SFX Pack/GoBird Masterclass SFX Pack/DSGNWhsh_Short Whip, Short Whoosh 3_Ocular Sounds_Quick Whips_The Complete Whooshes Collection.wav",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_entries",
+        "format=duration:stream=sample_rate,channels",
+        "-of",
+        "json",
+        "tools/Sound pack SFX/GoBird Masterclass SFX Pack/GoBird Masterclass SFX Pack/DSGNWhsh_Short Whip, Short Whoosh 3_Ocular Sounds_Quick Whips_The Complete Whooshes Collection.wav"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "tools/Sound pack SFX/GoBird Masterclass SFX Pack/GoBird Masterclass SFX Pack/Paper Foley Paper Rattle.wav",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_entries",
+        "format=duration:stream=sample_rate,channels",
+        "-of",
+        "json",
+        "tools/Sound pack SFX/GoBird Masterclass SFX Pack/GoBird Masterclass SFX Pack/Paper Foley Paper Rattle.wav"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "tools/Sound pack SFX/Ui Sound Effects/Ui Click Digital 03.wav",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_entries",
+        "format=duration:stream=sample_rate,channels",
+        "-of",
+        "json",
+        "tools/Sound pack SFX/Ui Sound Effects/Ui Click Digital 03.wav"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-y",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-nostdin",
+        "-i",
+        "tools/Sound pack SFX/Background noise sounds/freesound_community-conversation-25675.mp3",
+        "-af",
+        "highpass=f=90,volume=32dB,alimiter=limit=0.0625:attack=5:release=100:level=false",
+        "-ar",
+        "48000",
+        "-ac",
+        "2",
+        "-c:a",
+        "pcm_s24le",
+        "-threads",
+        "1",
+        "episodes/ep03-baby-sleep/audio/sfx/clinic-murmur.wav"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/clinic-murmur.wav",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-y",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-nostdin",
+        "-i",
+        "tools/Sound pack SFX/Background noise sounds/freesound_community-conversation-25675.mp3",
+        "-af",
+        "highpass=f=90,volume=32dB,alimiter=limit=0.0625:attack=5:release=100:level=false,volume=2.1774392864352414dB",
+        "-ar",
+        "48000",
+        "-ac",
+        "2",
+        "-c:a",
+        "pcm_s24le",
+        "-threads",
+        "1",
+        "episodes/ep03-baby-sleep/audio/sfx/clinic-murmur.wav"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/clinic-murmur.wav",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/clinic-murmur.wav",
+        "-af",
+        "volume=1.4,volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_entries",
+        "format=duration:stream=sample_rate,channels",
+        "-of",
+        "json",
+        "episodes/ep03-baby-sleep/audio/sfx/clinic-murmur.wav"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-y",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-nostdin",
+        "-i",
+        "tools/Sound pack SFX/Background noise sounds/freesound_community-conversation-25675.mp3",
+        "-af",
+        "highpass=f=70,lowpass=f=180:p=2,lowpass=f=180:p=2,volume=48dB,alimiter=limit=0.0625:attack=10:release=150:level=false",
+        "-ar",
+        "48000",
+        "-ac",
+        "2",
+        "-c:a",
+        "pcm_s24le",
+        "-threads",
+        "1",
+        "episodes/ep03-baby-sleep/audio/sfx/nursery-room-tone.wav"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/nursery-room-tone.wav",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-y",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-nostdin",
+        "-i",
+        "tools/Sound pack SFX/Background noise sounds/freesound_community-conversation-25675.mp3",
+        "-af",
+        "highpass=f=70,lowpass=f=180:p=2,lowpass=f=180:p=2,volume=48dB,alimiter=limit=0.0625:attack=10:release=150:level=false,volume=1.5dB",
+        "-ar",
+        "48000",
+        "-ac",
+        "2",
+        "-c:a",
+        "pcm_s24le",
+        "-threads",
+        "1",
+        "episodes/ep03-baby-sleep/audio/sfx/nursery-room-tone.wav"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/nursery-room-tone.wav",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/nursery-room-tone.wav",
+        "-af",
+        "volume=1,volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_entries",
+        "format=duration:stream=sample_rate,channels",
+        "-of",
+        "json",
+        "episodes/ep03-baby-sleep/audio/sfx/nursery-room-tone.wav"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-y",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-nostdin",
+        "-i",
+        "tools/Sound pack SFX/GoBird Masterclass SFX Pack/GoBird Masterclass SFX Pack/DSGNWhsh_Short Whip, Short Whoosh 3_Ocular Sounds_Quick Whips_The Complete Whooshes Collection.wav",
+        "-af",
+        "atrim=0:0.34,asetpts=PTS-STARTPTS,highpass=f=180,lowpass=f=6500,afade=t=in:d=0.008,afade=t=out:st=0.25:d=0.09",
+        "-ar",
+        "48000",
+        "-ac",
+        "2",
+        "-c:a",
+        "pcm_s24le",
+        "-threads",
+        "1",
+        "-t",
+        "0.34",
+        "episodes/ep03-baby-sleep/audio/sfx/transition-whoosh.wav"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/transition-whoosh.wav",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-y",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-nostdin",
+        "-i",
+        "tools/Sound pack SFX/GoBird Masterclass SFX Pack/GoBird Masterclass SFX Pack/DSGNWhsh_Short Whip, Short Whoosh 3_Ocular Sounds_Quick Whips_The Complete Whooshes Collection.wav",
+        "-af",
+        "atrim=0:0.34,asetpts=PTS-STARTPTS,highpass=f=180,lowpass=f=6500,afade=t=in:d=0.008,afade=t=out:st=0.25:d=0.09,volume=-7.5dB",
+        "-ar",
+        "48000",
+        "-ac",
+        "2",
+        "-c:a",
+        "pcm_s24le",
+        "-threads",
+        "1",
+        "-t",
+        "0.34",
+        "episodes/ep03-baby-sleep/audio/sfx/transition-whoosh.wav"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/transition-whoosh.wav",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/transition-whoosh.wav",
+        "-af",
+        "volume=1,volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_entries",
+        "format=duration:stream=sample_rate,channels",
+        "-of",
+        "json",
+        "episodes/ep03-baby-sleep/audio/sfx/transition-whoosh.wav"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-y",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-nostdin",
+        "-i",
+        "tools/Sound pack SFX/GoBird Masterclass SFX Pack/GoBird Masterclass SFX Pack/Paper Foley Paper Rattle.wav",
+        "-af",
+        "atrim=start=0.1:end=0.7,asetpts=PTS-STARTPTS,highpass=f=150,lowpass=f=2200,afade=t=in:d=0.025,afade=t=out:st=0.45:d=0.15",
+        "-ar",
+        "48000",
+        "-ac",
+        "2",
+        "-c:a",
+        "pcm_s24le",
+        "-threads",
+        "1",
+        "-t",
+        "0.6",
+        "episodes/ep03-baby-sleep/audio/sfx/wiggle-fabric.wav"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/wiggle-fabric.wav",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-y",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-nostdin",
+        "-i",
+        "tools/Sound pack SFX/GoBird Masterclass SFX Pack/GoBird Masterclass SFX Pack/Paper Foley Paper Rattle.wav",
+        "-af",
+        "atrim=start=0.1:end=0.7,asetpts=PTS-STARTPTS,highpass=f=150,lowpass=f=2200,afade=t=in:d=0.025,afade=t=out:st=0.45:d=0.15,volume=-7.300000000000001dB",
+        "-ar",
+        "48000",
+        "-ac",
+        "2",
+        "-c:a",
+        "pcm_s24le",
+        "-threads",
+        "1",
+        "-t",
+        "0.6",
+        "episodes/ep03-baby-sleep/audio/sfx/wiggle-fabric.wav"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/wiggle-fabric.wav",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/wiggle-fabric.wav",
+        "-af",
+        "volume=1,volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_entries",
+        "format=duration:stream=sample_rate,channels",
+        "-of",
+        "json",
+        "episodes/ep03-baby-sleep/audio/sfx/wiggle-fabric.wav"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-y",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-nostdin",
+        "-i",
+        "tools/Sound pack SFX/Ui Sound Effects/Ui Click Digital 03.wav",
+        "-af",
+        "atrim=0:0.16,asetpts=PTS-STARTPTS,lowpass=f=4500,afade=t=in:d=0.004,afade=t=out:st=0.10:d=0.06",
+        "-ar",
+        "48000",
+        "-ac",
+        "2",
+        "-c:a",
+        "pcm_s24le",
+        "-threads",
+        "1",
+        "-t",
+        "0.16",
+        "episodes/ep03-baby-sleep/audio/sfx/forbidden-pop.wav"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/forbidden-pop.wav",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-y",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-nostdin",
+        "-i",
+        "tools/Sound pack SFX/Ui Sound Effects/Ui Click Digital 03.wav",
+        "-af",
+        "atrim=0:0.16,asetpts=PTS-STARTPTS,lowpass=f=4500,afade=t=in:d=0.004,afade=t=out:st=0.10:d=0.06,volume=-2.5dB",
+        "-ar",
+        "48000",
+        "-ac",
+        "2",
+        "-c:a",
+        "pcm_s24le",
+        "-threads",
+        "1",
+        "-t",
+        "0.16",
+        "episodes/ep03-baby-sleep/audio/sfx/forbidden-pop.wav"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/forbidden-pop.wav",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/forbidden-pop.wav",
+        "-af",
+        "volume=1,volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_entries",
+        "format=duration:stream=sample_rate,channels",
+        "-of",
+        "json",
+        "episodes/ep03-baby-sleep/audio/sfx/forbidden-pop.wav"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-y",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-nostdin",
+        "-i",
+        "tools/Sound pack SFX/Ui Sound Effects/Ui Click Digital 03.wav",
+        "-af",
+        "atrim=0:0.2,asetpts=PTS-STARTPTS,afade=t=in:d=0.004,afade=t=out:st=0.13:d=0.07",
+        "-ar",
+        "48000",
+        "-ac",
+        "2",
+        "-c:a",
+        "pcm_s24le",
+        "-threads",
+        "1",
+        "-t",
+        "0.2",
+        "episodes/ep03-baby-sleep/audio/sfx/bullet-ui.wav"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/bullet-ui.wav",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-y",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-nostdin",
+        "-i",
+        "tools/Sound pack SFX/Ui Sound Effects/Ui Click Digital 03.wav",
+        "-af",
+        "atrim=0:0.2,asetpts=PTS-STARTPTS,afade=t=in:d=0.004,afade=t=out:st=0.13:d=0.07,volume=-2.3000000000000007dB",
+        "-ar",
+        "48000",
+        "-ac",
+        "2",
+        "-c:a",
+        "pcm_s24le",
+        "-threads",
+        "1",
+        "-t",
+        "0.2",
+        "episodes/ep03-baby-sleep/audio/sfx/bullet-ui.wav"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/bullet-ui.wav",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/bullet-ui.wav",
+        "-af",
+        "volume=1,volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_entries",
+        "format=duration:stream=sample_rate,channels",
+        "-of",
+        "json",
+        "episodes/ep03-baby-sleep/audio/sfx/bullet-ui.wav"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L01.mp3",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L02.mp3",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L03.mp3",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L04.mp3",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L05.mp3",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L06.mp3",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L07.mp3",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L08.mp3",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L09.mp3",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L10.mp3",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L11.mp3",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L12.mp3",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L13.mp3",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L14.mp3",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L15.mp3",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L16.mp3",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L17.mp3",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L18.mp3",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L19.mp3",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-y",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L01.mp3",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L02.mp3",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L03.mp3",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L04.mp3",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L05.mp3",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L06.mp3",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L07.mp3",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L08.mp3",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L09.mp3",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L10.mp3",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L11.mp3",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L12.mp3",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L13.mp3",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L14.mp3",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L15.mp3",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L16.mp3",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L17.mp3",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L18.mp3",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/L19.mp3",
+        "-stream_loop",
+        "-1",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/clinic-murmur.wav",
+        "-stream_loop",
+        "-1",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/nursery-room-tone.wav",
+        "-stream_loop",
+        "-1",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/clinic-murmur.wav",
+        "-stream_loop",
+        "-1",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/nursery-room-tone.wav",
+        "-stream_loop",
+        "-1",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/clinic-murmur.wav",
+        "-stream_loop",
+        "-1",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/nursery-room-tone.wav",
+        "-stream_loop",
+        "-1",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/clinic-murmur.wav",
+        "-stream_loop",
+        "-1",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/nursery-room-tone.wav",
+        "-stream_loop",
+        "-1",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/clinic-murmur.wav",
+        "-stream_loop",
+        "-1",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/nursery-room-tone.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/transition-whoosh.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/transition-whoosh.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/wiggle-fabric.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/transition-whoosh.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/transition-whoosh.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/forbidden-pop.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/forbidden-pop.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/forbidden-pop.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/forbidden-pop.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/forbidden-pop.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/transition-whoosh.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/transition-whoosh.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/transition-whoosh.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/transition-whoosh.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/transition-whoosh.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/transition-whoosh.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/bullet-ui.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/bullet-ui.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/bullet-ui.wav",
+        "-filter_complex",
+        "[0:a]adelay=1400:all=1[d0];[1:a]adelay=5290:all=1[d1];[2:a]adelay=8060:all=1[d2];[3:a]adelay=20270:all=1[d3];[4:a]adelay=26000:all=1[d4];[5:a]adelay=38770:all=1[d5];[6:a]adelay=43780:all=1[d6];[7:a]adelay=48070:all=1[d7];[8:a]adelay=61160:all=1[d8];[9:a]adelay=63770:all=1[d9];[10:a]adelay=75660:all=1[d10];[11:a]adelay=80110:all=1[d11];[12:a]adelay=93120:all=1[d12];[13:a]adelay=97330:all=1[d13];[14:a]adelay=103700:all=1[d14];[15:a]adelay=109590:all=1[d15];[16:a]adelay=117240:all=1[d16];[17:a]adelay=123450:all=1[d17];[18:a]adelay=132700:all=1[d18];[19:a]volume=1.4,adelay=0:all=1,afade=t=in:st=0:d=1,afade=t=out:st=14.242308:d=0.3,atrim=0:14.542308[s19];[20:a]volume=1,adelay=14242:all=1,afade=t=in:st=14.242308:d=0.3,afade=t=out:st=16.742307999999998:d=0.3,atrim=0:17.042308[s20];[21:a]volume=1.4,adelay=16742:all=1,afade=t=in:st=16.742308:d=0.3,afade=t=out:st=69.253333:d=0.3,atrim=0:69.553333[s21];[22:a]volume=1,adelay=69253:all=1,afade=t=in:st=69.253333:d=0.3,afade=t=out:st=92.97:d=0.3,atrim=0:93.27[s22];[23:a]volume=1.4,adelay=92970:all=1,afade=t=in:st=92.97:d=0.3,afade=t=out:st=97.18:d=0.3,atrim=0:97.48[s23];[24:a]volume=1,adelay=97180:all=1,afade=t=in:st=97.18:d=0.3,afade=t=out:st=103.55:d=0.3,atrim=0:103.85[s24];[25:a]volume=1.4,adelay=103550:all=1,afade=t=in:st=103.55:d=0.3,afade=t=out:st=109.44:d=0.3,atrim=0:109.74[s25];[26:a]volume=1,adelay=109440:all=1,afade=t=in:st=109.44:d=0.3,afade=t=out:st=117.09:d=0.3,atrim=0:117.39[s26];[27:a]volume=1.4,adelay=117090:all=1,afade=t=in:st=117.09:d=0.3,afade=t=out:st=132.54999999999998:d=0.3,atrim=0:132.85[s27];[28:a]volume=1,adelay=132550:all=1,afade=t=in:st=132.55:d=0.3,afade=t=out:st=152.64:d=1,atrim=0:153.64[s28];[29:a]volume=1,adelay=14392:all=1[s29];[30:a]volume=1,adelay=16892:all=1[s30];[31:a]volume=1,adelay=22382:all=1[s31];[32:a]volume=1,adelay=69403:all=1[s32];[33:a]volume=1,adelay=75660:all=1[s33];[34:a]volume=1,adelay=76460:all=1[s34];[35:a]volume=1,adelay=78060:all=1[s35];[36:a]volume=1,adelay=81617:all=1[s36];[37:a]volume=1,adelay=85134:all=1[s37];[38:a]volume=1,adelay=88651:all=1[s38];[39:a]volume=1,adelay=93120:all=1[s39];[40:a]volume=1,adelay=97330:all=1[s40];[41:a]volume=1,adelay=103700:all=1[s41];[42:a]volume=1,adelay=109590:all=1[s42];[43:a]volume=1,adelay=117240:all=1[s43];[44:a]volume=1,adelay=132700:all=1[s44];[45:a]volume=1,adelay=135388:all=1[s45];[46:a]volume=1,adelay=138076:all=1[s46];[47:a]volume=1,adelay=141839:all=1[s47];[d0][d1][d2][d3][d4][d5][d6][d7][d8][d9][d10][d11][d12][d13][d14][d15][d16][d17][d18][s19][s20][s21][s22][s23][s24][s25][s26][s27][s28][s29][s30][s31][s32][s33][s34][s35][s36][s37][s38][s39][s40][s41][s42][s43][s44][s45][s46][s47]amix=inputs=48:normalize=0,apad[out]",
+        "-map",
+        "[out]",
+        "-ar",
+        "48000",
+        "-ac",
+        "2",
+        "-t",
+        "153.64",
+        "-c:a",
+        "pcm_s24le",
+        "episodes/ep03-baby-sleep/audio/sfx/mix-preview.wav"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/mix-preview.wav",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_entries",
+        "format=duration:stream=sample_rate,channels",
+        "-of",
+        "json",
+        "episodes/ep03-baby-sleep/audio/sfx/mix-preview.wav"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-y",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-nostdin",
+        "-stream_loop",
+        "-1",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/clinic-murmur.wav",
+        "-stream_loop",
+        "-1",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/nursery-room-tone.wav",
+        "-stream_loop",
+        "-1",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/clinic-murmur.wav",
+        "-stream_loop",
+        "-1",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/nursery-room-tone.wav",
+        "-stream_loop",
+        "-1",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/clinic-murmur.wav",
+        "-stream_loop",
+        "-1",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/nursery-room-tone.wav",
+        "-stream_loop",
+        "-1",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/clinic-murmur.wav",
+        "-stream_loop",
+        "-1",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/nursery-room-tone.wav",
+        "-stream_loop",
+        "-1",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/clinic-murmur.wav",
+        "-stream_loop",
+        "-1",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/nursery-room-tone.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/transition-whoosh.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/transition-whoosh.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/wiggle-fabric.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/transition-whoosh.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/transition-whoosh.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/forbidden-pop.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/forbidden-pop.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/forbidden-pop.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/forbidden-pop.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/forbidden-pop.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/transition-whoosh.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/transition-whoosh.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/transition-whoosh.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/transition-whoosh.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/transition-whoosh.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/transition-whoosh.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/bullet-ui.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/bullet-ui.wav",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/bullet-ui.wav",
+        "-filter_complex",
+        "[0:a]volume=1.4,adelay=0:all=1,afade=t=in:st=0:d=1,afade=t=out:st=14.242308:d=0.3,atrim=0:14.542308[s0];[1:a]volume=1,adelay=14242:all=1,afade=t=in:st=14.242308:d=0.3,afade=t=out:st=16.742307999999998:d=0.3,atrim=0:17.042308[s1];[2:a]volume=1.4,adelay=16742:all=1,afade=t=in:st=16.742308:d=0.3,afade=t=out:st=69.253333:d=0.3,atrim=0:69.553333[s2];[3:a]volume=1,adelay=69253:all=1,afade=t=in:st=69.253333:d=0.3,afade=t=out:st=92.97:d=0.3,atrim=0:93.27[s3];[4:a]volume=1.4,adelay=92970:all=1,afade=t=in:st=92.97:d=0.3,afade=t=out:st=97.18:d=0.3,atrim=0:97.48[s4];[5:a]volume=1,adelay=97180:all=1,afade=t=in:st=97.18:d=0.3,afade=t=out:st=103.55:d=0.3,atrim=0:103.85[s5];[6:a]volume=1.4,adelay=103550:all=1,afade=t=in:st=103.55:d=0.3,afade=t=out:st=109.44:d=0.3,atrim=0:109.74[s6];[7:a]volume=1,adelay=109440:all=1,afade=t=in:st=109.44:d=0.3,afade=t=out:st=117.09:d=0.3,atrim=0:117.39[s7];[8:a]volume=1.4,adelay=117090:all=1,afade=t=in:st=117.09:d=0.3,afade=t=out:st=132.54999999999998:d=0.3,atrim=0:132.85[s8];[9:a]volume=1,adelay=132550:all=1,afade=t=in:st=132.55:d=0.3,afade=t=out:st=152.64:d=1,atrim=0:153.64[s9];[10:a]volume=1,adelay=14392:all=1[s10];[11:a]volume=1,adelay=16892:all=1[s11];[12:a]volume=1,adelay=22382:all=1[s12];[13:a]volume=1,adelay=69403:all=1[s13];[14:a]volume=1,adelay=75660:all=1[s14];[15:a]volume=1,adelay=76460:all=1[s15];[16:a]volume=1,adelay=78060:all=1[s16];[17:a]volume=1,adelay=81617:all=1[s17];[18:a]volume=1,adelay=85134:all=1[s18];[19:a]volume=1,adelay=88651:all=1[s19];[20:a]volume=1,adelay=93120:all=1[s20];[21:a]volume=1,adelay=97330:all=1[s21];[22:a]volume=1,adelay=103700:all=1[s22];[23:a]volume=1,adelay=109590:all=1[s23];[24:a]volume=1,adelay=117240:all=1[s24];[25:a]volume=1,adelay=132700:all=1[s25];[26:a]volume=1,adelay=135388:all=1[s26];[27:a]volume=1,adelay=138076:all=1[s27];[28:a]volume=1,adelay=141839:all=1[s28];[s0][s1][s2][s3][s4][s5][s6][s7][s8][s9][s10][s11][s12][s13][s14][s15][s16][s17][s18][s19][s20][s21][s22][s23][s24][s25][s26][s27][s28]amix=inputs=29:normalize=0,apad[out]",
+        "-map",
+        "[out]",
+        "-ar",
+        "48000",
+        "-ac",
+        "2",
+        "-t",
+        "153.64",
+        "-c:a",
+        "pcm_s24le",
+        "episodes/ep03-baby-sleep/audio/sfx/sfx-preview.wav"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/sfx-preview.wav",
+        "-af",
+        "volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffprobe",
+      "args": [
+        "-v",
+        "error",
+        "-show_entries",
+        "format=duration:stream=sample_rate,channels",
+        "-of",
+        "json",
+        "episodes/ep03-baby-sleep/audio/sfx/sfx-preview.wav"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/sfx-preview.wav",
+        "-af",
+        "atrim=start=25.65:end=25.95,asetpts=PTS-STARTPTS,volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        "episodes/ep03-baby-sleep/audio/sfx/sfx-preview.wav",
+        "-af",
+        "atrim=start=79.76:end=80.06,asetpts=PTS-STARTPTS,volumedetect",
+        "-f",
+        "null",
+        "-"
+      ]
+    },
+    {
+      "executable": "ffmpeg",
+      "args": [
+        "-version"
+      ]
+    }
+  ]
+}

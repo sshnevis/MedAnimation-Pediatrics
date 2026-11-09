@@ -1,0 +1,468 @@
+{
+  "id": "ep03-baby-sleep",
+  "title": "خواب ایمن نوزاد",
+  "subtitle": "تخت مستقل، تشک سفت و خوابیدن به پشت",
+  "language": "fa",
+  "location": "pediatric-visit-room-ep03",
+  "locations": {
+    "primary": "pediatric-visit-room-ep03",
+    "nursery": "nursery-bedroom"
+  },
+  "characters": [
+    "doctor",
+    "mother",
+    "father",
+    "baby"
+  ],
+  "props": [
+    "sleep-props"
+  ],
+  "speakers": {
+    "doctor": {
+      "label": "دکتر",
+      "character": "doctor",
+      "subtitleColor": "rgba(21, 74, 138, 0.88)"
+    },
+    "mother": {
+      "label": "مادر",
+      "character": "mother",
+      "subtitleColor": "rgba(70, 74, 80, 0.88)"
+    },
+    "father": {
+      "label": "پدر",
+      "character": "father",
+      "subtitleColor": "rgba(166, 73, 12, 0.88)"
+    },
+    "narrator": {
+      "label": "راوی",
+      "character": null,
+      "voice": "doctor",
+      "subtitleColor": "rgba(100, 48, 145, 0.88)"
+    }
+  },
+  "hooks": {
+    "intro": {
+      "duration": 0.5,
+      "kicker": "این قسمت",
+      "title": "خواب ایمن نوزاد",
+      "frame": 3396,
+      "frameAt": 0.42
+    },
+    "outro": {
+      "duration": 1,
+      "title": "ادامه دارد",
+      "frameAt": 0.42
+    }
+  },
+  "lines": [
+    {
+      "id": "L01",
+      "speaker": "mother",
+      "display": "سلام آقای دکتر! یه اتفاق خیلی بد افتاده!",
+      "tts": "سَلام آقای دُکتر! یه اتفاق خیلی بد افتاده!",
+      "camera": "wide-establishing",
+      "action": "Family already seated at t=0; mother holds the two-month-old baby against her chest, leaning forward anxiously. Father sits in the second visitor chair. No walk-in."
+    },
+    {
+      "id": "L02",
+      "speaker": "doctor",
+      "display": "سلام. آروم باشید، چی شده؟",
+      "tts": "سَلام. آروم باشید، چی شده؟",
+      "camera": "medium-doctor",
+      "action": "Doctor offers a calm open palm, relaxed eyebrows, and reassuring eye contact."
+    },
+    {
+      "id": "L03",
+      "speaker": "father",
+      "display": "دیشب پسرمون کنار خودمون روی تخت خوابیده بود. ما هم خسته بودیم و خوابمون برد. یهو با صدای افتادنش از خواب پریدیم! نوزاد از تخت افتاده بود پایین!",
+      "tts": "دیشب پِسَرمون کنار خودمون روی تخت خوابیده بود. ما هم خسته بودیم و خوابمون بُرد. یِهو با صدای افتادنش از خواب پَریدیم! نوزاد از تخت افتاده بود پایین!",
+      "camera": "medium-family",
+      "action": "Father speaks with tense hands. On the fall sentence, insert a 2–3 second desaturated nursery flashback, then return to medium-family. Baby drops out of frame at the parents-bed edge; show no impact, injury, or first aid. Bed-sharing is unsafe.",
+      "flashbackFall": {
+        "room": "nursery-bedroom",
+        "shot": "flashback-fall",
+        "returnShot": "medium-family",
+        "cue": "یِهو با صدای افتادنش از خواب پَریدیم!",
+        "duration": 2.5,
+        "vignette": true,
+        "desaturate": true,
+        "slowMotion": true,
+        "showImpact": false,
+        "showInjury": false,
+        "firstAid": false,
+        "bedSharingUnsafe": true
+      }
+    },
+    {
+      "id": "L04",
+      "speaker": "mother",
+      "display": "خیلی ترسیدیم دکتر! وقتی بغلش کردیم گریه می‌کرد و هوشیار بود.",
+      "tts": "خیلی تَرسیدیم دُکتر! وقتی بَغلش کردیم گریه می‌کرد و هوشیار بود.",
+      "camera": "close-mother-baby",
+      "action": "Mother hugs baby closer on «بغلش»; baby is held throughout, gently wiggles with an alert cry-face. Alertness and crying must not imply absence of injury."
+    },
+    {
+      "id": "L05",
+      "speaker": "doctor",
+      "display": "می‌فهمم چقدر نگران شدید. اما هوشیار بودن به‌تنهایی آسیب رو رد نمی‌کنه. باید همین الان از نظر آسیب احتمالی، به‌خصوص ضربه به سر، بررسی بشه.",
+      "tts": "می‌فهمم چقدر نگران شدید. امّا هوشیار بودن به‌تنهایی آسیب رو رَد نمی‌کنه. باید همین الان از نظر آسیب احتمالی، به‌خصوص ضربه به سر، بررسی بشه.",
+      "camera": "medium-doctor",
+      "action": "Doctor is serious but calm, leaning forward on «همین الان» and emphasizing possible head injury. Immediate medical evaluation, not watchful waiting."
+    },
+    {
+      "id": "L06",
+      "speaker": "doctor",
+      "display": "یه سؤال مهم؛ کوچولوتون همیشه کنار خودتون می‌خوابه؟",
+      "tts": "یه سؤال مهم؛ کوچولوتون همیشه کنار خودتون می‌خوابه؟",
+      "camera": "medium-doctor",
+      "action": "Scene 2: doctor tilts his head with a gentle, non-accusatory question."
+    },
+    {
+      "id": "L07",
+      "speaker": "mother",
+      "display": "بله دکتر، از وقتی به دنیا اومده، توی تخت خودمون می‌خوابه.",
+      "tts": "بله دُکتر، از وقتی به دنیا اومده، توی تخت خودمون می‌خوابه.",
+      "camera": "medium-family",
+      "action": "Mother gives a small nod with a slightly embarrassed posture; baby remains held."
+    },
+    {
+      "id": "L08",
+      "speaker": "doctor",
+      "display": "ببینید، خوابیدن نوزاد در تخت والدین خطر خفگی و حوادث مرتبط با خواب رو افزایش می‌ده. حتی وقتی خیلی مراقب باشید، ممکنه یک لحظه غفلت خطرناک باشه!",
+      "tts": "ببینید، خوابیدن نوزاد در تخت والدین خطر خفگی و حوادث مرتبط با خواب رو افزایش می‌ده. حتی وقتی خیلی مراقب باشید، ممکنه یک لحظه غفلت خطرناک باشه!",
+      "camera": "medium-doctor",
+      "action": "Doctor deliberately warns about bed-sharing; pause naturally before «حتی وقتی». Brief corner prohibition card only; never imply that careful bed-sharing is safe.",
+      "coSleepCard": {
+        "text": "خطر",
+        "prohibition": true,
+        "graphic": "parents-bed-with-baby"
+      }
+    },
+    {
+      "id": "L09",
+      "speaker": "father",
+      "display": "پس جای خواب ایمنش کجاست؟",
+      "tts": "پس جای خواب ایمنش کجاست؟",
+      "camera": "close-father",
+      "action": "Father leans in, worried; static head-and-shoulders framing from the established family side of the axis."
+    },
+    {
+      "id": "L10",
+      "speaker": "doctor",
+      "display": "بهترین کار اینه که تا حداقل شش ماهگی، نوزاد توی اتاق شما، اما در تخت مستقل خودش بخوابه. بهتره این کار تا یک‌سالگی هم ادامه پیدا کنه.",
+      "tts": "بهترین کار اینه که تا حداقل شش ماهگی، نوزاد توی اتاق شما، امّا در تخت مستقل خودش بخوابه. بهتره این کار تا یک‌سالگی هم ادامه پیدا کنه.",
+      "camera": "medium-doctor",
+      "action": "Scene 3: doctor points toward the crib illustration. On «تخت مستقل», cut from the exam room to nursery-wide and hold. Baby is on its back in a separate bare crib beside, never inside, the parents bed.",
+      "nurseryInsert": {
+        "room": "nursery-bedroom",
+        "shot": "nursery-wide",
+        "cue": "تخت مستقل",
+        "holdThrough": "L12",
+        "babyPose": "lying",
+        "babyAt": "cribBaby"
+      }
+    },
+    {
+      "id": "L11",
+      "speaker": "mother",
+      "display": "داخل تختش چی بذاریم؟ بالش و پتوی کوچیک چطور؟",
+      "tts": "داخل تختش چی بذاریم؟ بالش و پتوی کوچیک چطور؟",
+      "camera": "crib-close",
+      "action": "Mother asks off-screen over crib-close. Pillow then blanket appear only as immediately crossed-out teaching graphics with a shake-no; do not stage an acceptable furnished crib.",
+      "forbiddenItems": {
+        "items": [
+          "pillow",
+          "blanket"
+        ],
+        "fractions": [
+          0.2,
+          0.6
+        ],
+        "crossOutImmediately": true,
+        "shakeNo": true,
+        "removeAfter": true
+      }
+    },
+    {
+      "id": "L12",
+      "speaker": "doctor",
+      "display": "هیچ‌کدوم! تشک باید صاف و سفت باشه و فقط یک ملافه‌ی کش‌دار داشته باشه. بالش، پتو، عروسک و هر وسیله‌ی نرم و اضافی هم کاملا ممنوعه.",
+      "tts": "هیچ‌کدوم! تشک باید صاف و سفت باشه و فقط یک مَلافه‌ی کش‌دار داشته باشه. بالش، پتو، عروسک و هر وسیله‌ی نرم و اضافی هم کاملاً ممنوعه.",
+      "camera": "crib-close",
+      "action": "Over crib-close, pillow, blanket, and plush pop in sequentially, immediately crossed out, then removed. The baby stays on its back. End on only a firm flat mattress and fitted sheet.",
+      "forbiddenItems": {
+        "items": [
+          "pillow",
+          "blanket",
+          "plush"
+        ],
+        "fractions": [
+          0.12,
+          0.4,
+          0.68
+        ],
+        "crossOutImmediately": true,
+        "removeAfter": true,
+        "finalContents": [
+          "mattress",
+          "fittedSheet"
+        ]
+      }
+    },
+    {
+      "id": "L13",
+      "speaker": "father",
+      "display": "حتی موقع خواب به پهلو یا روی شکم هم نذاریم؟",
+      "tts": "حتی موقع خواب به پهلو یا روی شکم هم نذاریم؟",
+      "camera": "medium-family",
+      "action": "Return to the exam room; father makes a small turning gesture with his hand, never physically turning the baby."
+    },
+    {
+      "id": "L14",
+      "speaker": "doctor",
+      "display": "دقیقا! همیشه نوزاد رو به پشت بخوابونید؛ نه به پهلو و نه روی شکم.",
+      "tts": "دقیقاً! همیشه نوزاد رو به پشت بخوابونید؛ نه به پهلو و نه روی شکم.",
+      "camera": "crib-close",
+      "action": "Return to crib-close: baby remains on its back with a green check. Crossed-out side/stomach silhouettes are separate teaching graphics, not poses of the real baby.",
+      "sleepPosition": {
+        "correct": "back",
+        "check": true,
+        "forbidden": [
+          "side",
+          "stomach"
+        ],
+        "silhouettesOnly": true,
+        "fractions": [
+          0.12,
+          0.45,
+          0.72
+        ]
+      }
+    },
+    {
+      "id": "L15",
+      "speaker": "mother",
+      "display": "پس تخت جدا، تشک سفت و خوابیدن به پشت! درست متوجه شدم؟",
+      "tts": "پس تخت جدا، تشک سفت و خوابیدن به پشت! درست متوجه شدم؟",
+      "camera": "medium-family",
+      "action": "Scene 4: back in exam room, mother counts three points on her fingers, hopeful; baby is held."
+    },
+    {
+      "id": "L16",
+      "speaker": "doctor",
+      "display": "آفرین! و یادتون باشه، تخت نوزاد باید نزدیک تخت شما باشه، نه داخل تخت شما!",
+      "tts": "آفرین! و یادتون باشه، تخت نوزاد باید نزدیک تخت شما باشه، نه داخل تخت شما!",
+      "camera": "nursery-top",
+      "action": "Overhead nursery-top shows the full parents bed beside the separate crib. Subtle distance arrows emphasize near, not inside. Baby lies on its back in the bare crib.",
+      "nurseryTop": {
+        "parentsBed": "parentsBed",
+        "cribBaby": "cribBaby",
+        "arrows": true,
+        "separateBeds": true
+      }
+    },
+    {
+      "id": "L17",
+      "speaker": "father",
+      "display": "حتما از امشب رعایت می‌کنیم. واقعا نمی‌دونستیم این موضوع این‌قدر مهمه.",
+      "tts": "حتماً از امشب رعایت می‌کنیم. واقعاً نمی‌دونستیم این موضوع این‌قدر مهمه.",
+      "camera": "medium-family",
+      "action": "Return to exam room: father is relieved; both parents nod. Mother holds baby."
+    },
+    {
+      "id": "L18",
+      "speaker": "doctor",
+      "display": "خواب ایمن فقط برای راحتی نوزاد نیست؛ برای حفظ جونشه. پس این چند نکته‌ی ساده رو جدی بگیرید!",
+      "tts": "خواب ایمن فقط برای راحتی نوزاد نیست؛ برای حفظ جونشه. پس این چند نکته‌ی ساده رو جدّی بگیرید!",
+      "camera": "close-doctor",
+      "action": "Static close-doctor: warm but firm conclusion, slight smile on «جونشه»."
+    },
+    {
+      "id": "L19",
+      "speaker": "narrator",
+      "display": "خواب ایمن نوزاد را جدی بگیریم: همیشه به پشت بخوابانید. در تخت مستقل و در اتاق والدین بخوابانید. از بالش، پتو و وسایل نرم استفاده نکنید.",
+      "tts": "خواب ایمن نوزاد را جدّی بگیریم: همیشه به پشت بخوابانید. در تخت مستقل و در اتاق والدین بخوابانید. از بالش، پتو و وسایل نرم استفاده نکنید.",
+      "camera": "nursery-top",
+      "action": "Doctor voice reads the exact source end-card heading and three bullets. Narrator is subtitle-only, not a character rig. Full-frame card over nursery-top; bullets appear sequentially and remain through the closing hold.",
+      "endCard": {
+        "title": "خواب ایمن نوزاد را جدّی بگیریم:",
+        "items": [
+          "همیشه به پشت بخوابانید.",
+          "در تخت مستقل و در اتاق والدین بخوابانید.",
+          "از بالش، پتو و وسایل نرم استفاده نکنید."
+        ],
+        "fractions": [
+          0.2,
+          0.4,
+          0.68
+        ]
+      }
+    }
+  ],
+  "staging": {
+    "_comment": "Effect content lives on scenario lines; plan entries activate it. Secondary-room switching and metadata-only narrator require coordinator engine support; see SCENARIO-CONTRACT.md. Existing childSit is only a visitor-chair mark reused by father, not a child character.",
+    "shots": {
+      "close-mother-baby": { "pos": [-8, 26, -8], "target": [20, 17, 16], "dolly": 0 },
+      "close-father": { "pos": [-12, 22, -33], "target": [24, 16, -8], "dolly": 0 }
+    },
+    "initial": [
+      {
+        "char": "doctor",
+        "at": "doctorSit",
+        "sit": true,
+        "face": "doctorFace"
+      },
+      {
+        "char": "mother",
+        "at": "motherSit",
+        "sit": true,
+        "face": "familyFace"
+      },
+      {
+        "char": "father",
+        "at": "childSit",
+        "sit": true,
+        "face": "familyFace"
+      },
+      {
+        "char": "baby",
+        "at": "motherSit",
+        "pose": "held",
+        "parent": "mother"
+      }
+    ],
+    "inserts": {
+      "room": "nursery-bedroom",
+      "shots": [
+        "flashback-fall",
+        "nursery-wide",
+        "crib-close",
+        "nursery-top"
+      ],
+      "baby": {
+        "char": "baby",
+        "at": "cribBaby",
+        "pose": "lying",
+        "returnParent": "mother",
+        "returnPose": "held"
+      }
+    },
+    "plan": [
+      {
+        "id": "L02",
+        "shot": "medium-doctor",
+        "room": "pediatric-visit-room"
+      },
+      {
+        "id": "L03",
+        "shot": "medium-family",
+        "room": "pediatric-visit-room",
+        "flashbackFall": true
+      },
+      {
+        "id": "L04",
+        "shot": "close-mother-baby",
+        "room": "pediatric-visit-room"
+      },
+      {
+        "id": "L05",
+        "shot": "medium-doctor",
+        "room": "pediatric-visit-room"
+      },
+      {
+        "id": "L06",
+        "shot": "medium-doctor",
+        "room": "pediatric-visit-room"
+      },
+      {
+        "id": "L07",
+        "shot": "medium-family",
+        "room": "pediatric-visit-room"
+      },
+      {
+        "id": "L08",
+        "shot": "medium-doctor",
+        "room": "pediatric-visit-room",
+        "coSleepCard": true
+      },
+      {
+        "id": "L09",
+        "shot": "close-father",
+        "room": "pediatric-visit-room"
+      },
+      {
+        "id": "L10",
+        "shot": "medium-doctor",
+        "room": "pediatric-visit-room",
+        "nurseryInsert": true
+      },
+      {
+        "id": "L11",
+        "shot": "crib-close",
+        "room": "nursery-bedroom",
+        "forbiddenItems": true
+      },
+      {
+        "id": "L12",
+        "shot": "crib-close",
+        "room": "nursery-bedroom",
+        "forbiddenItems": true
+      },
+      {
+        "id": "L13",
+        "shot": "medium-family",
+        "room": "pediatric-visit-room"
+      },
+      {
+        "id": "L14",
+        "shot": "crib-close",
+        "room": "nursery-bedroom",
+        "sleepPosition": true
+      },
+      {
+        "id": "L15",
+        "shot": "medium-family",
+        "room": "pediatric-visit-room"
+      },
+      {
+        "id": "L16",
+        "shot": "nursery-top",
+        "room": "nursery-bedroom",
+        "nurseryTop": true
+      },
+      {
+        "id": "L17",
+        "shot": "medium-family",
+        "room": "pediatric-visit-room"
+      },
+      {
+        "id": "L18",
+        "shot": "close-doctor",
+        "room": "pediatric-visit-room"
+      },
+      {
+        "id": "L19",
+        "shot": "nursery-top",
+        "room": "nursery-bedroom",
+        "endCard": true
+      }
+    ],
+    "ending": {
+      "leadIn": 7.5,
+      "camPush": {
+        "py": 0,
+        "pz": 0,
+        "dur": 6.4
+      },
+      "fadeOut": 0.85
+    }
+  },
+  "endCard": {
+    "title": "خواب ایمن نوزاد را جدّی بگیریم:",
+    "items": [
+      "همیشه به پشت بخوابانید.",
+      "در تخت مستقل و در اتاق والدین بخوابانید.",
+      "از بالش، پتو و وسایل نرم استفاده نکنید."
+    ]
+  }
+}

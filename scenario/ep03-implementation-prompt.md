@@ -1,6 +1,10 @@
 # Implementation Prompt — Episode 3 (paste this into the new task)
 
-The text below is the prompt to give the implementation session. It is self-contained.
+The text below is the original implementation prompt, preserved as history.
+**Episode 3 has now been implemented and rendered. For continuation use
+`scenario/ep03-final-review-prompt.md`; do not rerun initial construction or paid
+TTS generation merely because this historical prompt requests them.**
+See `episodes/ep03-baby-sleep/PRODUCTION.md` for the current delivery status.
 
 ---
 

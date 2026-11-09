@@ -14,6 +14,16 @@
         "label": "Sarah — soft adult female",
         "settings": { "stability": 0.5, "similarity_boost": 0.8 }
       },
+      "father": {
+        "voice_id": "pNInz6obpgDQGcFmaJgB",
+        "label": "Adam — adult male, distinct from doctor (ep03)",
+        "settings": { "stability": 0.5, "similarity_boost": 0.75 }
+      },
+      "narrator": {
+        "voice_id": "JBFqnCBsd6RMkjVDRZzb",
+        "label": "George — doctor voice for subtitle-only narration",
+        "settings": { "stability": 0.55, "similarity_boost": 0.75 }
+      },
       "child": {
         "voice_id": "cgSgspJ2msm6clMCkdW9",
         "label": "Jessica — younger playful (child lines via mother in ep01; kept for reuse)",

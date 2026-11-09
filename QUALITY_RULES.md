@@ -129,7 +129,11 @@ directional wash from the window's side into the room:
   slightly cooler and brighter than the far side, but not enough to gray the
   near-white walls (Q1).
 
-## Rule Q12 — Layered geometry needs ≥ 0.3 of face separation (z-fight flicker)
+## Rule Q12 — Layered geometry needs ≥ 0.35 of face separation (z-fight flicker)
+
+The historical observations below led to BUGFIX_RULES Rule 24. Its **≥ 0.35
+world-unit** minimum is authoritative; the approximate ~0.3 observation is not
+permission to design new visible layers at a 0.3 gap.
 
 ep02's opening shot flickered exactly where layers overlapped: tree-crown
 layers 0.1 apart in the window tunnel, the horizon band 0.1 off the sky panel,
@@ -143,10 +147,10 @@ Design rules:
 
 - **No 0.1-style "hair gaps".** When stacking layers (window scenery, decals
   on furniture, slats on panels), separate visible same-facing fronts by
-  ≥ 0.3, or remove the overlap entirely (e.g. crown layers sized so
+  ≥ 0.35, or remove the overlap entirely (e.g. crown layers sized so
   consecutive layers do not overlap vertically at all).
 - **Never build two differently-colored faces coplanar** (posts flush with
-  shelf fronts, frames flush with boards). Make one sit proud (≥ 0.3) or
+  shelf fronts, frames flush with boards). Make one sit proud (≥ 0.35) or
   buried (fully hidden inside the other).
 - **Hidden interpenetration is fine** — a trunk poking through the horizon
   band doesn't flicker because the buried faces are never visible. Only
@@ -160,3 +164,82 @@ Design rules:
 - Renderer side: `sun.shadow.normalBias = 0.55–0.6` (main.js) — without it the
   shadow map acne itself flickers on thin boxes (book spines) as the camera
   moves.
+
+---
+
+# Episode 3 — reusable visual and acceptance rules
+
+## Rule Q13 — Medical intent outranks literal reference matching
+
+A reference image is a composition/palette guide, not medical authorization.
+Ep03's reference includes soft crib contents that conflict with the approved
+safe-sleep message; those must not be copied into the safe example.
+
+- Record intentional safety deviations next to the reference-comparison evidence.
+- A forbidden example must carry its cross/prohibition from its first visible
+  frame, including pop-in transitions. Group the object and mark so visibility
+  cannot expose an unmarked unsafe example.
+- Inspect the state after the effect ends: forbidden objects must actually be
+  absent, not merely covered by a UI card.
+- Keep the real subject in the safe pose; use clearly prohibited silhouettes for
+  unsafe alternatives. Do not animate the real infant into an unsafe sleeping
+  pose merely to illustrate the prohibition.
+
+## Rule Q14 — Attachment acceptance is visual, not just mathematical
+
+Correct matrices do not guarantee a readable held child or carried prop.
+Ep03's first valid held transform showed the back of the infant's head and hands
+obscured its torso.
+
+- Check the actual shot in close-up and wide view: face direction, support under
+  the subject, hand occlusion, scale and body/furniture intersections.
+- If a carrying pose changes hand scale or limb rotations, verify the ordinary
+  pose after detachment too. Reset pose-only transforms every frame.
+- Re-check both carrier and dependent after changing either rig or camera.
+
+## Rule Q15 — Adapt composition to portrait without promising photo identity
+
+A landscape photograph cannot be reproduced pixel-for-pixel in a portrait voxel
+shot. Match important objects, palette, light direction and message explicitly;
+list remaining framing/style differences rather than claiming unsupported 100%.
+
+- Use a reference checklist and before/after stills, not memory alone.
+- Distinguish a geometry defect from an object that exists but is outside the
+  shot, hidden by hands, seen edge-on or covered by subtitles.
+- In an overhead relationship shot, inspect the full extents of BOTH subjects and
+  the gap between them. Furniture resizing invalidates prior framing approval.
+- Keep the key relationship readable above the subtitle safe band. More camera
+  distance is not automatically better: evaluate negative space and subject size.
+- Safe medical deviations are deliberate exceptions, not incomplete modeling.
+
+## Rule Q16 — Report separate quality gates with separate evidence
+
+Do not collapse the following into one unsupported "QA passed" claim:
+
+1. **Data/audio integrity:** exact source text, real durations, valid media.
+2. **Geometry/runtime:** z-fight gate, deterministic seeks, errors classified.
+3. **Visual/medical state:** inspect actual shots and effect transitions.
+4. **Encoded deliverable:** dimensions, rate, channels, hooks and full decode.
+5. **Perceptual acceptance:** full listening, cue alignment and artistic review.
+
+Meters, waveform inspection and error-free decode do not establish speech
+intelligibility, correct pronunciation or inaudible loop seams. If listening is
+unavailable, explicitly leave that gate pending and supply timed review points.
+Technical visual checks likewise do not substitute for specialist medical approval.
+Keep raw evidence immutable and attach later classifications/reviews separately.
+
+## Rule Q17 — Every speaker must be visible when speaking
+
+For each line, check the shot's camera ray against ALL seated characters: a
+speaker whose chair is collinear with the camera and another character (same
+view axis) is hidden even when the geometry is "correct".
+
+- Verify one real frame per speaker line, not only the camera of the first speaker.
+- Fix by offsetting the speaker's chair laterally to the view axis (about one
+  body-width or more) and re-aiming the shot at the group's midpoint; a
+  pulled-back distance alone does not separate them.
+- Marks/furniture of a shared room belong to every episode using it. Create an
+  episode-specific room variant instead of editing the shared file, and update
+  the generator (`prepare-scenario.cjs`) as well as `scenario.json`.
+- Extend rug/floor under a moved chair; re-check close shots of the other speakers
+  and the hook background before the full render.

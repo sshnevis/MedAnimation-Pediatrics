@@ -4,6 +4,7 @@
 // shots come from library/room/<location>.json via blocking.js.
 
 import { buildShots } from './blocking.js';
+import { insertAssets, installRoomInserts } from './room-inserts.js';
 
 function lerp3(a, b, k) {
   return [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k, a[2] + (b[2] - a[2]) * k];
@@ -30,6 +31,7 @@ function rigWalk(tl, rig, dest, at, dur) {
 }
 
 function talkWindow(tl, rigs, L) {
+  if (!rigs[L.speaker]) return; // Narration has audio/subtitles but no on-screen rig.
   tl.call(() => { rigs[L.speaker].anim.talking = true; }, null, Math.max(0, L.start - 0.05));
   tl.call(() => { rigs[L.speaker].anim.talking = false; }, null, L.end + 0.05);
 }
@@ -53,6 +55,7 @@ function pop(tl, obj, at, size = 1) {
 
 export function buildTimeline(ctx) {
   const { tl, scenario, timing, rigs, world, cam, ui, audio, marks, roomDef } = ctx;
+  installRoomInserts(ctx, insertAssets);
   const shots = buildShots(marks, roomDef);
   const S = (id) => timing.lines.find((l) => l.id === id);
   const staging = scenario.staging || {};
